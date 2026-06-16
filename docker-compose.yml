@@ -1,0 +1,65 @@
+# ============================================================
+# docker-compose.yml — CareerPilot AI
+# ============================================================
+# Orchestrates all services: backend (FastAPI), frontend (Next.js),
+# PostgreSQL database, ChromaDB vector store, and Redis cache.
+#
+# Usage:
+#   docker-compose up --build        → Start all services
+#   docker-compose down              → Stop all services
+#   docker-compose logs -f backend   → Tail backend logs
+# ============================================================
+
+version: "3.9"
+
+services:
+  # ---- PostgreSQL Database ----
+  db:
+    image: postgres:16-alpine
+    container_name: careerpilot_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: careerpilot
+      POSTGRES_PASSWORD: careerpilot_secret
+      POSTGRES_DB: careerpilot_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # ---- Redis Cache ----
+  redis:
+    image: redis:7-alpine
+    container_name: careerpilot_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  # ---- FastAPI Backend ----
+  backend:
+    build: ./backend
+    container_name: careerpilot_backend
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend:/app
+      - ./data:/app/data
+
+  # ---- Next.js Frontend ----
+  frontend:
+    build: ./frontend
+    container_name: careerpilot_frontend
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
