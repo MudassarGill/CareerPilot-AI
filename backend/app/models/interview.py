@@ -26,7 +26,6 @@ from sqlalchemy import Column, String, Float, DateTime, ForeignKey, JSON
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.db.database import Base
-import pandas as pd 
 
 
 class Interview(Base):
