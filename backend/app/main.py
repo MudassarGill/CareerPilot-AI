@@ -77,14 +77,14 @@ async def health_check():
 #
 # TODO: Uncomment these as each module is implemented:
 #
-# from app.api.auth import router as auth_router
+from app.api.auth import router as auth_router
 # from app.api.resume import router as resume_router
 # from app.api.interview import router as interview_router
 # from app.api.roadmap import router as roadmap_router
 # from app.api.career_twin import router as career_twin_router
 # from app.api.crs import router as crs_router
 #
-# app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
+app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 # app.include_router(resume_router, prefix="/api/resume", tags=["Resume"])
 # app.include_router(interview_router, prefix="/api/interview", tags=["Interview"])
 # app.include_router(roadmap_router, prefix="/api/roadmap", tags=["Roadmap"])

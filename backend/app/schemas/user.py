@@ -2,67 +2,57 @@
 ============================================================
 CareerPilot AI — User Pydantic Schemas
 ============================================================
-Request / response shapes for all auth-related endpoints.
+Defines the request/response shapes for user-related endpoints:
+
+    - UserCreate   : Registration request body
+    - UserLogin    : Login request body
+    - UserResponse : What we return to the client (no password!)
+    - Token        : JWT token response after login
+
+These schemas ensure that:
+    1. Incoming data is validated before hitting the database
+    2. Passwords are never included in API responses
+    3. Swagger UI shows accurate request/response examples
 ============================================================
 """
 
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, model_validator
 from typing import Optional
 from datetime import datetime
 from uuid import UUID
 
 
-# -------- Request Schemas --------
-
 class UserCreate(BaseModel):
-    """Registration request body."""
+    """
+    Schema for user registration.
+    Client sends: name, email, password, confirm_password.
+    """
     name: str
     email: EmailStr
-    password: str
+    password: str  # Plain text — hashed before storing
     confirm_password: str
 
-    @field_validator("confirm_password")
-    @classmethod
-    def passwords_match(cls, v, info):
-        if "password" in info.data and v != info.data["password"]:
-            raise ValueError("Passwords do not match")
-        return v
-
-    @field_validator("password")
-    @classmethod
-    def password_strength(cls, v):
-        if len(v) < 8:
-            raise ValueError("Password must be at least 8 characters")
-        return v
+    @model_validator(mode="after")
+    def check_passwords_match(self) -> "UserCreate":
+        if self.password != self.confirm_password:
+            raise ValueError("passwords do not match")
+        return self
 
 
 class UserLogin(BaseModel):
-    """Login request body."""
+    """
+    Schema for user login.
+    Client sends: email, password.
+    """
     email: EmailStr
     password: str
 
 
-class VerifyEmailRequest(BaseModel):
-    """Email verification request body."""
-    token: str
-
-
-class ProfileSetup(BaseModel):
-    """Profile completion request body."""
-    name: Optional[str] = None
-    phone: Optional[str] = None
-    target_role: Optional[str] = None
-
-
-class RefreshTokenRequest(BaseModel):
-    """Refresh token request body."""
-    refresh_token: str
-
-
-# -------- Response Schemas --------
-
 class UserResponse(BaseModel):
-    """User data returned to the client (no password)."""
+    """
+    Schema for user data returned to the client.
+    NOTE: password is NEVER included in responses.
+    """
     id: UUID
     name: str
     email: str
@@ -74,17 +64,44 @@ class UserResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        from_attributes = True
+        from_attributes = True  # Allow ORM model → Pydantic conversion
 
 
-class TokenResponse(BaseModel):
-    """JWT token response after successful login."""
+class Token(BaseModel):
+    """
+    JWT token response returned after successful login.
+    """
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
     user: UserResponse
 
 
+class ProfileSetup(BaseModel):
+    """
+    Schema for profile completion request.
+    """
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    target_role: Optional[str] = None
+
+
+class VerifyEmailRequest(BaseModel):
+    """
+    Schema for token verification.
+    """
+    token: str
+
+
+class RefreshTokenRequest(BaseModel):
+    """
+    Schema for refresh token endpoint.
+    """
+    refresh_token: str
+
+
 class MessageResponse(BaseModel):
-    """Generic message response."""
+    """
+    Schema for generic string messages.
+    """
     message: str

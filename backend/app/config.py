@@ -5,6 +5,18 @@ CareerPilot AI — Application Configuration
 Centralised configuration management using Pydantic Settings.
 All environment variables are loaded from the .env file and
 validated at startup.
+
+This module provides:
+    - Database connection settings (PostgreSQL URL)
+    - ChromaDB vector store path
+    - LLM API keys (Google Gemini / OpenAI)
+    - JWT authentication secrets
+    - CORS allowed origins
+    - Redis cache URL
+
+Usage:
+    from app.config import settings
+    print(settings.DATABASE_URL)
 ============================================================
 """
 
@@ -13,7 +25,10 @@ from typing import List
 
 
 class Settings(BaseSettings):
-    """Application settings loaded from environment variables."""
+    """
+    Application settings loaded from environment variables.
+    Each field maps to an env var of the same name.
+    """
 
     # ---- Project Info ----
     PROJECT_NAME: str = "CareerPilot AI"
@@ -28,6 +43,7 @@ class Settings(BaseSettings):
 
     # ---- LLM API Keys ----
     GOOGLE_API_KEY: str = ""
+    # OPENAI_API_KEY: str = ""  # Optional fallback
 
     # ---- JWT Authentication ----
     SECRET_KEY: str = "change-me-in-production"
@@ -45,12 +61,15 @@ class Settings(BaseSettings):
     # ---- Redis ----
     REDIS_URL: str = "redis://localhost:6379/0"
 
-    # ---- Frontend ----
+    # ---- Frontend Link ----
     FRONTEND_URL: str = "http://localhost:3000"
 
     class Config:
+        """Load variables from .env file in the project root."""
         env_file = ".env"
         env_file_encoding = "utf-8"
 
 
+# ---- Singleton Settings Instance ----
+# Import this throughout the app: from app.config import settings
 settings = Settings()
