@@ -13,7 +13,7 @@ graph TD
     classDef default fill:#1f3f49,stroke:#4c7c82,stroke-width:2px,color:#fff,font-weight:bold;
     classDef main fill:#d97706,stroke:#f59e0b,stroke-width:2px,color:#fff,font-weight:bold;
     
-    USER([User]) --> FRONTEND[Frontend (Next.js)]
+    USER([User]) --> FRONTEND["Frontend (Next.js)"]
     FRONTEND --> AUTH[Authentication]
     FRONTEND --> DASH[Dashboard]
     FRONTEND --> MODS[Career Modules]
@@ -25,7 +25,7 @@ graph TD
     MODS --> SKS[Skill Gap Analysis]
     MODS --> LRM[Learning Roadmap]
     
-    AUTH --> BACKEND[Backend (Python + FastAPI)]
+    AUTH --> BACKEND["Backend (Python + FastAPI)"]
     DASH --> BACKEND
     MODS --> BACKEND
     
@@ -38,8 +38,8 @@ graph TD
     AGENTS --> INT_AG[Interview Agent]
     
     AGENTS --> RAG{RAG & LLM Engine}
-    RAG --> MODELS[Speech & CV Models]
-    RAG --> DB[(PostgreSQL + Vector Database)]
+    RAG --> MODELS["Speech & CV Models"]
+    RAG --> DB[("PostgreSQL + Vector Database")]
     
     DB --> FILE[Local File Storage]
 ```
