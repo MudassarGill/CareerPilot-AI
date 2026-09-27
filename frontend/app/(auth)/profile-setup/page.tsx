@@ -40,49 +40,58 @@ export default function ProfileSetup() {
         }
     };
 
-    if (!user) return <div className="text-center">Loading...</div>;
+    if (!user) return <div className="text-center w-full mt-20 text-orange-500 font-bold">Loading...</div>;
 
     return (
-        <div className="flex flex-col h-full justify-center">
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold mb-2">Complete Your Profile</h2>
-                <p className="text-zinc-500">Hi {user.name}, let's get you set up!</p>
+        <div className="flex flex-col h-full justify-center w-full">
+            <div className="mb-10 flex flex-col items-center">
+                <div className="relative inline-block pb-3 group">
+                    <h2 className="text-3xl sm:text-4xl font-bold tracking-wide uppercase text-orange-500 cursor-default drop-shadow-sm">
+                        Setup Profile
+                    </h2>
+                    <div className="absolute bottom-0 left-0 w-full h-[4px] bg-orange-500/20 rounded-full overflow-hidden opacity-70">
+                        <div className="h-full w-1/3 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full animate-slide-bounce"></div>
+                    </div>
+                </div>
+                <p className="text-zinc-400 mt-4 text-sm font-medium tracking-wide">Tell us your goals, {user.name}!</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
-                    <div className="p-3 bg-red-100 text-red-700 rounded-lg text-sm">{error}</div>
+                    <div className="p-3 bg-red-900/30 border border-red-800 text-red-200 rounded-lg text-sm text-center shadow">
+                        {error}
+                    </div>
                 )}
 
-                <div>
-                    <label className="block text-sm font-medium mb-1">Phone Number (Optional)</label>
+                <div className="relative">
+                    <label className="block text-sm font-medium mb-2 text-zinc-300 px-2 tracking-wider uppercase text-xs">Phone Number (Optional)</label>
                     <input
                         type="text"
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500  dark:bg-zinc-800 outline-none"
+                        placeholder="+1 234 567 8900"
+                        className="w-full h-12 px-5 bg-[#e8eced] text-zinc-900 placeholder-zinc-500 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 shadow-inner transition"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="+1 234 567 8900"
                     />
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium mb-1">Target Role / Industry</label>
+                <div className="relative pt-2">
+                    <label className="block text-sm font-medium mb-2 text-zinc-300 px-2 tracking-wider uppercase text-xs">Target Role / Position</label>
                     <input
                         type="text"
                         required
-                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-zinc-800 outline-none"
+                        placeholder="e.g. Software Engineer, Data Scientist"
+                        className="w-full h-12 px-5 bg-[#e8eced] text-zinc-900 placeholder-zinc-500 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 shadow-inner transition"
                         value={targetRole}
                         onChange={(e) => setTargetRole(e.target.value)}
-                        placeholder="e.g. Software Engineer, Data Scientist"
                     />
                 </div>
 
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium mt-6 disabled:opacity-70"
+                    className="w-full mt-10 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white tracking-widest font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 hover:shadow-[0_0_20px_rgba(249,115,22,0.5)] transition-all uppercase text-sm shadow-md disabled:opacity-70"
                 >
-                    {loading ? "Saving..." : "Save and Continue"}
+                    {loading ? "Saving..." : "Save Profile"}
                 </button>
             </form>
         </div>

@@ -47,7 +47,7 @@ export default function Register() {
                 <p className="text-zinc-300 text-sm mt-2">
                     Your account for <strong>{email}</strong> has been created.
                 </p>
-                <Link href="/login" className="mt-8 inline-block px-6 py-2.5 bg-orange-500 text-white font-bold rounded-xl uppercase tracking-wider text-sm shadow hover:bg-orange-600 transition">
+                <Link href="/login" className="mt-8 inline-block px-6 py-2.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold rounded-xl uppercase tracking-wider text-sm shadow-md hover:shadow-[0_0_20px_rgba(249,115,22,0.5)] transition-all">
                     Proceed to Login
                 </Link>
             </div>
@@ -55,10 +55,18 @@ export default function Register() {
     }
 
     return (
-        <div className="flex flex-col h-full justify-center">
-            <div className="mb-10 text-center">
-                <h2 className="text-3xl font-bold tracking-wide uppercase text-orange-500">Sign Up</h2>
-                <p className="text-zinc-400 mt-2 text-sm">Create your new account</p>
+        <div className="flex flex-col h-full justify-center w-full">
+            <div className="mb-10 flex flex-col items-center">
+                <div className="relative inline-block pb-3 group">
+                    <h2 className="text-3xl sm:text-4xl font-bold tracking-wide uppercase text-orange-500 cursor-default transition-transform transform group-hover:scale-105 duration-300 drop-shadow-sm">
+                        Sign Up
+                    </h2>
+                    {/* Animated Hover Line */}
+                    <div className="absolute bottom-0 left-0 w-full h-[4px] bg-orange-500/20 rounded-full overflow-hidden opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="h-full w-1/3 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full animate-slide-bounce shadow-[0_0_8px_#f97316]"></div>
+                    </div>
+                </div>
+                <p className="text-zinc-400 mt-4 text-sm font-medium tracking-wide">Create your new account</p>
             </div>
 
             <form onSubmit={handleRegister} className="space-y-4">
@@ -102,7 +110,7 @@ export default function Register() {
                     <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-zinc-500 hover:text-zinc-800 h-full p-2"
+                        className="absolute right-3 top-1/2 flex items-center justify-center -translate-y-1/2 text-zinc-500 hover:text-zinc-800 h-full p-2"
                     >
                         {showPassword ? (
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
@@ -124,7 +132,7 @@ export default function Register() {
                     <button
                         type="button"
                         onClick={() => setShowConfirm(!showConfirm)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center text-zinc-500 hover:text-zinc-800 h-full p-2"
+                        className="absolute right-3 top-1/2 flex items-center justify-center -translate-y-1/2 text-zinc-500 hover:text-zinc-800 h-full p-2"
                     >
                         {showConfirm ? (
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
@@ -137,7 +145,7 @@ export default function Register() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full mt-8 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white tracking-widest font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all uppercase text-sm shadow-md disabled:opacity-70"
+                    className="w-full mt-8 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white tracking-widest font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 hover:shadow-[0_0_20px_rgba(249,115,22,0.5)] transition-all uppercase text-sm shadow-md disabled:opacity-70"
                 >
                     {loading ? "Creating..." : "SIGN UP"}
                 </button>

@@ -33,10 +33,18 @@ export default function Login() {
     };
 
     return (
-        <div className="flex flex-col h-full justify-center">
-            <div className="mb-10 text-center">
-                <h2 className="text-3xl font-bold tracking-wide uppercase text-orange-500">User Login</h2>
-                <p className="text-zinc-400 mt-2 text-sm">Sign in to your account</p>
+        <div className="flex flex-col h-full justify-center w-full">
+            <div className="mb-10 flex flex-col items-center">
+                <div className="relative inline-block pb-3 group">
+                    <h2 className="text-3xl sm:text-4xl font-bold tracking-wide uppercase text-orange-500 cursor-default transition-transform transform group-hover:scale-105 duration-300 drop-shadow-sm">
+                        User Login
+                    </h2>
+                    {/* Animated Hover Line */}
+                    <div className="absolute bottom-0 left-0 w-full h-[4px] bg-orange-500/20 rounded-full overflow-hidden opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="h-full w-1/3 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full animate-slide-bounce shadow-[0_0_8px_#f97316]"></div>
+                    </div>
+                </div>
+                <p className="text-zinc-400 mt-4 text-sm font-medium tracking-wide">Sign in to your account</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-5">
@@ -90,7 +98,7 @@ export default function Login() {
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full mt-6 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white tracking-widest font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 hover:shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all uppercase text-sm shadow-md"
+                    className="w-full mt-6 py-3.5 bg-gradient-to-r from-orange-500 to-orange-600 text-white tracking-widest font-bold rounded-xl hover:from-orange-600 hover:to-orange-700 hover:shadow-[0_0_20px_rgba(249,115,22,0.5)] transition-all uppercase text-sm shadow-md"
                 >
                     {loading ? "Logging in..." : "LOGIN"}
                 </button>

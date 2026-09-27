@@ -12,6 +12,15 @@ const config: Config = {
                 background: "var(--background)",
                 foreground: "var(--foreground)",
             },
+            keyframes: {
+                slideBounce: {
+                    '0%, 100%': { transform: 'translateX(0)' },
+                    '50%': { transform: 'translateX(200%)' },
+                }
+            },
+            animation: {
+                'slide-bounce': 'slideBounce 2.5s ease-in-out infinite',
+            }
         },
     },
     plugins: [],
