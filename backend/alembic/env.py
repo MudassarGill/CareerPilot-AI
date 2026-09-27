@@ -29,7 +29,9 @@ from app.models.user import User
 target_metadata = Base.metadata
 
 # Use the database url from the app's config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Escape % to %% because configparser will try to interpolate it otherwise
+escaped_url = settings.DATABASE_URL.replace("%", "%%")
+config.set_main_option("sqlalchemy.url", escaped_url)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
