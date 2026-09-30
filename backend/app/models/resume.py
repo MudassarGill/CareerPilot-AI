@@ -41,7 +41,7 @@ class Resume(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     # ---- Foreign Key ----
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     # ---- File Info ----
     file_url = Column(String(500), nullable=False)
@@ -52,12 +52,13 @@ class Resume(Base):
     ats_score = Column(Float, nullable=True)     # 0-100 score
     skill_gaps = Column(JSON, nullable=True)     # List of missing skills
     feedback = Column(JSON, nullable=True)       # Section-level feedback
+    status = Column(String(50), default="draft") # draft | analyzed | optimized
 
     # ---- Timestamps ----
     uploaded_at = Column(DateTime, default=datetime.utcnow)
 
     # ---- Relationships ----
-    # user = relationship("User", back_populates="resumes")
+    user = relationship("User", back_populates="resumes")
 
     def __repr__(self):
         return f"<Resume(id={self.id}, user={self.user_id}, score={self.ats_score})>"

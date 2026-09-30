@@ -40,11 +40,12 @@ class Interview(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     # ---- Foreign Key ----
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     # ---- Interview Config ----
     role = Column(String(255), nullable=False)         # e.g., "Full Stack Developer"
-    interview_type = Column(String(50), default="text") # text | voice | video
+    interview_type = Column(String(50), default="audio") # audio | video | text
+    status = Column(String(50), default="completed")
 
     # ---- Q&A Data ----
     questions = Column(JSON, nullable=True)   # [{"q": "...", "type": "technical"}, ...]
@@ -56,6 +57,9 @@ class Interview(Base):
 
     # ---- Timestamps ----
     conducted_at = Column(DateTime, default=datetime.utcnow)
+    
+    # ---- Relationships ----
+    user = relationship("User", back_populates="interviews")
 
     def __repr__(self):
         return f"<Interview(id={self.id}, role={self.role}, score={self.overall_score})>"

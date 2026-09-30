@@ -57,6 +57,7 @@ class User(Base):
     is_verified = Column(Boolean, default=False)
     phone = Column(String(20), nullable=True)
     target_role = Column(String(255), nullable=True)
+    current_level = Column(String(100), nullable=True)
     verification_token = Column(String(255), nullable=True)
     profile_completed = Column(Boolean, default=False)
 
@@ -65,10 +66,12 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # ---- Relationships ----
-    # These will be populated when the related models are created
-    # resumes = relationship("Resume", back_populates="user")
-    # interviews = relationship("Interview", back_populates="user")
-    # career_profile = relationship("CareerProfile", back_populates="user", uselist=False)
+    resumes = relationship("Resume", back_populates="user", cascade="all, delete-orphan")
+    interviews = relationship("Interview", back_populates="user", cascade="all, delete-orphan")
+    career_profile = relationship("CareerProfile", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    skills = relationship("UserSkill", backref="user", cascade="all, delete-orphan")
+    roadmaps = relationship("LearningRoadmap", backref="user", cascade="all, delete-orphan")
+    readiness_scores = relationship("CareerReadinessScore", backref="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, name={self.name})>"

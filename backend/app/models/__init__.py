@@ -9,8 +9,19 @@ SQLAlchemy ORM. Each file maps to one or more related tables:
     - resume.py          → Resumes table (uploads, parsed data)
     - career_profile.py  → Career profiles (skills, CRS, roadmap)
     - interview.py       → Mock interviews (questions, feedback)
+    - skill.py           → Skills catalogs and user mapped skills
+    - learning.py        → Learning roadmaps and steps
+    - readiness.py       → Career readiness score records
 
 All models inherit from Base (defined in db/database.py)
 and use UUID primary keys for security.
 ============================================================
 """
+
+from app.models.user import User
+from app.models.resume import Resume
+from app.models.career_profile import CareerProfile
+from app.models.interview import Interview
+from app.models.skill import Skill, UserSkill
+from app.models.learning import LearningRoadmap, LearningStep
+from app.models.readiness import CareerReadinessScore

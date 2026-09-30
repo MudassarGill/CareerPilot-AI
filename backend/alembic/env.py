@@ -24,6 +24,12 @@ from app.config import settings
 from app.db.database import Base
 # Make sure all models are imported before this point so that Alembic can detect them
 from app.models.user import User
+from app.models.resume import Resume
+from app.models.career_profile import CareerProfile
+from app.models.interview import Interview
+from app.models.skill import Skill, UserSkill
+from app.models.learning import LearningRoadmap, LearningStep
+from app.models.readiness import CareerReadinessScore
 
 # Bind metadata to environment
 target_metadata = Base.metadata
