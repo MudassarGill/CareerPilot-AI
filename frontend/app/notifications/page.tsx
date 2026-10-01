@@ -7,9 +7,8 @@ import { fetchAPI } from "@/lib/api";
 import { Loader2, Bell, CheckCircle2, AlertTriangle, AlertCircle, Info } from "lucide-react";
 import { PageHero } from "@/components/PageHero";
 import { images } from "@/lib/content";
-import Link from "next/link";
 
-interface Notification {
+interface NotifItem {
     id: string;
     title: string;
     message: string;
@@ -18,10 +17,50 @@ interface Notification {
     created_at: string;
 }
 
+function getIconInfo(type: string) {
+    switch (type) {
+        case "success": return { icon: <CheckCircle2 className="w-5 h-5 text-green-500" />, bg: "bg-green-50", border: "border-green-200" };
+        case "warning": return { icon: <AlertTriangle className="w-5 h-5 text-yellow-500" />, bg: "bg-yellow-50", border: "border-yellow-200" };
+        case "error": return { icon: <AlertCircle className="w-5 h-5 text-red-500" />, bg: "bg-red-50", border: "border-red-200" };
+        default: return { icon: <Info className="w-5 h-5 text-brand-blue" />, bg: "bg-blue-50", border: "border-blue-200" };
+    }
+}
+
+function NotifCard({ notif, onMark }: { notif: NotifItem; onMark: (id: string) => void }) {
+    const ui = getIconInfo(notif.type);
+    const wrapperClass = notif.read
+        ? "flex items-start gap-4 p-5 rounded-2xl border bg-white border-border-soft opacity-70 transition-all cursor-pointer"
+        : "flex items-start gap-4 p-5 rounded-2xl border bg-page-bg border-brand-blue/30 shadow-sm transition-all cursor-pointer";
+    const iconWrapClass = "w-10 h-10 rounded-full flex items-center justify-center shrink-0 border " + ui.bg + " " + ui.border;
+    const titleClass = notif.read
+        ? "font-sora font-semibold truncate text-text-primary"
+        : "font-sora font-semibold truncate text-brand-blue";
+
+    return (
+        <div onClick={() => { if (!notif.read) onMark(notif.id); }} className={wrapperClass}>
+            <div className={iconWrapClass}>
+                {ui.icon}
+            </div>
+            <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-2 mb-1">
+                    <h4 className={titleClass}>{notif.title}</h4>
+                    <span className="text-xs text-text-muted shrink-0 whitespace-nowrap">
+                        {new Date(notif.created_at).toLocaleDateString()}
+                    </span>
+                </div>
+                <p className="text-text-muted text-sm">{notif.message}</p>
+            </div>
+            {!notif.read && (
+                <div className="w-2.5 h-2.5 rounded-full bg-accent-orange mt-2 shrink-0"></div>
+            )}
+        </div>
+    );
+}
+
 export default function NotificationsPage() {
     const { user, loading } = useAuth();
     const router = useRouter();
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [notifications, setNotifications] = useState<NotifItem[]>([]);
     const [isFetching, setIsFetching] = useState(true);
 
     useEffect(() => {
@@ -43,16 +82,12 @@ export default function NotificationsPage() {
         }
     };
 
-    const markAsRead = async (id: string, currentlyRead: boolean) => {
-        if (currentlyRead) return;
-
+    const markAsRead = async (id: string) => {
         try {
-            // Optimistic update
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
-            await fetchAPI(`/notifications/${id}/read`, { method: "PUT" });
+            await fetchAPI("/notifications/" + id + "/read", { method: "PUT" });
         } catch (e) {
             console.error("Failed to mark as read", e);
-            // Revert on fail
             setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: false } : n));
         }
     };
@@ -63,15 +98,6 @@ export default function NotificationsPage() {
             await fetchAPI("/notifications/read-all", { method: "PUT" });
         } catch (e) {
             console.error("Failed to mark all read", e);
-        }
-    };
-
-    const getIconInfo = (type: string) => {
-        switch (type) {
-            case "success": return { icon: <CheckCircle2 className="w-5 h-5 text-green-500" />, bg: "bg-green-50", border: "border-green-200" };
-            case "warning": return { icon: <AlertTriangle className="w-5 h-5 text-yellow-500" />, bg: "bg-yellow-50", border: "border-yellow-200" };
-            case "error": return { icon: <AlertCircle className="w-5 h-5 text-red-500" />, bg: "bg-red-50", border: "border-red-200" };
-            default: return { icon: <Info className="w-5 h-5 text-brand-blue" />, bg: "bg-blue-50", border: "border-blue-200" };
         }
     };
 
@@ -86,7 +112,7 @@ export default function NotificationsPage() {
             <PageHero
                 title="Notifications"
                 description="Stay updated on your career progress and platform alerts."
-                imageSrc={images.phase2.dashboardHero} // Reusing asset for simplicity
+                imageSrc={images.phase3.profileHero}
             />
 
             <main className="max-w-4xl mx-auto px-4 md:px-6 py-12 w-full">
@@ -121,44 +147,17 @@ export default function NotificationsPage() {
                                 <div className="w-20 h-20 bg-page-bg rounded-full flex items-center justify-center text-text-muted mb-4">
                                     <Bell className="w-10 h-10" />
                                 </div>
-                                <h3 className="font-sora text-xl font-bold text-text-primary mb-2">You're all caught up!</h3>
+                                <h3 className="font-sora text-xl font-bold text-text-primary mb-2">You are all caught up!</h3>
                                 <p className="text-text-muted">No new notifications at this time.</p>
                             </div>
                         ) : (
-                            notifications.map((notif) => {
-                                const ui = getIconInfo(notif.type);
-                                return (
-                                    <div
-                                        key={notif.id}
-                                        onClick={() => markAsRead(notif.id, notif.read)}
-                                        className={\`flex items-start gap-4 p-5 rounded-2xl border transition-all cursor-pointer \${notif.read ? "bg-white border-border-soft opacity-70" : "bg-page-bg border-brand-blue/30 shadow-[0_4px_12px_rgba(30,167,232,0.05)]"}\`}
-                                    >
-                        <div className={\`w-10 h-10 rounded-full flex items-center justify-center shrink-0 border \${ui.bg} \${ui.border}\`}>
-                        {ui.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2 mb-1">
-                            <h4 className={\`font-sora font-semibold truncate \${notif.read ? "text-text-primary" : "text-brand-blue"}\`}>
-                            {notif.title}
-                        </h4>
-                        <span className="text-xs text-text-muted shrink-0 whitespace-nowrap">
-                            {new Date(notif.created_at).toLocaleDateString()}
-                        </span>
-                    </div>
-                    <p className="text-text-muted text-sm line-clamp-2 md:line-clamp-none">
-                        {notif.message}
-                    </p>
-                </div>
-                {!notif.read && (
-                    <div className="w-2.5 h-2.5 rounded-full bg-accent-orange mt-2 shrink-0"></div>
-                )}
-        </div>
-    );
-})
+                            notifications.map((notif) => (
+                                <NotifCard key={notif.id} notif={notif} onMark={markAsRead} />
+                            ))
                         )}
-                    </div >
-                </div >
-            </main >
-        </div >
+                    </div>
+                </div>
+            </main>
+        </div>
     );
 }

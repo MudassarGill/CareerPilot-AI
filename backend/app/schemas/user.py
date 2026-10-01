@@ -105,3 +105,23 @@ class MessageResponse(BaseModel):
     Schema for generic string messages.
     """
     message: str
+
+class ForgotPasswordRequest(BaseModel):
+    """
+    Schema for requesting a password reset email.
+    """
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    """
+    Schema for resetting a password using a token.
+    """
+    token: str
+    new_password: str
+    confirm_password: str
+
+    @model_validator(mode="after")
+    def check_passwords_match(self) -> "ResetPasswordRequest":
+        if self.new_password != self.confirm_password:
+            raise ValueError("passwords do not match")
+        return self

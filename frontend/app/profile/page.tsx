@@ -1,3 +1,5 @@
+"use client";
+
 import { PageHero } from "@/components/PageHero";
 import { images } from "@/lib/content";
 import { useAuth } from "@/lib/auth-context";

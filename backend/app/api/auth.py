@@ -12,7 +12,8 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.schemas.user import (
     UserCreate, UserLogin, UserResponse, Token,
-    ProfileSetup, VerifyEmailRequest, RefreshTokenRequest, MessageResponse
+    ProfileSetup, VerifyEmailRequest, RefreshTokenRequest, MessageResponse,
+    ForgotPasswordRequest, ResetPasswordRequest
 )
 from app.models.user import User
 from app.services.auth import (
@@ -143,3 +144,30 @@ async def complete_profile(profile_data: ProfileSetup, db: Session = Depends(get
     db.refresh(current_user)
     
     return current_user
+
+@router.post("/forgot-password", response_model=MessageResponse)
+async def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == req.email).first()
+    if user:
+        from secrets import token_urlsafe
+        from app.config import settings
+        token = token_urlsafe(32)
+        user.reset_password_token = token
+        db.commit()
+        # Mock email send
+        reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+        print(f"MOCK EMAIL: Password reset link for {user.email}: {reset_link}")
+    
+    return {"message": "If that email exists in our system, a password reset link has been sent."}
+
+@router.post("/reset-password", response_model=MessageResponse)
+async def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.reset_password_token == req.token).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+        
+    user.hashed_password = hash_password(req.new_password)
+    user.reset_password_token = None
+    db.commit()
+    
+    return {"message": "Password successfully reset. You can now log in."}

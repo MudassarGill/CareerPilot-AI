@@ -1,9 +1,9 @@
 @echo off
 echo ==============================================
-echo  CareerPilot AI Phase 1 - Launcher
+echo  CareerPilot AI — Full-Stack Launcher
 echo ==============================================
 
-echo [1/3] Migrating database...
+echo [1/4] Migrating database...
 cd backend
 call alembic upgrade head
 if %errorlevel% neq 0 (
@@ -18,19 +18,20 @@ if %errorlevel% neq 0 (
     echo [WARNING] Data seeding encountered an issue. Skipping...
 )
 
-echo [3/4] Starting Backend API...
+echo [3/4] Starting Backend API (port 8000)...
 start "CareerPilot Backend" cmd /k "uvicorn app.main:app --reload --port 8000"
 
-echo [4/4] Installing Frontend Packages and starting...
-cd ../frontend
+echo [4/4] Installing Frontend deps and starting (port 3000)...
+cd ..\frontend
 call npm install
 start "CareerPilot Frontend" cmd /k "npm run dev"
 
 echo.
 echo ==============================================
-echo  Both environments are starting up!
-echo  Frontend Auth Page: http://localhost:3000
-echo  Backend API Docs:   http://localhost:8000/docs
+echo  Both servers are starting!
+echo  Frontend:   http://localhost:3000
+echo  Backend:    http://localhost:8000/docs
+echo  Mailpit:    http://localhost:8025
 echo ==============================================
 echo Press any key to close this launcher...
 pause >nul

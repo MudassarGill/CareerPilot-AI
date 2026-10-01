@@ -59,6 +59,7 @@ class User(Base):
     target_role = Column(String(255), nullable=True)
     current_level = Column(String(100), nullable=True)
     verification_token = Column(String(255), nullable=True)
+    reset_password_token = Column(String(255), nullable=True)
     profile_completed = Column(Boolean, default=False)
 
     # ---- Timestamps ----
