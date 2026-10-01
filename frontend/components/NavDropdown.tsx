@@ -41,7 +41,7 @@ export function NavDropdown({ label, items }: NavDropdownProps) {
     return (
         <div className="relative" ref={dropdownRef}>
             <button
-                className="group relative flex items-center gap-1 font-medium text-text-primary py-2 outline-none rounded-md"
+                className="group relative flex items-center gap-1 font-medium text-zinc-100 hover:text-white py-2 outline-none rounded-md"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
             >

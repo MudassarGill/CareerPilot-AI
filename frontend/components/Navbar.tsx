@@ -31,7 +31,7 @@ export function Navbar() {
     ];
 
     return (
-        <header className="sticky top-0 z-50 w-full bg-white shadow-sm h-16 flex items-center">
+        <header className="sticky top-0 z-50 w-full bg-[#1C1C1E] border-b border-[#2C2C2E] shadow-sm h-16 flex items-center">
             <div className="max-w-[1280px] w-full mx-auto px-4 md:px-6 lg:px-8 flex justify-between items-center">
                 {/* Logo Section */}
                 <Link href="/dashboard" className="flex items-center gap-2 group flex-shrink-0">
@@ -47,7 +47,7 @@ export function Navbar() {
                     </div>
                     {/* Live Text Name */}
                     <div className="flex flex-col ml-1 leading-none shadow-sm drop-shadow-sm transition-transform group-active:scale-95">
-                        <span className="font-sora font-extrabold text-[#3A3A3E] text-[18px] tracking-tight">
+                        <span className="font-sora font-extrabold text-white text-[18px] tracking-tight">
                             CAREER
                         </span>
                         <span className="font-sora font-extrabold text-[#1EA7E8] text-[13px] tracking-wider text-right -mt-0.5">
@@ -62,7 +62,7 @@ export function Navbar() {
                         <Link
                             key={item.href}
                             href={item.href}
-                            className="group relative font-medium text-text-primary py-2 text-sm xl:text-base outline-none rounded-md"
+                            className="group relative font-medium text-zinc-100 py-2 text-sm xl:text-base outline-none rounded-md hover:text-white"
                         >
                             <span className="relative z-10">{item.label}</span>
                             <span className={`absolute -bottom-1 left-0 h-[2px] bg-accent-orange transition-all duration-300 ease-out
@@ -82,9 +82,9 @@ export function Navbar() {
                         <input
                             type="text"
                             placeholder="Search..."
-                            className="w-48 xl:w-64 bg-page-bg border border-border-soft rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/50 transition-all font-medium"
+                            className="w-48 xl:w-64 bg-[#2A2A2E] border border-[#3A3A3E] text-white placeholder-zinc-400 rounded-md pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-accent-orange focus:ring-1 focus:ring-accent-orange transition-all font-medium"
                         />
-                        <Search className="absolute left-3.5 top-2.5 w-4 h-4 text-text-muted transition-colors group-focus-within:text-brand-blue" />
+                        <Search className="absolute left-3.5 top-2.5 w-4 h-4 text-accent-orange transition-colors" />
                     </div>
 
                     {/* Profile Dropdown */}
@@ -126,7 +126,7 @@ export function Navbar() {
 
                 {/* Mobile Menu Toggle Button */}
                 <button
-                    className="lg:hidden p-2 text-text-primary hover:bg-page-bg rounded-md"
+                    className="lg:hidden p-2 text-white hover:bg-zinc-800 rounded-md transition-colors"
                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                     aria-label="Toggle Menu"
                 >

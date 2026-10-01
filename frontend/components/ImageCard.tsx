@@ -41,7 +41,7 @@ export function ImageCard({ title, description, imageSrc, icon: Icon, value, pro
             {/* Bottom Content Section */}
             <div className="flex-1 p-5 pt-8 bg-card rounded-b-2xl flex flex-col justify-between">
                 <div>
-                    <h3 className="font-sora font-semibold text-text-primary text-lg mb-1">{title}</h3>
+                    <h3 className="font-sora font-semibold text-text-primary group-hover:text-accent-orange transition-colors duration-300 text-lg mb-1">{title}</h3>
                     {description && <p className="text-sm text-text-muted mb-4">{description}</p>}
 
                     {(value !== undefined || progress !== undefined) && (

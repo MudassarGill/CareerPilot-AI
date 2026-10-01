@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { AuthProvider } from "@/lib/auth-context";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -9,6 +10,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <main className="flex-1 w-full flex flex-col">
                 {children}
             </main>
+            <Footer />
         </div>
     );
 }

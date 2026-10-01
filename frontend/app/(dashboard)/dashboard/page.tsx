@@ -10,7 +10,8 @@ import { ImageCard } from "@/components/ImageCard";
 import { images } from "@/lib/content";
 import {
     Brain, FileText, CheckCircle2, BookOpen,
-    TrendingUp, LineChart, Cpu, BarChart3
+    TrendingUp, LineChart, Cpu, BarChart3,
+    Briefcase, Target, Trophy, Compass, Workflow
 } from "lucide-react";
 import { HeroSkeleton, GridSkeleton } from "@/components/Skeletons";
 import { ErrorState } from "@/components/ErrorState";
@@ -136,15 +137,19 @@ export default function DashboardPage() {
             <section>
                 <h2 className="text-2xl font-sora font-semibold text-text-primary mb-6">Career Modules</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {images.moduleBoxes.map((mod) => (
-                        <ImageCard
-                            key={mod.id}
-                            title={mod.title}
-                            imageSrc={mod.src}
-                            icon={Brain}
-                            link={mod.link}
-                        />
-                    ))}
+                    {images.moduleBoxes.map((mod, idx) => {
+                        const icons = [Brain, Briefcase, Target, Compass, Workflow, Trophy];
+                        const CardIcon = icons[idx % icons.length];
+                        return (
+                            <ImageCard
+                                key={mod.id}
+                                title={mod.title}
+                                imageSrc={mod.src}
+                                icon={CardIcon}
+                                link={mod.link}
+                            />
+                        );
+                    })}
                 </div>
             </section>
 
