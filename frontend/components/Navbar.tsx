@@ -51,7 +51,7 @@ export function Navbar() {
                             CAREER
                         </span>
                         <span className="font-sora font-extrabold text-[#1EA7E8] text-[13px] tracking-wider text-right -mt-0.5">
-                            PLOT
+                            PILOT
                         </span>
                     </div>
                 </Link>
