@@ -54,5 +54,26 @@ export const images = {
         { id: 28, src: "/images/box-28.jpg", title: "Audio interview" },
         { id: 29, src: "/images/box-29.jpg", title: "Video interview" },
         { id: 30, src: "/images/box-30.jpg", title: "Career Simulation" },
-    ]
+    ],
+    phase3: {
+        landingHero: "/images/hero-8.jpg",
+        aboutHero: "/images/hero-9.jpg",
+        contactHero: "/images/hero-10.jpg",
+        faqHero: "/images/hero-11.jpg",
+        profileHero: "/images/hero-12.jpg",
+        authSide1: "/images/auth-1.jpg",
+        authSide2: "/images/auth-2.jpg",
+        authSide3: "/images/auth-3.jpg",
+        aboutMission: "/images/about-1.jpg",
+        founder: "/images/founder.jpg",
+        logoMark: "/images/logo-mark.png",
+        ogImage: "/images/og-image.jpg",
+        illustrations: {
+            notFound: "/images/not-found.svg",
+            error: "/images/error.svg",
+            emptyNotifications: "/images/empty-notifications.svg",
+            emptyGeneric: "/images/empty-generic.svg",
+            success: "/images/success.svg"
+        }
+    }
 };
