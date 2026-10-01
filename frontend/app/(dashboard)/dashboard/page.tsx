@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAPI } from "@/lib/api";
 import { PageHero } from "@/components/PageHero";
 import { ImageCard } from "@/components/ImageCard";
+import { ContactSection } from "@/components/ContactSection";
 import { images } from "@/lib/content";
 import {
     Brain, FileText, CheckCircle2, BookOpen,
@@ -153,6 +154,7 @@ export default function DashboardPage() {
                 </div>
             </section>
 
+            <ContactSection />
         </div>
     );
 }

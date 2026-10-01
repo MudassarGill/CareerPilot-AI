@@ -49,6 +49,7 @@ export function Navbar() {
         { label: "Skill Gap Analysis", href: "/skill-gap" },
         { label: "Learning Roadmap", href: "/roadmap" },
         { label: "AI Mock Interview", href: "/mock-interview" },
+        { label: "About", href: "/about" },
     ];
 
     const publicLinks = [
@@ -62,13 +63,9 @@ export function Navbar() {
             <div className="max-w-[1280px] w-full mx-auto px-4 md:px-6 lg:px-8 flex justify-between items-center">
 
                 {/* Logo Section */}
-                <Link href={user ? "/dashboard" : "/"} className="flex items-center gap-2 group flex-shrink-0">
-                    <div className="w-10 h-10 overflow-hidden relative rounded-[4px] bg-white">
-                        <Image src={images.logo} alt="Logo" fill className="object-cover object-left scale-150 transform translate-x-2" />
-                    </div>
-                    <div className="flex flex-col ml-1 leading-none shadow-sm drop-shadow-sm transition-transform group-active:scale-95">
-                        <span className="font-sora font-extrabold text-white text-[18px] tracking-tight">CAREER</span>
-                        <span className="font-sora font-extrabold text-brand-blue text-[13px] tracking-wider text-right -mt-0.5">PILOT</span>
+                <Link href={user ? "/dashboard" : "/"} className="flex items-center group flex-shrink-0">
+                    <div className="h-10 w-auto relative flex items-center transition-transform group-active:scale-95">
+                        <Image src="/images/navlogo.jpg" alt="Logo" width={140} height={40} className="object-contain h-full w-auto" priority />
                     </div>
                 </Link>
 

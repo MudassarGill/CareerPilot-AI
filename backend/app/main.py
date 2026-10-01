@@ -54,7 +54,7 @@ async def root():
     the API is running.
     """
     return {
-        "message": "🚀 CareerPilot AI API is running!",
+        "message": " CareerPilot AI API is running!",
         "version": "1.0.0",
         "docs": "/docs",
     }
