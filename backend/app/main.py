@@ -86,6 +86,8 @@ from app.api.interview import router as interview_router
 from app.api.roadmap import router as roadmap_router
 from app.api.career_twin import router as career_twin_router
 from app.api.crs import router as crs_router
+from app.api.contact import router as contact_router
+from app.api.notifications import router as notifications_router
 #
 app.include_router(auth_router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(dashboard_router, prefix="/api", tags=["Dashboard"])
@@ -96,4 +98,6 @@ app.include_router(interview_router, prefix="/api/interview", tags=["Interview"]
 app.include_router(roadmap_router, prefix="/api/roadmap", tags=["Roadmap"])
 app.include_router(career_twin_router, prefix="/api/career-twin", tags=["Career Twin"])
 app.include_router(crs_router, prefix="/api/crs", tags=["Career Readiness"])
+app.include_router(contact_router, prefix="/api/contact", tags=["Contact"])
+app.include_router(notifications_router, prefix="/api", tags=["Notifications"])
 # ============================================================

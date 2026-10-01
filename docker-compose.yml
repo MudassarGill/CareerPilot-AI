@@ -61,5 +61,15 @@ services:
     depends_on:
       - backend
 
+  mailpit:
+    image: axllent/mailpit
+    container_name: cps_mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    environment:
+      MP_MAX_MESSAGES: 5000
+
 volumes:
   pgdata:

@@ -25,3 +25,6 @@ from app.models.interview import Interview
 from app.models.skill import Skill, UserSkill
 from app.models.learning import LearningRoadmap, LearningStep
 from app.models.readiness import CareerReadinessScore
+from app.models.contact import ContactMessage
+from app.models.newsletter import NewsletterSubscriber
+from app.models.notification import Notification
