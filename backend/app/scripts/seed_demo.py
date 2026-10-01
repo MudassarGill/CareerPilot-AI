@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '../
 
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal
-from app.core.security import get_password_hash
+from app.services.auth import hash_password
 from app.models.user import User
 from app.models.skill import Skill, UserSkill
 from app.models.resume import Resume
@@ -27,7 +27,7 @@ def seed_database():
             print("Creating demo user...")
             user = User(
                 email=demo_email,
-                hashed_password=get_password_hash("demo123"), # default easy password for testing
+                hashed_password=hash_password("demo123"), # default easy password for testing
                 name="Alex Parker",
                 target_role="Senior Full Stack Engineer",
                 current_level="Mid-Level",

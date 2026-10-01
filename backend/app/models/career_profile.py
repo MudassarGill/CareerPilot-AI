@@ -25,6 +25,7 @@ from datetime import datetime
 
 from sqlalchemy import Column, String, Float, DateTime, ForeignKey, JSON
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from app.db.database import Base
 
@@ -57,6 +58,9 @@ class CareerProfile(Base):
 
     # ---- Timestamps ----
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # ---- Relationships ----
+    user = relationship("User", back_populates="career_profile")
 
     def __repr__(self):
         return f"<CareerProfile(user={self.user_id}, role={self.target_role}, crs={self.crs_score})>"
