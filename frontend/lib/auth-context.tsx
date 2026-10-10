@@ -10,6 +10,16 @@ interface User {
     email: string;
     is_verified: boolean;
     profile_completed: boolean;
+    user_type?: string;
+    headline?: string;
+    phone?: string;
+    target_role?: string;
+    current_level?: string;
+    location?: string;
+    education?: string;
+    bio?: string;
+    avatar_path?: string;
+    profile_completeness?: number;
 }
 
 interface AuthContextType {

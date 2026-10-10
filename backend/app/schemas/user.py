@@ -60,11 +60,57 @@ class UserResponse(BaseModel):
     is_verified: bool
     phone: Optional[str] = None
     target_role: Optional[str] = None
-    profile_completed: bool
+    current_level: Optional[str] = None
+    headline: Optional[str] = None
+    bio: Optional[str] = None
+    location: Optional[str] = None
+    avatar_path: Optional[str] = None
+    education: Optional[str] = None
+    links_json: Optional[str] = None
+    profile_completeness: int = 0
+    profile_completed: bool = False
+    user_type: Optional[str] = "candidate"
+    last_login_at: Optional[datetime] = None
     created_at: datetime
 
     class Config:
-        from_attributes = True  # Allow ORM model → Pydantic conversion
+        from_attributes = True
+
+
+class ProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    target_role: Optional[str] = None
+    current_level: Optional[str] = None
+    headline: Optional[str] = None
+    bio: Optional[str] = None
+    location: Optional[str] = None
+    education: Optional[str] = None
+    links_json: Optional[str] = None
+
+
+class PasswordChangeRequest(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
+    @model_validator(mode="after")
+    def check_passwords(self) -> "PasswordChangeRequest":
+        if self.new_password != self.confirm_password:
+            raise ValueError("passwords do not match")
+        return self
+
+
+class UserPreferencesSchema(BaseModel):
+    email_notifications: bool = True
+    weekly_report_email: bool = True
+    interview_recording_consent: bool = False
+    language: str = "en"
+    timezone: str = "UTC"
+
+    class Config:
+        from_attributes = True
+
 
 
 class Token(BaseModel):

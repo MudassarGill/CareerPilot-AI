@@ -121,19 +121,32 @@ export default function NotificationsPage() {
                         <div className="flex items-center gap-3">
                             <h2 className="font-sora text-2xl font-bold text-text-primary">All Notifications</h2>
                             {unreadCount > 0 && (
-                                <span className="bg-accent-orange text-white text-xs font-bold px-2 py-1 rounded-full">
+                                <span className="bg-accent-orange text-white text-xs font-bold px-2.5 py-1 rounded-full">
                                     {unreadCount} New
                                 </span>
                             )}
                         </div>
-                        {unreadCount > 0 && (
-                            <button
-                                onClick={markAllRead}
-                                className="text-sm font-semibold text-brand-blue hover:text-deep-blue transition-colors px-4 py-2 bg-blue-50 hover:bg-blue-100 rounded-lg"
-                            >
-                                Mark all as read
-                            </button>
-                        )}
+                        <div className="flex items-center gap-3">
+                            {unreadCount > 0 && (
+                                <button
+                                    onClick={markAllRead}
+                                    className="text-xs font-semibold text-brand-blue hover:text-deep-blue transition-colors px-3 py-1.5 bg-blue-50 hover:bg-blue-100 rounded-lg"
+                                >
+                                    Mark all as read
+                                </button>
+                            )}
+                            {notifications.length > 0 && (
+                                <button
+                                    onClick={async () => {
+                                        setNotifications([]);
+                                        try { await fetchAPI("/notifications", { method: "DELETE" }); } catch (e) { }
+                                    }}
+                                    className="text-xs font-semibold text-red-600 hover:text-red-700 transition-colors px-3 py-1.5 bg-red-50 hover:bg-red-100 rounded-lg"
+                                >
+                                    Clear all
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     <div className="p-4 md:p-6 flex flex-col gap-4 min-h-[400px]">
