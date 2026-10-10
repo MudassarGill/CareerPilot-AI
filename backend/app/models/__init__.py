@@ -28,3 +28,6 @@ from app.models.readiness import CareerReadinessScore
 from app.models.contact import ContactMessage
 from app.models.newsletter import NewsletterSubscriber
 from app.models.notification import Notification
+from app.models.user_preferences import UserPreferences
+from app.models.consent_records import ConsentRecord
+from app.models.audit_logs import AuditLog

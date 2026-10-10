@@ -25,7 +25,7 @@ Relationships:
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy import Column, String, Boolean, DateTime, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -58,9 +58,24 @@ class User(Base):
     phone = Column(String(20), nullable=True)
     target_role = Column(String(255), nullable=True)
     current_level = Column(String(100), nullable=True)
+    headline = Column(String(255), nullable=True)
+    bio = Column(String(1024), nullable=True)
+    location = Column(String(255), nullable=True)
+    avatar_path = Column(String(512), nullable=True)
+    education = Column(String(255), nullable=True)
+    links_json = Column(String(1024), nullable=True)
+    profile_completeness = Column(Integer, default=0)
+    completeness_score = Column(Integer, default=0)
+    
+    # Auth gap fields
     verification_token = Column(String(255), nullable=True)
     reset_password_token = Column(String(255), nullable=True)
     profile_completed = Column(Boolean, default=False)
+    failed_login_count = Column(Integer, default=0)
+    failed_attempts = Column(String(50), nullable=True)
+    user_type = Column(String(50), default="candidate")
+    last_login_at = Column(DateTime, nullable=True)
+    locked_until = Column(DateTime, nullable=True)
 
     # ---- Timestamps ----
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -73,6 +88,7 @@ class User(Base):
     skills = relationship("UserSkill", backref="user", cascade="all, delete-orphan")
     roadmaps = relationship("LearningRoadmap", backref="user", cascade="all, delete-orphan")
     readiness_scores = relationship("CareerReadinessScore", backref="user", cascade="all, delete-orphan")
+    preferences = relationship("UserPreferences", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, name={self.name})>"

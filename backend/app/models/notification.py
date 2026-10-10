@@ -14,5 +14,7 @@ class Notification(Base):
     title = Column(String(255), nullable=False)
     message = Column(String(1024), nullable=False)
     type = Column(String(50), default="info") # info, success, warning, error
+    link = Column(String(512), nullable=True)
     read = Column(Boolean, default=False)
+    read_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
