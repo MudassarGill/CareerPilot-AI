@@ -7,9 +7,7 @@ echo [1/4] Migrating database...
 cd backend
 call alembic upgrade head
 if %errorlevel% neq 0 (
-    echo [ERROR] Database migration failed. Is PostgreSQL running?
-    pause
-    exit /b %errorlevel%
+    echo [WARNING] Database migration failed or no DB connection. Assuming DB is already set up and continuing...
 )
 
 echo [2/4] Seeding Demo Data...

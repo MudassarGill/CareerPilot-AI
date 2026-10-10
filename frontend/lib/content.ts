@@ -64,8 +64,8 @@ export const images = {
         authSide1: "/images/auth-1.jpg",
         authSide2: "/images/auth-2.jpg",
         authSide3: "/images/auth-3.jpg",
-        aboutMission: "/images/about-1.jpg",
-        founder: "/images/founder.jpg",
+        aboutMission: "/assets/auth-image.jpg",
+        founder: "/images/Mudassar.jpeg",
         logoMark: "/images/logo-mark.png",
         ogImage: "/images/og-image.jpg",
         illustrations: {

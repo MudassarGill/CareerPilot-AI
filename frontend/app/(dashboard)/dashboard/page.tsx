@@ -8,6 +8,7 @@ import { fetchAPI } from "@/lib/api";
 import { PageHero } from "@/components/PageHero";
 import { ImageCard } from "@/components/ImageCard";
 import { ContactSection } from "@/components/ContactSection";
+import { DashboardExtraSections } from "@/components/DashboardExtraSections";
 import { images } from "@/lib/content";
 import {
     Brain, FileText, CheckCircle2, BookOpen,
@@ -153,6 +154,8 @@ export default function DashboardPage() {
                     })}
                 </div>
             </section>
+
+            <DashboardExtraSections />
 
             <ContactSection />
         </div>

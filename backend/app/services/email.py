@@ -10,8 +10,12 @@ but can be configured for Mailpit or actual SMTP.
 
 import logging
 from typing import Protocol
-import aiosmtplib
-from email.message import EmailMessage
+try:
+    import aiosmtplib
+    from email.message import EmailMessage
+except ImportError:
+    aiosmtplib = None
+
 from app.config import settings
 
 logger = logging.getLogger(__name__)
