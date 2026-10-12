@@ -1,8 +1,9 @@
 export const brandConfig = {
     owner: "Mudassar Hussain",
+    supervisor: "Mr. Haseeb Ali",
     degree: "BS Artificial Intelligence",
     institution: "The Islamia University of Bahawalpur (Session 2024-2027)",
-    
+
     email: "mudassarhussain6533@gmail.com",
     linkedin: "https://www.linkedin.com/in/mudassarhussain6533",
     github: "https://github.com/MudassarGill",
