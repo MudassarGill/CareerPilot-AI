@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { ReactNode } from "react";
 import { ScoreRing } from "./ScoreRing";
 import { useAuth } from "@/lib/auth-context";
@@ -9,8 +10,12 @@ interface PageHeroProps {
     title: string;
     description: string;
     imageSrc: string;
+    imageAlt?: string;
+    badgeText?: string;
     primaryButton?: { label: string; onClick: () => void };
     secondaryButton?: { label: string; onClick: () => void };
+    primaryAction?: { label: string; href: string };
+    secondaryAction?: { label: string; href: string };
     score?: number;
     showGreeting?: boolean;
 }
@@ -19,8 +24,12 @@ export function PageHero({
     title,
     description,
     imageSrc,
+    imageAlt,
+    badgeText,
     primaryButton,
     secondaryButton,
+    primaryAction,
+    secondaryAction,
     score,
     showGreeting
 }: PageHeroProps) {
@@ -32,7 +41,7 @@ export function PageHero({
             <div className="absolute inset-0">
                 <Image
                     src={imageSrc}
-                    alt="Hero Background"
+                    alt={imageAlt || "Hero Background"}
                     fill
                     className="object-cover transition-transform duration-[10s] ease-linear group-hover:scale-105"
                     priority
@@ -46,9 +55,14 @@ export function PageHero({
             {/* Content Container */}
             <div className="relative z-10 w-full px-8 py-12 md:py-16 md:px-12 flex flex-col md:flex-row items-center justify-between gap-8 h-full min-h-[280px]">
                 <div className="max-w-2xl text-white space-y-4">
+                    {badgeText && (
+                        <span className="inline-block bg-accent-orange/20 text-accent-orange text-xs font-bold uppercase tracking-wider px-3.5 py-1 rounded-full border border-accent-orange/30">
+                            {badgeText}
+                        </span>
+                    )}
                     {showGreeting && user && (
                         <p className="text-brand-blue font-medium tracking-wide">
-                            Welcome back, {user.name?.split(' ')[0]} 
+                            Welcome back, {user.name?.split(' ')[0]}
                         </p>
                     )}
                     <h1 className="text-3xl md:text-5xl font-sora font-extrabold tracking-tight drop-shadow-md">
@@ -58,8 +72,16 @@ export function PageHero({
                         {description}
                     </p>
 
-                    {(primaryButton || secondaryButton) && (
+                    {(primaryButton || secondaryButton || primaryAction || secondaryAction) && (
                         <div className="flex flex-wrap items-center gap-4 pt-4">
+                            {primaryAction && (
+                                <Link
+                                    href={primaryAction.href}
+                                    className="px-6 py-3 bg-brand-blue hover:bg-deep-blue text-white rounded-xl font-medium shadow-lg shadow-brand-blue/30 transition-all focus:ring-4 focus:ring-brand-blue/50"
+                                >
+                                    {primaryAction.label}
+                                </Link>
+                            )}
                             {primaryButton && (
                                 <button
                                     onClick={primaryButton.onClick}
@@ -67,6 +89,14 @@ export function PageHero({
                                 >
                                     {primaryButton.label}
                                 </button>
+                            )}
+                            {secondaryAction && (
+                                <Link
+                                    href={secondaryAction.href}
+                                    className="px-6 py-3 bg-transparent border-2 border-white/30 hover:border-white hover:bg-white/10 text-white rounded-xl font-medium transition-all"
+                                >
+                                    {secondaryAction.label}
+                                </Link>
                             )}
                             {secondaryButton && (
                                 <button
