@@ -8,6 +8,8 @@ export const images = {
         skillGap: "/images/hero-5.jpg",
         roadmap: "/images/hero-6.webp",
         mockInterview: "/images/hero-7.jpg",
+        hero8: "/images/hero-8.jpg",
+        hero2: "/images/hero-2.jpg",
     },
     dashboardBoxes: [
         { id: 1, src: "/images/box-01.jpg", title: "Career Readiness Score" },
