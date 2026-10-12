@@ -110,7 +110,7 @@ export default function DashboardPage() {
                         />
                         <ImageCard
                             title={images.dashboardBoxes[3].title}
-                            description={summary?.learning_progress ? "On Track" : "Action Needed"}
+                            description={summary?.learning_progress_pct ? "On Track" : "Action Needed"}
                             progress={summary?.learning_progress_pct || 60}
                             imageSrc={images.dashboardBoxes[3].src}
                             icon={BookOpen}
