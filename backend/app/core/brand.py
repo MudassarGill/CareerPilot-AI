@@ -9,7 +9,7 @@ Single source of truth for backend brand & owner info.
 class BrandConfig:
     owner: str = "Mudassar Hussain"
     degree: str = "BS Artificial Intelligence, The Islamia University of Bahawalpur (Session 2024-2027)"
-    supervisor: str = "Mr. Haseeb Ali"
+    # supervisor: str = "Mr. Haseeb Ali"
     email: str = "mudassarhussain6533@gmail.com"
     linkedin: str = "https://www.linkedin.com/in/mudassarhussain6533"
     github: str = "https://github.com/MudassarGill"
