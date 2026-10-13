@@ -1,39 +1,31 @@
 import { useCallback, useState } from "react";
 
-import AuthLayout from "./components/auth/AuthLayout";
-import SignUpLayout from "./components/auth/SignUpLayout";
-import StudentDashboard from "./components/dashboard/StudentDashboard";
-import WelcomePage, { isWelcomeRole } from "./components/auth/WelcomePage";
+import AuthLayout from "./Components/Auth/AuthLayout";
+import SignUpLayout from "./Components/Auth/SignUpLayout";
+import DashboardPreview from "./Components/Auth/DashboardPreview";
+import WelcomePage, { isWelcomeRole } from "./Components/Auth/WelcomePage";
 
 function App() {
   const welcomeRole = new URLSearchParams(window.location.search).get("welcome");
   const [showSignUp, setShowSignUp] = useState(false);
   const [notice, setNotice] = useState("");
   const [hasSession, setHasSession] = useState(() =>
-    Boolean(sessionStorage.getItem("fyptrack_access_token")),
+    Boolean(sessionStorage.getItem("careerpilot_access_token"))
   );
+
   const handleSignOut = useCallback(() => {
-    sessionStorage.removeItem("fyptrack_access_token");
+    sessionStorage.removeItem("careerpilot_access_token");
+    sessionStorage.removeItem("careerpilot_user");
     setHasSession(false);
-    setNotice("You have been signed out.");
-  }, [setHasSession, setNotice]);
-  const handleSessionExpired = useCallback(() => {
-    sessionStorage.removeItem("fyptrack_access_token");
-    setHasSession(false);
-    setNotice("Your session has expired. Please log in again.");
-  }, [setHasSession, setNotice]);
+    setNotice("You have been signed out successfully.");
+  }, []);
 
   if (isWelcomeRole(welcomeRole)) {
     return <WelcomePage role={welcomeRole} />;
   }
 
   if (hasSession) {
-    return (
-      <StudentDashboard
-        onSignOut={handleSignOut}
-        onSessionExpired={handleSessionExpired}
-      />
-    );
+    return <DashboardPreview onSignOut={handleSignOut} />;
   }
 
   return (
@@ -54,14 +46,14 @@ function App() {
           }}
           notice={notice}
           onLoginSuccess={(response) => {
-            if (response.user.role === "student") {
-              sessionStorage.setItem("fyptrack_access_token", response.access_token);
+            if (response.access_token) {
+              sessionStorage.setItem("careerpilot_access_token", response.access_token);
+              if (response.user) {
+                sessionStorage.setItem("careerpilot_user", JSON.stringify(response.user));
+              }
               setNotice("");
               setHasSession(true);
-              return;
             }
-
-            setNotice(response.welcome_message);
           }}
         />
       )}
