@@ -1,14 +1,21 @@
 import { useCallback, useState } from "react";
 import "./App.css";
+import "./Components/Dashboard/Dashboard.css";
 
 import AuthLayout from "./Components/Auth/AuthLayout";
 import SignUpLayout from "./Components/Auth/SignUpLayout";
-import DashboardPreview from "./Components/Auth/DashboardPreview";
+import ForgotPasswordLayout from "./Components/Auth/ForgotPasswordLayout";
+import ResetPasswordLayout from "./Components/Auth/ResetPasswordLayout";
+import Dashboard from "./Components/Dashboard/Dashboard";
 import WelcomePage, { isWelcomeRole } from "./Components/Auth/WelcomePage";
 
 function App() {
-  const welcomeRole = new URLSearchParams(window.location.search).get("welcome");
+  const urlParams = new URLSearchParams(window.location.search);
+  const welcomeRole = urlParams.get("welcome");
+  const resetToken = urlParams.get("token") || urlParams.get("reset_token");
+
   const [showSignUp, setShowSignUp] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [notice, setNotice] = useState("");
   const [hasSession, setHasSession] = useState(() =>
     Boolean(sessionStorage.getItem("careerpilot_access_token"))
@@ -25,8 +32,23 @@ function App() {
     return <WelcomePage role={welcomeRole} />;
   }
 
+  // If a reset token is present in the URL, show the Reset Password screen
+  if (resetToken) {
+    return (
+      <ResetPasswordLayout
+        token={resetToken}
+        onBackToLogin={() => {
+          window.history.replaceState({}, document.title, window.location.pathname);
+          setShowForgotPassword(false);
+          setShowSignUp(false);
+          setNotice("You can now log in with your updated password.");
+        }}
+      />
+    );
+  }
+
   if (hasSession) {
-    return <DashboardPreview onSignOut={handleSignOut} />;
+    return <Dashboard onSignOut={handleSignOut} />;
   }
 
   return (
@@ -39,11 +61,19 @@ function App() {
             setShowSignUp(false);
           }}
         />
+      ) : showForgotPassword ? (
+        <ForgotPasswordLayout
+          onBackToLogin={() => setShowForgotPassword(false)}
+        />
       ) : (
         <AuthLayout
           onSignUp={() => {
             setNotice("");
             setShowSignUp(true);
+          }}
+          onForgotPassword={() => {
+            setNotice("");
+            setShowForgotPassword(true);
           }}
           notice={notice}
           onLoginSuccess={(response) => {

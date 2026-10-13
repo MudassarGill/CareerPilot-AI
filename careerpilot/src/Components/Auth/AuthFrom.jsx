@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { logIn } from "../../services/auth";
 
-function AuthForm({ onSignUp, notice, onLoginSuccess }) {
+function AuthForm({ onSignUp, notice, onLoginSuccess, onForgotPassword }) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -90,6 +90,7 @@ function AuthForm({ onSignUp, notice, onLoginSuccess }) {
         <div className="mt-3 flex justify-end">
           <button
             type="button"
+            onClick={onForgotPassword}
             className="text-sm font-medium text-blue-600 transition hover:text-blue-700 cursor-pointer"
           >
             Forgot Password?

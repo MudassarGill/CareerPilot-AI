@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import FAQSection from "./FAQSection";
 
-/* ── All box images ── */
+/* ── Asset box & hero images ── */
 import box01 from "../../assets/box-01.jpg";
 import box02 from "../../assets/box-02.jpg";
 import box03 from "../../assets/box-03.jpg";
@@ -19,69 +20,98 @@ import box15 from "../../assets/box-15.jpg";
 import box16 from "../../assets/box-16.jpg";
 import box17 from "../../assets/box-17.jpg";
 import box18 from "../../assets/box-18.jpg";
-import box19 from "../../assets/box-19.jpg";
-import box20 from "../../assets/box-20.jpg";
-import box21 from "../../assets/box-21.jpg";
-import box22 from "../../assets/box-22.jpg";
-import box23 from "../../assets/box-23.jpg";
-import box24 from "../../assets/box-24.jpg";
-import box25 from "../../assets/box-25.jpg";
-import box26 from "../../assets/box-26.jpg";
-import box27 from "../../assets/box-27.jpg";
-import box28 from "../../assets/box-28.jpg";
-import box29 from "../../assets/box-29.jpg";
-import box30 from "../../assets/box-30.jpg";
 
-import hero1 from "../../assets/hero-1.jpg";
-import hero2 from "../../assets/hero-2.jpg";
+/* ── 3 Highlight Stat Boxes (Hover Shadow & Styled Numbers) ── */
+const highlightBoxes = [
+  {
+    id: 1,
+    number: "87%",
+    label: "ATS & Career Readiness",
+    desc: "Evaluated across resume parsing, keyword density, and mock interview performance.",
+    badge: "Top 10% Benchmark",
+    trend: "+14% This Month",
+  },
+  {
+    id: 2,
+    number: "24",
+    label: "Active Job Applications",
+    desc: "Tracked across top tech roles with real-time recruiter response analytics.",
+    badge: "2x Callback Rate",
+    trend: "+25% Interview Prep",
+  },
+  {
+    id: 3,
+    number: "15+",
+    label: "Verified Industry Skills",
+    desc: "Validated competencies across target roadmaps with 4 upcoming milestones.",
+    badge: "High Tech Demand",
+    trend: "4 Active Badges",
+  },
+];
 
-/* ── Feature cards data ── */
+/* ── 6 Core Feature Module Cards ── */
 const featureCards = [
-  { image: box02, title: "Resume Builder", desc: "AI-powered resume optimization & ATS scoring", tag: "Core Tool" },
-  { image: box03, title: "Mock Interviews", desc: "Practice with AI-driven interview simulations", tag: "AI Agent" },
-  { image: box05, title: "Team Collaboration", desc: "Work together on career goals & projects", tag: "Social" },
-  { image: box04, title: "Study Workspace", desc: "Focus-driven learning environment tools", tag: "Productivity" },
-  { image: box01, title: "Success Mindset", desc: "Motivational tools & goal tracking system", tag: "Growth" },
-  { image: box06, title: "Career Pathways", desc: "Explore and map your career progression", tag: "Navigation" },
+  {
+    id: "resume",
+    image: box02,
+    title: "Resume & ATS Analyzer",
+    desc: "AI-powered parsing, keyword match against job descriptions & ATS score benchmark.",
+    tag: "Core Tool",
+  },
+  {
+    id: "roadmap",
+    image: box06,
+    title: "Skills & Career Roadmap",
+    desc: "Dynamic skill gap analysis, personalized milestones & weekly career acceleration.",
+    tag: "Strategy",
+  },
+  {
+    id: "interview",
+    image: box03,
+    title: "AI Mock Interview",
+    desc: "Simulate real behavioral & technical interviews with live pacing feedback.",
+    tag: "AI Agent",
+  },
+  {
+    id: "career",
+    image: box05,
+    title: "Career Twin Simulator",
+    desc: "Simulate multi-year career paths, salary progression & promotion projections.",
+    tag: "Simulation",
+  },
+  {
+    id: "jobs",
+    image: box08,
+    title: "Job Intelligence Matcher",
+    desc: "Automated job matching filtered by your ATS compatibility and skill readiness.",
+    tag: "Smart Match",
+  },
+  {
+    id: "roadmap",
+    image: box01,
+    title: "Career Readiness Score (CRS)",
+    desc: "Aggregated readiness metrics across resume, skills, interview practice & learning.",
+    tag: "Benchmark",
+  },
 ];
 
-/* ── Stats data ── */
-const stats = [
-  { label: "Applications", value: "24", change: "+12%", icon: "" },
-  { label: "Interviews", value: "8", change: "+25%", icon: "" },
-  { label: "Skills Gained", value: "15", change: "+18%", icon: "" },
-  { label: "Resume Score", value: "87%", change: "+5%", icon: "" },
+/* ── Inspiration & Resource Cards (Box Images) ── */
+const galleryBoxes = [
+  { src: box04, title: "Modern Tech Stacks", category: "Skills" },
+  { src: box07, title: "Career Workshops", category: "Community" },
+  { src: box09, title: "System Architecture", category: "Engineering" },
+  { src: box10, title: "Live Coding Practice", category: "Interviews" },
+  { src: box11, title: "Product Strategy", category: "Roadmap" },
+  { src: box12, title: "Design Sprint Lab", category: "Innovation" },
+  { src: box13, title: "High-Growth Networking", category: "Career" },
+  { src: box14, title: "Portfolio Evaluation", category: "Review" },
+  { src: box15, title: "Executive Mentorship", category: "Guidance" },
+  { src: box16, title: "Hackathon Prep", category: "Competency" },
+  { src: box17, title: "Startup Pitch Deck", category: "Leadership" },
+  { src: box18, title: "Cloud & AI Pipelines", category: "Technology" },
 ];
 
-/* ── Gallery grid images ── */
-const galleryImages = [
-  { src: box07, label: "Career Workshop" },
-  { src: box08, label: "Team Meeting" },
-  { src: box09, label: "Networking Event" },
-  { src: box10, label: "Coding Session" },
-  { src: box11, label: "Tech Talk" },
-  { src: box12, label: "Design Sprint" },
-  { src: box13, label: "Brainstorming" },
-  { src: box14, label: "Portfolio Review" },
-  { src: box15, label: "Mentorship" },
-  { src: box16, label: "Hackathon" },
-  { src: box17, label: "Startup Pitch" },
-  { src: box18, label: "Strategy Session" },
-  { src: box19, label: "Remote Work" },
-  { src: box20, label: "Leadership Talk" },
-  { src: box21, label: "Innovation Lab" },
-  { src: box22, label: "Skill Workshop" },
-  { src: box23, label: "AI Training" },
-  { src: box24, label: "Project Demo" },
-  { src: box25, label: "Career Fair" },
-  { src: box26, label: "Tech Conference" },
-  { src: box27, label: "Creative Studio" },
-  { src: box28, label: "Focus Time" },
-  { src: box29, label: "Team Building" },
-  { src: box30, label: "Success Story" },
-];
-
-function DashboardHome({ user }) {
+function DashboardHome({ user, onNavigate }) {
   const [greeting, setGreeting] = useState("Good day");
 
   useEffect(() => {
@@ -91,134 +121,195 @@ function DashboardHome({ user }) {
     else setGreeting("Good Evening");
   }, []);
 
+  function handleCardClick(id) {
+    if (onNavigate) {
+      onNavigate(id);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
   return (
-    <div className="dashboard-home">
+    <div className="dashboard-content">
       {/* ── Hero Banner ── */}
-      <section className="dashboard-hero">
-        <div className="dashboard-hero__bg">
-          <img src={hero1} alt="" className="dashboard-hero__bg-img" />
-          <div className="dashboard-hero__overlay" />
-        </div>
-        <div className="dashboard-hero__content">
-          <p className="dashboard-hero__greeting">{greeting}</p>
-          <h1 className="dashboard-hero__title">
-            Welcome back, <span className="text-orange">{user?.name || "Career Navigator"}</span>!
-          </h1>
-          <p className="dashboard-hero__subtitle">
-            Your AI-powered career acceleration platform is ready. Let&apos;s build your future today.
-          </p>
-          <div className="dashboard-hero__actions">
-            <button className="btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="18" x2="12" y2="12" />
-                <line x1="9" y1="15" x2="15" y2="15" />
-              </svg>
-              Upload Resume
-            </button>
-            <button className="btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-              Start Mock Interview
-            </button>
-          </div>
-        </div>
-      </section>
+      <section className="dashboard-hero-banner">
+        <div className="hero-banner__inner">
+          <div className="hero-banner__text">
+            <span className="hero-banner__pill">
+              <span className="pill-pulse" />
+              Career Acceleration System • Live
+            </span>
+            <p className="hero-banner__greeting">{greeting},</p>
+            <h1 className="hero-banner__title">
+              Welcome back, <span className="brand-orange">{user?.name || "Career Navigator"}</span>!
+            </h1>
+            <p className="hero-banner__subtitle">
+              Your AI-powered career roadmap, ATS resume intelligence, and interview acceleration suite are active.
+            </p>
 
-      {/* ── Stats Row ── */}
-      <section className="dashboard-stats">
-        {stats.map((stat) => (
-          <div key={stat.label} className="stat-card">
-            <div className="stat-card__icon">{stat.icon}</div>
-            <div className="stat-card__info">
-              <span className="stat-card__value">{stat.value}</span>
-              <span className="stat-card__label">{stat.label}</span>
+            <div className="hero-banner__actions">
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={() => handleCardClick("resume")}
+              >
+                Upload Resume for ATS Scan
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() => handleCardClick("interview")}
+              >
+                Start Mock Interview
+              </button>
+              <button
+                type="button"
+                className="btn-outline-orange"
+                onClick={() => handleCardClick("roadmap")}
+              >
+                View Career Roadmap
+              </button>
             </div>
-            <span className="stat-card__change">{stat.change}</span>
           </div>
-        ))}
+
+          {/* Right Hero Readiness Card */}
+          <div className="hero-banner__score-card">
+            <div className="score-ring-wrap">
+              <div className="score-ring">
+                <span className="score-ring__val">87<small>%</small></span>
+                <span className="score-ring__lbl">Career Ready</span>
+              </div>
+            </div>
+            <div className="score-card__meta">
+              <h4 className="score-card__title">Career Readiness Score</h4>
+              <p className="score-card__desc">Calculated across Resume, ATS, Skills & Mock Interviews</p>
+              <div className="score-card__breakdown">
+                <div className="breakdown-bar">
+                  <div className="breakdown-fill" style={{ width: "87%" }} />
+                </div>
+                <span className="breakdown-status">Strong Candidate Profile</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* ── Feature Cards Grid ── */}
-      <section className="dashboard-section">
-        <div className="dashboard-section__header">
-          <h2 className="dashboard-section__title">
-            <span className="text-orange">AI</span> Career Tools
-          </h2>
-          <p className="dashboard-section__desc">
-            Explore powerful tools designed to accelerate your career journey
-          </p>
+      {/* ── 3 Highlight Boxes (Styled Numbers + Deep Glowing Hover Shadow) ── */}
+      <section className="three-boxes-section">
+        <div className="three-boxes-grid">
+          {highlightBoxes.map((box) => (
+            <div key={box.id} className="highlight-box-card">
+              <div className="highlight-box__top">
+                <span className="highlight-box__badge">{box.badge}</span>
+                <span className="highlight-box__trend">{box.trend}</span>
+              </div>
+              <div className="highlight-box__number-wrap">
+                <span className="highlight-box__number">{box.number}</span>
+              </div>
+              <h3 className="highlight-box__label">{box.label}</h3>
+              <p className="highlight-box__desc">{box.desc}</p>
+              <div className="highlight-box__glow-accent" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 6 Core Feature Module Cards with Smooth Hover Zoom ── */}
+      <section className="modules-section">
+        <div className="section-heading">
+          <div>
+            <span className="section-pill">Core Modules</span>
+            <h2 className="section-title">
+              AI Career <span className="brand-orange">Acceleration Modules</span>
+            </h2>
+            <p className="section-subtitle">
+              Hover over cards to explore our core tools. Click any card to open that module.
+            </p>
+          </div>
         </div>
 
-        <div className="feature-grid">
-          {featureCards.map((card) => (
-            <div key={card.title} className="feature-card">
-              <div className="feature-card__img-wrapper">
-                <img src={card.image} alt={card.title} className="feature-card__img" />
-                <div className="feature-card__img-overlay" />
-                <span className="feature-card__tag">{card.tag}</span>
+        <div className="modules-grid">
+          {featureCards.map((card, i) => (
+            <div
+              key={i}
+              className="module-card"
+              onClick={() => handleCardClick(card.id)}
+            >
+              <div className="module-card__img-wrap">
+                <img src={card.image} alt={card.title} className="module-card__img" />
+                <span className="module-card__tag">{card.tag}</span>
               </div>
-              <div className="feature-card__body">
-                <h3 className="feature-card__title">{card.title}</h3>
-                <p className="feature-card__desc">{card.desc}</p>
-                <button className="feature-card__btn">
-                  Explore
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </button>
+              <div className="module-card__body">
+                <h3 className="module-card__title">{card.title}</h3>
+                <p className="module-card__desc">{card.desc}</p>
+                <div className="module-card__footer">
+                  <span className="module-card__link">
+                    Explore Module →
+                  </span>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Inspiration Gallery ── */}
-      <section className="dashboard-section">
-        <div className="dashboard-section__header">
-          <h2 className="dashboard-section__title">
-            Career <span className="text-orange">Inspiration</span> Gallery
-          </h2>
-          <p className="dashboard-section__desc">
-            Curated visuals for career motivation — hover to explore
-          </p>
+      {/* ── Career Inspiration & Boxes Gallery with Hover Zoom ── */}
+      <section className="gallery-section">
+        <div className="section-heading">
+          <div>
+            <span className="section-pill">Career Inspiration</span>
+            <h2 className="section-title">
+              Interactive <span className="brand-orange">Career Resource Gallery</span>
+            </h2>
+            <p className="section-subtitle">
+              Visual learning modules and industry insights — hover to zoom and explore.
+            </p>
+          </div>
         </div>
 
         <div className="gallery-grid">
-          {galleryImages.map((img, i) => (
-            <div key={i} className="gallery-card">
-              <img src={img.src} alt={img.label} className="gallery-card__img" />
-              <div className="gallery-card__overlay">
-                <span className="gallery-card__label">{img.label}</span>
+          {galleryBoxes.map((box, index) => (
+            <div key={index} className="gallery-box-card">
+              <div className="gallery-box-card__img-wrap">
+                <img src={box.src} alt={box.title} className="gallery-box-card__img" />
+                <span className="gallery-box-card__cat">{box.category}</span>
+              </div>
+              <div className="gallery-box-card__overlay">
+                <h4 className="gallery-box-card__title">{box.title}</h4>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── Secondary Hero ── */}
-      <section className="dashboard-cta">
-        <div className="dashboard-cta__bg">
-          <img src={hero2} alt="" className="dashboard-cta__bg-img" />
-          <div className="dashboard-cta__overlay" />
-        </div>
-        <div className="dashboard-cta__content">
-          <h2 className="dashboard-cta__title">
-            Ready to take your career to the <span className="text-orange">next level</span>?
+      {/* ── FAQ Section (Shared Feature) ── */}
+      <FAQSection />
+
+      {/* ── Secondary CTA Banner ── */}
+      <section className="cta-banner">
+        <div className="cta-banner__content">
+          <span className="section-pill">Accelerate Your Trajectory</span>
+          <h2 className="cta-banner__title">
+            Take Your Tech Career to the <span className="brand-orange">Next Level</span>
           </h2>
-          <p className="dashboard-cta__desc">
-            Start building your professional profile with AI-powered tools
+          <p className="cta-banner__desc">
+            Equip yourself with ATS optimization, roadmap guidance, and high-impact interview preparation.
           </p>
-          <button className="btn-primary btn-primary--large">
-            Get Started Now
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12" />
-              <polyline points="12 5 19 12 12 19" />
-            </svg>
-          </button>
+          <div className="cta-banner__actions">
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={() => handleCardClick("resume")}
+            >
+              Get Started with Resume ATS
+            </button>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => handleCardClick("about")}
+            >
+              Learn More About CareerPilot
+            </button>
+          </div>
         </div>
       </section>
     </div>
