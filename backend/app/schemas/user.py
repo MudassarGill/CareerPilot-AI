@@ -25,16 +25,21 @@ from uuid import UUID
 class UserCreate(BaseModel):
     """
     Schema for user registration.
-    Client sends: name, email, password, confirm_password.
+    Client can send: name (or full_name), email, password, confirm_password.
     """
-    name: str
+    name: Optional[str] = None
+    full_name: Optional[str] = None
     email: EmailStr
     password: str  # Plain text — hashed before storing
-    confirm_password: str
+    confirm_password: Optional[str] = None
 
     @model_validator(mode="after")
-    def check_passwords_match(self) -> "UserCreate":
-        if self.password != self.confirm_password:
+    def check_user_create_data(self) -> "UserCreate":
+        if not self.name and self.full_name:
+            self.name = self.full_name
+        if not self.name:
+            self.name = self.email.split("@")[0]
+        if self.confirm_password and self.password != self.confirm_password:
             raise ValueError("passwords do not match")
         return self
 

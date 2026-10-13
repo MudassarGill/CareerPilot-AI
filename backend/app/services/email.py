@@ -54,4 +54,11 @@ class ConsoleEmailService:
         except Exception:
             pass
 
+    async def send_email(self, to_email: str, subject: str, body: str) -> None:
+        print("=" * 60)
+        print(f"📧 EMAIL MOCK: To {to_email}")
+        print(f"Subject: {subject}")
+        print(f"Body:\n{body}")
+        print("=" * 60)
+
 email_service = ConsoleEmailService(frontend_url=settings.FRONTEND_URL)

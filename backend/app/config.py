@@ -60,13 +60,17 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3001",
         "http://localhost:3002",
         "http://127.0.0.1:3002",
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
     ]
 
     # ---- Redis ----
     REDIS_URL: str = "redis://localhost:6379/0"
 
     # ---- Frontend Link ----
-    FRONTEND_URL: str = "http://localhost:3000"
+    FRONTEND_URL: str = "http://localhost:5173"
 
     class Config:
         """Load variables from .env file in the project root."""
