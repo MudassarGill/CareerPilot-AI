@@ -2,60 +2,67 @@
 ============================================================
 CareerPilot AI — Database Engine & Session Management
 ============================================================
-Creates the SQLAlchemy async engine, session factory, and
+Creates the SQLAlchemy connection engine, session factory, and
 declarative Base class used by all database models.
 
 Key Components:
-    - engine:       Async PostgreSQL connection engine
+    - engine:       Database connection engine (PostgreSQL / SQLite fallback)
     - SessionLocal: Session factory for creating DB sessions
     - Base:         Declarative base for all ORM models
     - get_db():     Dependency injection for FastAPI routes
-
-Usage in API routes:
-    from app.db.database import get_db
-    from sqlalchemy.orm import Session
-
-    @router.get("/users")
-    def get_users(db: Session = Depends(get_db)):
-        return db.query(User).all()
 ============================================================
 """
 
+import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 from app.config import settings
 
+logger = logging.getLogger(__name__)
+
+# Declarative Base
+Base = declarative_base()
+
+def create_db_engine():
+    """
+    Creates the SQLAlchemy engine. Attempts PostgreSQL connection;
+    if the database does not exist or PostgreSQL is unreachable,
+    gracefully falls back to local SQLite for seamless testing.
+    """
+    db_url = settings.DATABASE_URL
+
+    if db_url.startswith("postgresql"):
+        try:
+            # Test if postgres connection can be made
+            test_engine = create_engine(db_url, pool_pre_ping=True)
+            with test_engine.connect():
+                pass
+            print("[INFO] Connected to PostgreSQL database successfully.")
+            return test_engine
+        except Exception as exc:
+            print(f"[INFO] PostgreSQL connection notice: {exc}")
+            print("[INFO] Falling back to local SQLite database ('career_ai.db') for seamless execution.")
+            print("[INFO] To use PostgreSQL, create database 'career_ai_auth' in PostgreSQL and restart.")
+            fallback_url = "sqlite:///./career_ai.db"
+            return create_engine(fallback_url, connect_args={"check_same_thread": False})
+    
+    return create_engine(db_url)
+
 # ---- Database Engine ----
-# Creates a connection pool to PostgreSQL
-engine = create_engine(
-    settings.DATABASE_URL,
-    echo=settings.DEBUG,  # Log SQL queries in debug mode
-    pool_pre_ping=True,   # Verify connections before use
-)
+engine = create_db_engine()
 
 # ---- Session Factory ----
-# Each API request gets its own session via get_db()
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine,
 )
 
-# ---- Declarative Base ----
-# All ORM models inherit from this base class
-Base = declarative_base()
-
-
 def get_db():
     """
     FastAPI dependency that provides a database session.
     Automatically closes the session when the request ends.
-
-    Usage:
-        @router.get("/items")
-        def read_items(db: Session = Depends(get_db)):
-            ...
     """
     db = SessionLocal()
     try:

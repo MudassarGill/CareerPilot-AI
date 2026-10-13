@@ -32,7 +32,7 @@ class ConsoleEmailService:
     async def send_verification_email(self, to_email: str, token: str) -> None:
         verify_link = f"{self.frontend_url}/verify-email?token={token}"
         print("=" * 60)
-        print(f"📧 EMAIL MOCK: To {to_email}")
+        print(f" EMAIL MOCK: To {to_email}")
         print(f"Subject: Verify your CareerPilot AI account")
         print(f"Body:\nClick this link to verify your email:\n{verify_link}")
         print("=" * 60)
@@ -56,7 +56,7 @@ class ConsoleEmailService:
 
     async def send_email(self, to_email: str, subject: str, body: str) -> None:
         print("=" * 60)
-        print(f"📧 EMAIL MOCK: To {to_email}")
+        print(f" EMAIL MOCK: To {to_email}")
         print(f"Subject: {subject}")
         print(f"Body:\n{body}")
         print("=" * 60)

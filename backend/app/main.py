@@ -76,9 +76,9 @@ async def startup_event():
         from app.db.database import engine, Base
         import app.models  # noqa: F401
         Base.metadata.create_all(bind=engine)
-        print(" CareerPilot AI database tables verified/initialized.")
+        print("[INFO] CareerPilot AI database tables verified/initialized.")
     except Exception as exc:
-        print(f" Note on database initialization: {exc}")
+        print(f"[INFO] Note on database initialization: {exc}")
 
 
 # ============================================================
