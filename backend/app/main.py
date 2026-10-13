@@ -69,6 +69,18 @@ async def health_check():
     return {"status": "healthy", "service": "CareerPilot AI Backend"}
 
 
+@app.on_event("startup")
+async def startup_event():
+    """Auto-initialize database tables if connected."""
+    try:
+        from app.db.database import engine, Base
+        import app.models  # noqa: F401
+        Base.metadata.create_all(bind=engine)
+        print(" CareerPilot AI database tables verified/initialized.")
+    except Exception as exc:
+        print(f" Note on database initialization: {exc}")
+
+
 # ============================================================
 # API Router Registration
 # ============================================================
