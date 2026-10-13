@@ -1,3 +1,29 @@
+@keyframes colorSweep {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.welcome-text {
+  background: linear-gradient(
+    90deg,
+    #ea580c 0%,
+    #f97316 20%,
+    #fbbf24 45%,
+    #f97316 70%,
+    #ea580c 100%
+  );
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: colorSweep 2.8s ease-in-out infinite alternate;
+  display: inline-block;
+  letter-spacing: -0.02em;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

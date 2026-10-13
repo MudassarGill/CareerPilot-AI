@@ -22,6 +22,9 @@ async function parseError(response) {
   } catch {
     // response not JSON
   }
+  if (response.status === 502 || response.status === 504) {
+    return new Error("Backend server is not running. Please start the backend in terminal: cd backend && uvicorn app.main:app --reload --port 8000");
+  }
   return new Error(`Request failed with status ${response.status}`);
 }
 

@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import "./App.css";
 
 import AuthLayout from "./Components/Auth/AuthLayout";
 import SignUpLayout from "./Components/Auth/SignUpLayout";

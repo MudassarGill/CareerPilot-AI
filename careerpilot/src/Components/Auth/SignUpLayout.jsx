@@ -5,14 +5,14 @@ import SignUpForm from "./SignUpForm";
 function SignUpLayout({ onBackToLogin, onRegistered }) {
   return (
     <div
-      className="relative min-h-screen bg-cover bg-center flex items-center justify-center p-4 sm:p-6"
+      className="relative min-h-screen bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: `url(${backgroundImage})` }}
     >
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-[2px]"></div>
+      {/* Light transparent overlay so the background image colors are clearly visible */}
+      <div className="absolute inset-0 bg-black/40"></div>
 
-      {/* Main card container */}
-      <div className="relative z-10 flex min-h-[580px] w-full max-w-5xl flex-col items-center justify-center gap-6 xl:flex-row xl:justify-center xl:gap-8">
+      {/* Main content flex layout matching original styling */}
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-start gap-4 px-4 py-6 sm:px-6 xl:flex-row xl:justify-start xl:gap-8 xl:px-16 xl:py-8">
         <BrandingPanel />
 
         <SignUpForm
