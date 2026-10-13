@@ -14,23 +14,23 @@ Welcome to **CareerPilot AI**! This repository contains the full stack implement
 
 ## 🗄️ Database Setup & Credentials
 
-- **Target Database Name**: `career_ai_auth`
+- **Target Database Name**: `career_ai_authication`
 - **Default Port**: `5432`
 - **Configuration File**: `backend/.env`
 
-### 1. Create the Database in PostgreSQL
-Open **pgAdmin** or run in `psql`:
+### 1. Grant Permissions in PostgreSQL (pgAdmin)
+In **pgAdmin Query Tool**, run:
 
 ```sql
-CREATE DATABASE career_ai_auth;
-GRANT ALL PRIVILEGES ON DATABASE career_ai_auth TO career_ai_user;
+GRANT ALL ON SCHEMA public TO career_ai_user;
+GRANT ALL PRIVILEGES ON DATABASE career_ai_authication TO career_ai_user;
 ```
 
 ### 2. Configure Credentials in `backend/.env`
 Ensure your database connection string in `backend/.env` is configured:
 
 ```env
-DATABASE_URL=postgresql://<YOUR_USER>:<YOUR_PASSWORD>@localhost:5432/career_ai_auth
+DATABASE_URL=postgresql://career_ai_user:Mudassar1565%40@localhost:5432/career_ai_authication
 SECRET_KEY=careerpilot-ai-super-secret-key-2026
 DEBUG=True
 FRONTEND_URL=http://localhost:5173

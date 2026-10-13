@@ -1,27 +1,37 @@
-@keyframes colorSweep {
+.welcome-text {
+  color: transparent;
+  -webkit-text-stroke: 1.5px #f97316;
+
+  background: linear-gradient(
+    90deg,
+    #f97316 0%,
+    #fbbf24 50%,
+    #f97316 100%
+  );
+
+  background-clip: text;
+  -webkit-background-clip: text;
+
+  background-size: 0% 100%;
+  background-repeat: no-repeat;
+
+  animation: fillText 2.2s ease-in-out infinite alternate;
+}
+
+@keyframes fillText {
   0% {
-    background-position: 0% 50%;
+    background-size: 0% 100%;
   }
   100% {
-    background-position: 100% 50%;
+    background-size: 100% 100%;
   }
 }
 
-.welcome-text {
-  background: linear-gradient(
-    90deg,
-    #ea580c 0%,
-    #f97316 20%,
-    #fbbf24 45%,
-    #f97316 70%,
-    #ea580c 100%
-  );
-  background-size: 250% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: colorSweep 2.8s ease-in-out infinite alternate;
-  display: inline-block;
-  letter-spacing: -0.02em;
+@media (prefers-reduced-motion: reduce) {
+  .welcome-text {
+    animation: none;
+    background-size: 100% 100%;
+  }
 }
 
 .counter {

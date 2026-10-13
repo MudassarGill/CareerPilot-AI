@@ -48,14 +48,14 @@ body {
   background-size: 0% 100%;
   background-repeat: no-repeat;
 
-  animation: fillText 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: fillText 2.2s ease-in-out infinite alternate;
 }
 
 @keyframes fillText {
-  from {
+  0% {
     background-size: 0% 100%;
   }
-  to {
+  100% {
     background-size: 100% 100%;
   }
 }

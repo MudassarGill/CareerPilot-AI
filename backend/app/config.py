@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # ---- Database ----
-    DATABASE_URL: str = "postgresql://career_ai_user:Mudassar1565%40@localhost:5432/career_ai_auth"
+    DATABASE_URL: str = "postgresql://career_ai_user:Mudassar1565%40@localhost:5432/career_ai_authication"
 
     # ---- ChromaDB Vector Store ----
     CHROMA_PERSIST_DIR: str = "./data/chroma_db"
