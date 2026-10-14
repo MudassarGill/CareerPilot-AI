@@ -1124,7 +1124,7 @@
 }
 
 .gallery-box-card:hover .gallery-box-card__img {
-  transform: scale(1.1);
+  transform: none;
 }
 
 .gallery-box-card__cat {
@@ -1281,12 +1281,13 @@
    9. CTA BANNER
    ───────────────────────────────────────────────────────────── */
 .cta-banner {
-  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);
-  border: 1px solid #fdba74;
+  background: linear-gradient(135deg, #18080a 0%, #2f0f15 45%, #46141b 80%, #1c080a 100%);
+  border: 1px solid rgba(244, 63, 94, 0.28);
   border-radius: var(--radius-xl);
-  padding: 44px 32px;
+  padding: 46px 32px;
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.42), 0 4px 14px rgba(0, 0, 0, 0.2);
 }
 
 .cta-banner__content {
@@ -1295,17 +1296,18 @@
 }
 
 .cta-banner__title {
-  font-size: 2rem;
+  font-size: 2.1rem;
   font-weight: 800;
-  color: var(--color-text-main);
-  margin-bottom: 10px;
+  color: #ffffff;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
 }
 
 .cta-banner__desc {
-  font-size: 0.98rem;
-  color: var(--color-text-body);
+  font-size: 1rem;
+  color: #fecdd3;
   margin-bottom: 24px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .cta-banner__actions {
@@ -1313,6 +1315,17 @@
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
+}
+
+.cta-banner .btn-secondary {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  font-weight: 700;
+}
+
+.cta-banner .btn-secondary:hover {
+  background: #f8fafc;
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -1324,8 +1337,13 @@
 
 .about-hero {
   text-align: center;
-  max-width: 780px;
-  margin: 0 auto 40px auto;
+  max-width: 860px;
+  margin: 0 auto 36px auto;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  box-shadow: 0 18px 40px -8px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .about-hero__badge {
@@ -1373,7 +1391,13 @@
   border-radius: var(--radius-md);
   padding: 24px 20px;
   text-align: center;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 14px 32px -6px rgba(0, 0, 0, 0.18), 0 4px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.about-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px -6px rgba(0, 0, 0, 0.24);
 }
 
 .about-metric-val {
@@ -1471,13 +1495,13 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
 }
 
 .about-pillar-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-hover);
+  box-shadow: 0 22px 45px -6px rgba(0, 0, 0, 0.28);
   border-color: #fdba74;
 }
 
@@ -1495,7 +1519,7 @@
 }
 
 .about-pillar-card:hover .about-pillar-card__img {
-  transform: scale(1.09);
+  transform: none;
 }
 
 .about-pillar-card__badge {
@@ -3425,7 +3449,7 @@
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 16px 18px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -3434,7 +3458,7 @@
 
 .gap-skill-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 16px 32px -4px rgba(0, 0, 0, 0.18), 0 4px 10px rgba(0, 0, 0, 0.08);
   border-color: #fdba74;
 }
 
@@ -3530,13 +3554,13 @@
   border-radius: var(--radius-md);
   background: #ffffff;
   flex-wrap: wrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 22px -4px rgba(0, 0, 0, 0.11), 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 }
 
 .my-skill-row:hover {
   border-color: #fdba74;
-  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.09);
+  box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.16), 0 4px 10px rgba(0, 0, 0, 0.07);
 }
 
 .my-skill-info {
@@ -3646,14 +3670,14 @@
   border-radius: var(--radius-md);
   background: #ffffff;
   gap: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 8px 22px -4px rgba(0, 0, 0, 0.11), 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .catalog-item-card:hover {
   transform: translateY(-2px);
   border-color: #fdba74;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 14px 28px -4px rgba(0, 0, 0, 0.16), 0 4px 10px rgba(0, 0, 0, 0.07);
 }
 
 .catalog-item-name {

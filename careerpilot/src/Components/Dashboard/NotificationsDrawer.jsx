@@ -1,51 +1,115 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const initialNotifications = [
-  {
-    id: "notif-1",
-    title: "ATS Resume Engine v1.2 Ready",
-    message: "Upload your resume in Resume & ATS to get real-time keyword analysis and recruiter benchmark score.",
-    time: "10 mins ago",
-    unread: true,
-    tag: "Resume",
-  },
-  {
-    id: "notif-2",
-    title: "Welcome to CareerPilot AI",
-    message: "Your profile is verified. Complete your roadmap steps to unlock your Career Readiness Score.",
-    time: "1 hour ago",
-    unread: true,
-    tag: "Welcome",
-  },
-  {
-    id: "notif-3",
-    title: "New Interview Question Bank",
-    message: "50+ updated Full-Stack and AI Engineer behavioral questions added to Mock Interview module.",
-    time: "Yesterday",
-    unread: true,
-    tag: "Interview",
-  },
-  {
-    id: "notif-4",
-    title: "Weekly Career Digest",
-    message: "Tech hiring demand in Full Stack and Python roles increased by 14% this week.",
-    time: "3 days ago",
+function getDynamicNotifications() {
+  const list = [];
+  const storedRole = localStorage.getItem("careerpilot_target_role") || "Full Stack Developer";
+  const storedResume = localStorage.getItem("careerpilot_last_resume");
+  const storedSkills = localStorage.getItem("careerpilot_my_skills");
+
+  if (storedResume) {
+    try {
+      const parsed = JSON.parse(storedResume);
+      list.push({
+        id: "notif-resume-active",
+        title: "Resume Analyzed Successfully",
+        message: `Parsed ${parsed.total_skills_found || 0} skills from ${parsed.file_name || "your resume"}. Ready for ATS matching against ${storedRole}.`,
+        time: "Just now",
+        unread: true,
+        tag: "Resume",
+      });
+    } catch {
+      // ignore
+    }
+  } else {
+    list.push({
+      id: "notif-resume-prompt",
+      title: "ATS Resume Optimization Ready",
+      message: `Upload your resume to benchmark your keywords against standard ${storedRole} job descriptions.`,
+      time: "15 mins ago",
+      unread: true,
+      tag: "Action",
+    });
+  }
+
+  if (storedSkills) {
+    try {
+      const parsedSkills = JSON.parse(storedSkills);
+      const count = Array.isArray(parsedSkills) ? parsedSkills.length : 0;
+      if (count > 0) {
+        list.push({
+          id: "notif-skills-active",
+          title: "Skills Profile Synced",
+          message: `${count} verified technical competencies are feeding your Career Readiness Score (CRS).`,
+          time: "1 hour ago",
+          unread: true,
+          tag: "Skills",
+        });
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  list.push({
+    id: "notif-crs-live",
+    title: `Target Role: ${storedRole}`,
+    message: "Industry benchmark requirements updated. Check your Skill Gap Matrix to review target proficiencies.",
+    time: "2 hours ago",
     unread: false,
-    tag: "Digest",
-  },
-];
+    tag: "Roadmap",
+  });
+
+  list.push({
+    id: "notif-welcome",
+    title: "Welcome to CareerPilot AI",
+    message: "Your AI-powered career roadmap, ATS resume intelligence, and interview acceleration suite are active.",
+    time: "Today",
+    unread: false,
+    tag: "System",
+  });
+
+  return list;
+}
 
 function NotificationsDrawer({ isOpen, onClose }) {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem("careerpilot_user_notifications");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // fallback
+      }
+    }
+    return getDynamicNotifications();
+  });
+
+  useEffect(() => {
+    if (isOpen) {
+      // refresh with current dynamic context if no custom dismissals
+      const saved = localStorage.getItem("careerpilot_user_notifications");
+      if (!saved) {
+        setNotifications(getDynamicNotifications());
+      }
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   function markAllRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })));
+    setNotifications((prev) => {
+      const updated = prev.map((n) => ({ ...n, unread: false }));
+      localStorage.setItem("careerpilot_user_notifications", JSON.stringify(updated));
+      return updated;
+    });
   }
 
   function dismiss(id) {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setNotifications((prev) => {
+      const updated = prev.filter((n) => n.id !== id);
+      localStorage.setItem("careerpilot_user_notifications", JSON.stringify(updated));
+      return updated;
+    });
   }
 
   const unreadCount = notifications.filter((n) => n.unread).length;
