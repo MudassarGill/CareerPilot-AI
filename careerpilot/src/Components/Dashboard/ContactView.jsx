@@ -70,7 +70,7 @@ function ContactView() {
   return (
     <div className="contact-page">
       <div className="contact-header">
-        <span className="section-pill">Phase 3 • Help Center</span>
+        <span className="section-pill">Help Center</span>
         <h1 className="contact-title">
           Contact <span className="brand-orange">Career Support</span>
         </h1>

@@ -134,10 +134,9 @@ export default function ResumeView({ onNavigate }) {
 
   return (
     <div className="module-view-root">
-      {/* Top Banner */}
-      <div className="module-header-card">
+      {/* Top Banner with Luxury Gradient Background */}
+      <div className="module-header-card module-header-card--gradient">
         <div className="module-header-text">
-          <span className="module-eyebrow">Phase 3 — Core Tool</span>
           <h1 className="module-main-title">Resume & ATS Intelligence</h1>
           <p className="module-subtitle">
             Upload your PDF/DOCX resume, inspect parsed sections, and test ATS keyword compatibility against job descriptions.
@@ -146,11 +145,11 @@ export default function ResumeView({ onNavigate }) {
         <div className="module-header-actions">
           <button
             type="button"
-            className="btn-primary"
+            className="btn-header-upload"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
           >
-            {uploading ? "Analyzing..." : "↑ Upload New Resume"}
+            {uploading ? "Analyzing File..." : "Upload New Resume"}
           </button>
           <input
             type="file"
@@ -281,11 +280,11 @@ export default function ResumeView({ onNavigate }) {
                   <div className="ats-actions-bar">
                     <button
                       type="button"
-                      className="btn-primary"
+                      className="btn-scan-ats"
                       onClick={handleScanATS}
                       disabled={scoring}
                     >
-                      {scoring ? "Scanning Match..." : "⚡ Scan Match Against Job"}
+                      {scoring ? "Scanning Match..." : "Scan Match Against Job"}
                     </button>
                     <span className="ats-tip-text">
                       AI analyzes keyword density, required tech stacks, and section requirements.
@@ -304,7 +303,7 @@ export default function ResumeView({ onNavigate }) {
                     <div className="keywords-grid">
                       <div className="keywords-box keywords-box--matched">
                         <span className="keywords-box-title">
-                          ✓ Matched Keywords ({atsResult.matched_keywords?.length || 0})
+                          Matched Keywords ({atsResult.matched_keywords?.length || 0})
                         </span>
                         <div className="keywords-tags">
                           {atsResult.matched_keywords?.length > 0 ? (
@@ -321,7 +320,7 @@ export default function ResumeView({ onNavigate }) {
 
                       <div className="keywords-box keywords-box--missing">
                         <span className="keywords-box-title">
-                          ⚠ Missing Keywords / Gaps ({atsResult.missing_keywords?.length || 0})
+                          Missing Keywords / Gaps ({atsResult.missing_keywords?.length || 0})
                         </span>
                         <div className="keywords-tags">
                           {atsResult.missing_keywords?.length > 0 ? (

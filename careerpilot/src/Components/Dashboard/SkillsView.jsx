@@ -150,10 +150,9 @@ export default function SkillsView({ onNavigate }) {
 
   return (
     <div className="module-view-root">
-      {/* Top Banner */}
-      <div className="module-header-card">
+      {/* Top Banner with Luxury Gradient Background */}
+      <div className="module-header-card module-header-card--gradient">
         <div className="module-header-text">
-          <span className="module-eyebrow">Phase 4 — Core Assessment</span>
           <h1 className="module-main-title">Skill Assessment & Gap Analysis</h1>
           <p className="module-subtitle">
             Benchmark your proficiency against industry standard roles, target high-demand competencies, and accelerate your Career Readiness Score.
@@ -167,7 +166,7 @@ export default function SkillsView({ onNavigate }) {
             className={`tab-btn ${activeTab === "gaps" ? "tab-btn--active" : ""}`}
             onClick={() => setActiveTab("gaps")}
           >
-            🎯 Role Gap Analysis
+            Role Gap Analysis
           </button>
           <button
             type="button"
@@ -177,14 +176,14 @@ export default function SkillsView({ onNavigate }) {
               loadMySkillsList();
             }}
           >
-            ⭐ My Skills ({mySkills.length})
+            My Skills ({mySkills.length})
           </button>
           <button
             type="button"
             className={`tab-btn ${activeTab === "catalog" ? "tab-btn--active" : ""}`}
             onClick={() => setActiveTab("catalog")}
           >
-            🔍 Explore Catalog
+            Explore Catalog
           </button>
         </div>
       </div>

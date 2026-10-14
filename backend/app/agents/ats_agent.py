@@ -136,7 +136,7 @@ class ATSAgent:
         text = re.sub(r"[^\w\s/\+\#\.]", " ", text)
 
         # Split into potential keywords (single words + bigrams)
-        words = text.split()
+        words = [w.strip(".") for w in text.split()]
         single_words = [w for w in words if len(w) > 2 and w not in STOP_WORDS]
 
         # Generate bigrams for multi-word tech terms

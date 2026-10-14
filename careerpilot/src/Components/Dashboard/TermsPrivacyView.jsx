@@ -6,7 +6,7 @@ function TermsPrivacyView() {
   return (
     <div className="terms-page">
       <div className="terms-header">
-        <span className="section-pill">Phase 3 • Legal & Compliance</span>
+        <span className="section-pill">Legal & Compliance</span>
         <h1 className="terms-title">
           Security, Terms & <span className="brand-orange">Privacy</span>
         </h1>

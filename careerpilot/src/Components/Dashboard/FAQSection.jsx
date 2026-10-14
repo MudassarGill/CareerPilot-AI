@@ -49,7 +49,7 @@ function FAQSection() {
   return (
     <section className="faq-section">
       <div className="faq-section__header">
-        <span className="section-pill">Phase 3 • Shared Support</span>
+        <span className="section-pill">Help & Support</span>
         <h2 className="faq-section__title">
           Frequently Asked <span className="brand-orange">Questions</span>
         </h2>

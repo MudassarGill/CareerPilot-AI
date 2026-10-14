@@ -4,7 +4,7 @@ const initialNotifications = [
   {
     id: "notif-1",
     title: "ATS Resume Engine v1.2 Ready",
-    message: "Upload your resume in Phase 4 to get real-time keyword analysis and recruiter benchmark score.",
+    message: "Upload your resume in Resume & ATS to get real-time keyword analysis and recruiter benchmark score.",
     time: "10 mins ago",
     unread: true,
     tag: "Resume",

@@ -33,7 +33,7 @@ function ProfileSettingsView({ user, onUpdateUser, onSignOut }) {
   return (
     <div className="profile-page">
       <div className="profile-header">
-        <span className="section-pill">Phase 3 • User Settings</span>
+        <span className="section-pill">User Settings</span>
         <h1 className="profile-title">
           Profile & <span className="brand-orange">Preferences</span>
         </h1>
