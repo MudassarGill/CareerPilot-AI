@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import FAQSection from "./FAQSection";
+import { getCRSScore } from "../../services/crs";
 
 /* ── Asset box & hero images ── */
 import box01 from "../../assets/box-01.jpg";
@@ -113,12 +114,35 @@ const galleryBoxes = [
 
 function DashboardHome({ user, onNavigate }) {
   const [greeting, setGreeting] = useState("Good day");
+  const [crs, setCrs] = useState({
+    score: 87,
+    resume_part: 92,
+    skills_part: 84,
+    interview_part: 85,
+    percentile_label: "Top 10%",
+  });
 
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("Good Morning");
     else if (hour < 17) setGreeting("Good Afternoon");
     else setGreeting("Good Evening");
+
+    getCRSScore()
+      .then((data) => {
+        if (data && typeof data.score === "number") {
+          setCrs({
+            score: data.score,
+            resume_part: data.resume_part,
+            skills_part: data.skills_part,
+            interview_part: data.interview_part,
+            percentile_label: data.percentile_label || "Top 10%",
+          });
+        }
+      })
+      .catch(() => {
+        // keep fallback default
+      });
   }, []);
 
   function handleCardClick(id) {
@@ -127,6 +151,10 @@ function DashboardHome({ user, onNavigate }) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
+
+  const circumference = 276.46;
+  const scoreVal = Math.round(crs.score || 0);
+  const strokeOffset = circumference * (1 - Math.min(Math.max(scoreVal, 0), 100) / 100);
 
   return (
     <div className="dashboard-content">
@@ -187,7 +215,7 @@ function DashboardHome({ user, onNavigate }) {
                     stroke="#ffedd5"
                     strokeWidth="8"
                   />
-                  {/* Progress Arc: 2 * PI * 44 ≈ 276.46. For 87%, offset = 276.46 * (1 - 0.87) ≈ 35.9 */}
+                  {/* Progress Arc: 2 * PI * 44 ≈ 276.46 */}
                   <circle
                     cx="54"
                     cy="54"
@@ -196,13 +224,13 @@ function DashboardHome({ user, onNavigate }) {
                     stroke="url(#scoreGrad)"
                     strokeWidth="8"
                     strokeDasharray="276.46"
-                    strokeDashoffset="35.9"
+                    strokeDashoffset={strokeOffset}
                     strokeLinecap="round"
                     transform="rotate(-90 54 54)"
                   />
                 </svg>
                 <div className="score-svg-inner">
-                  <span className="score-svg-val">87<small>%</small></span>
+                  <span className="score-svg-val">{scoreVal}<small>%</small></span>
                   <span className="score-svg-lbl">CRS</span>
                 </div>
               </div>
@@ -210,7 +238,7 @@ function DashboardHome({ user, onNavigate }) {
               <div className="score-card__header-info">
                 <div className="score-title-row">
                   <h4 className="score-card__title">Career Readiness Score</h4>
-                  <span className="score-percentile-pill">Top 10%</span>
+                  <span className="score-percentile-pill">{crs.percentile_label || "Top 10%"}</span>
                 </div>
                 <p className="score-card__desc">Calculated across Resume, ATS, Skills & Mock Interviews</p>
                 <div className="score-status-indicator">
@@ -224,19 +252,19 @@ function DashboardHome({ user, onNavigate }) {
             <div className="score-breakdown-grid">
               <div className="score-sub-pill">
                 <span className="score-sub-lbl">Resume</span>
-                <span className="score-sub-val">92%</span>
+                <span className="score-sub-val">{Math.round(crs.resume_part || 0)}%</span>
               </div>
               <div className="score-sub-pill">
                 <span className="score-sub-lbl">ATS Match</span>
-                <span className="score-sub-val">88%</span>
+                <span className="score-sub-val">{Math.round(crs.resume_part || 0)}%</span>
               </div>
               <div className="score-sub-pill">
                 <span className="score-sub-lbl">Skills</span>
-                <span className="score-sub-val">84%</span>
+                <span className="score-sub-val">{Math.round(crs.skills_part || 0)}%</span>
               </div>
               <div className="score-sub-pill">
                 <span className="score-sub-lbl">Interview</span>
-                <span className="score-sub-val">85%</span>
+                <span className="score-sub-val">{Math.round(crs.interview_part || 0)}%</span>
               </div>
             </div>
           </div>
