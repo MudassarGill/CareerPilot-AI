@@ -77,6 +77,9 @@ async def startup_event():
         import app.models  # noqa: F401
         Base.metadata.create_all(bind=engine)
         print("[INFO] CareerPilot AI database tables verified/initialized.")
+        # Auto-seed standard skills if needed
+        from app.scripts.seed_skills import seed_skills
+        seed_skills()
     except Exception as exc:
         print(f"[INFO] Note on database initialization: {exc}")
 
