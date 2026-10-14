@@ -36,7 +36,7 @@ app = FastAPI(
 )
 
 # ---- CORS Middleware ----
-# Allows the Next.js frontend to communicate with the backend
+# Allows the frontend to communicate with the backend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
@@ -44,6 +44,14 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ---- Static Files (Resumes & Avatars) ----
+import os
+from fastapi.staticfiles import StaticFiles
+
+uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "uploads")
+os.makedirs(uploads_dir, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=uploads_dir), name="uploads")
 
 
 # ---- Health Check Endpoint ----

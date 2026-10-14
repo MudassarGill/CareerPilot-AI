@@ -89,13 +89,21 @@ class StorageService:
         }
 
     @staticmethod
+    def get_file_path(file_url: str) -> str:
+        """
+        Convert file_url (e.g. /uploads/resumes/xxx.pdf) to local absolute path.
+        """
+        if file_url.startswith("/uploads/"):
+            rel_path = file_url.lstrip("/")
+            return str((Path("data") / rel_path).resolve())
+        return str(Path(file_url).resolve())
+
+    @staticmethod
     def delete_file(file_url: str) -> bool:
         """
         Delete a file by its relative URL path.
         Returns True if deleted, False if not found.
         """
-        # Convert URL path to filesystem path
-        # e.g., "/uploads/resumes/abc.pdf" -> "data/uploads/resumes/abc.pdf"
         if file_url.startswith("/uploads/"):
             rel_path = file_url.lstrip("/")
             filepath = Path("data") / rel_path

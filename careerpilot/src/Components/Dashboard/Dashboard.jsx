@@ -9,6 +9,8 @@ import TermsPrivacyView from "./TermsPrivacyView";
 import FAQSection from "./FAQSection";
 import ModulePlaceholder from "./ModulePlaceholder";
 import NotificationsDrawer from "./NotificationsDrawer";
+import ResumeView from "./ResumeView";
+import SkillsView from "./SkillsView";
 
 function Dashboard({ onSignOut }) {
   const [user, setUser] = useState(null);
@@ -62,7 +64,10 @@ function Dashboard({ onSignOut }) {
           </div>
         );
       case "resume":
+        return <ResumeView onNavigate={handleNavigate} />;
+      case "skills":
       case "roadmap":
+        return <SkillsView onNavigate={handleNavigate} />;
       case "interview":
       case "career":
       case "jobs":

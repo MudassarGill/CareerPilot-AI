@@ -51,7 +51,10 @@ async def upload_resume(
     Saves file to disk, runs ResumeAnalyzerAgent, and stores structured sections.
     """
     # 1. Save file to disk
-    file_path, file_url = await StorageService.save_resume_file(file, str(current_user.id))
+    save_info = await StorageService.save_resume(file)
+    file_path = save_info["file_path"]
+    file_url = save_info["file_url"]
+    original_name = save_info["original_name"]
 
     # 2. Parse resume
     parsed_data = await resume_agent.parse_resume(file_path)
