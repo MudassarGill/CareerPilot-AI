@@ -134,10 +134,6 @@ function DashboardHome({ user, onNavigate }) {
       <section className="dashboard-hero-banner">
         <div className="hero-banner__inner">
           <div className="hero-banner__text">
-            <span className="hero-banner__pill">
-              <span className="pill-pulse" />
-              Career Acceleration System • Live
-            </span>
             <p className="hero-banner__greeting">{greeting},</p>
             <h1 className="hero-banner__title">
               Welcome back, <span className="brand-orange">{user?.name || "Career Navigator"}</span>!
@@ -171,22 +167,76 @@ function DashboardHome({ user, onNavigate }) {
             </div>
           </div>
 
-          {/* Right Hero Readiness Card */}
+          {/* Right Hero Readiness Card — Upgraded SVG Circular Ring & Metrics Breakdown */}
           <div className="hero-banner__score-card">
-            <div className="score-ring-wrap">
-              <div className="score-ring">
-                <span className="score-ring__val">87<small>%</small></span>
-                <span className="score-ring__lbl">Career Ready</span>
+            <div className="score-card__top">
+              <div className="score-svg-wrap">
+                <svg className="score-svg-ring" width="108" height="108" viewBox="0 0 108 108">
+                  <defs>
+                    <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#ea580c" />
+                      <stop offset="100%" stopColor="#f97316" />
+                    </linearGradient>
+                  </defs>
+                  {/* Background Track */}
+                  <circle
+                    cx="54"
+                    cy="54"
+                    r="44"
+                    fill="none"
+                    stroke="#ffedd5"
+                    strokeWidth="8"
+                  />
+                  {/* Progress Arc: 2 * PI * 44 ≈ 276.46. For 87%, offset = 276.46 * (1 - 0.87) ≈ 35.9 */}
+                  <circle
+                    cx="54"
+                    cy="54"
+                    r="44"
+                    fill="none"
+                    stroke="url(#scoreGrad)"
+                    strokeWidth="8"
+                    strokeDasharray="276.46"
+                    strokeDashoffset="35.9"
+                    strokeLinecap="round"
+                    transform="rotate(-90 54 54)"
+                  />
+                </svg>
+                <div className="score-svg-inner">
+                  <span className="score-svg-val">87<small>%</small></span>
+                  <span className="score-svg-lbl">CRS</span>
+                </div>
+              </div>
+
+              <div className="score-card__header-info">
+                <div className="score-title-row">
+                  <h4 className="score-card__title">Career Readiness Score</h4>
+                  <span className="score-percentile-pill">Top 10%</span>
+                </div>
+                <p className="score-card__desc">Calculated across Resume, ATS, Skills & Mock Interviews</p>
+                <div className="score-status-indicator">
+                  <span className="status-dot-pulse" />
+                  <span className="status-text">Strong Candidate Profile</span>
+                </div>
               </div>
             </div>
-            <div className="score-card__meta">
-              <h4 className="score-card__title">Career Readiness Score</h4>
-              <p className="score-card__desc">Calculated across Resume, ATS, Skills & Mock Interviews</p>
-              <div className="score-card__breakdown">
-                <div className="breakdown-bar">
-                  <div className="breakdown-fill" style={{ width: "87%" }} />
-                </div>
-                <span className="breakdown-status">Strong Candidate Profile</span>
+
+            {/* Sub-metrics pill row */}
+            <div className="score-breakdown-grid">
+              <div className="score-sub-pill">
+                <span className="score-sub-lbl">Resume</span>
+                <span className="score-sub-val">92%</span>
+              </div>
+              <div className="score-sub-pill">
+                <span className="score-sub-lbl">ATS Match</span>
+                <span className="score-sub-val">88%</span>
+              </div>
+              <div className="score-sub-pill">
+                <span className="score-sub-lbl">Skills</span>
+                <span className="score-sub-val">84%</span>
+              </div>
+              <div className="score-sub-pill">
+                <span className="score-sub-lbl">Interview</span>
+                <span className="score-sub-val">85%</span>
               </div>
             </div>
           </div>
