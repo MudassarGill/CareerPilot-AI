@@ -43,9 +43,9 @@ function Footer({ onNavigate }) {
             </div>
           </div>
 
-          {/* Core Modules (Phase 2, 4, 5, 6, 7) */}
+          {/* Platform Features */}
           <div className="footer-col">
-            <h4 className="footer-col__title">Core Modules</h4>
+            <h4 className="footer-col__title">Platform Features</h4>
             <ul className="footer-links">
               <li><button type="button" onClick={() => handleLinkClick("dashboard")}>Career Dashboard</button></li>
               <li><button type="button" onClick={() => handleLinkClick("resume")}>Resume & ATS Analyzer</button></li>

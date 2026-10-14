@@ -295,12 +295,11 @@ function DashboardHome({ user, onNavigate }) {
       <section className="modules-section">
         <div className="section-heading">
           <div>
-            <span className="section-pill">Core Modules</span>
             <h2 className="section-title">
               AI Career <span className="brand-orange">Acceleration Modules</span>
             </h2>
             <p className="section-subtitle">
-              Hover over cards to explore our core tools. Click any card to open that module.
+              Click any module to begin your personalized career preparation.
             </p>
           </div>
         </div>
@@ -330,7 +329,7 @@ function DashboardHome({ user, onNavigate }) {
         </div>
       </section>
 
-      {/* ── Career Inspiration & Boxes Gallery with Hover Zoom ── */}
+      {/* ── Career Inspiration & Resource Gallery ── */}
       <section className="gallery-section">
         <div className="section-heading">
           <div>
@@ -339,7 +338,7 @@ function DashboardHome({ user, onNavigate }) {
               Interactive <span className="brand-orange">Career Resource Gallery</span>
             </h2>
             <p className="section-subtitle">
-              Visual learning modules and industry insights — hover to zoom and explore.
+              Visual learning modules and industry insights to accelerate your career journey.
             </p>
           </div>
         </div>

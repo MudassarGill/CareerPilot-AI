@@ -133,19 +133,16 @@ function Navbar({ activeView, onNavigate, user, onSignOut, unreadCount = 3, onTo
             {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
           </button>
 
-          {/* User Profile Capsule — Compact label "Profile" that fits cleanly without stretching */}
+          {/* User Profile Avatar Circle — Click opens profile dropdown */}
           <div className="top-navbar__user-wrapper" ref={userMenuRef}>
             <button
               type="button"
-              className="navbar-user-btn"
+              className="navbar-user-btn navbar-user-btn--avatar-only"
               onClick={() => setUserDropdownOpen((prev) => !prev)}
-              title="Account Menu"
+              title={user?.name || "Account Profile"}
+              aria-label="User Profile Menu"
             >
               <div className="navbar-user-avatar">{userInitial}</div>
-              <span className="navbar-user-name">Profile</span>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
             </button>
 
             {userDropdownOpen && (
