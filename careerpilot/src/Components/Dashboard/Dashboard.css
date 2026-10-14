@@ -2715,10 +2715,10 @@
 
 .resumes-list-card {
   background: var(--color-canvas);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 18px;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.2), 0 6px 16px -2px rgba(0, 0, 0, 0.1);
 }
 
 .list-card-header {
@@ -2840,10 +2840,10 @@
 /* ATS Scanner Card */
 .ats-scanner-card {
   background: var(--color-canvas);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
+  padding: 26px 30px;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.2), 0 6px 16px -2px rgba(0, 0, 0, 0.1);
 }
 
 .ats-scanner-header {
@@ -3115,10 +3115,10 @@
 /* Parsed Resume Sections */
 .parsed-resume-card {
   background: var(--color-canvas);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
+  padding: 26px 30px;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.2), 0 6px 16px -2px rgba(0, 0, 0, 0.1);
 }
 
 .parsed-card-header {
@@ -3509,11 +3509,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 12px 16px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-canvas-alt);
+  padding: 14px 18px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #ffffff;
   flex-wrap: wrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.my-skill-row:hover {
+  border-color: #fdba74;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.09);
 }
 
 .my-skill-info {
@@ -3618,11 +3625,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-canvas-alt);
-  gap: 10px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  gap: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.catalog-item-card:hover {
+  transform: translateY(-2px);
+  border-color: #fdba74;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.1);
 }
 
 .catalog-item-name {
