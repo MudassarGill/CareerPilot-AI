@@ -47,7 +47,7 @@ TECH_JOBS_CATALOG = [
         "description": "Architect high-speed, accessible user interfaces using React 19 and Next.js App Router. Optimize Core Web Vitals, SSR caching, and client state pipelines.",
         "posted_date": "2 days ago",
         "company_url": "https://vercel.com/careers",
-        "job_url": "https://vercel.com/careers",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Senior+Frontend+Engineer+React+Next.js+Vercel",
     },
     {
         "id": "job_be_1",
@@ -62,7 +62,7 @@ TECH_JOBS_CATALOG = [
         "description": "Build high-throughput asynchronous REST APIs and microservices. Handle database connection pools, indexing, caching layers, and CI/CD pipelines.",
         "posted_date": "1 day ago",
         "company_url": "https://scale.com/careers",
-        "job_url": "https://scale.com/careers",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Backend+Systems+Engineer+Python+FastAPI+Scale+AI",
     },
     {
         "id": "job_ai_1",
@@ -77,7 +77,7 @@ TECH_JOBS_CATALOG = [
         "description": "Design enterprise Retrieval-Augmented Generation (RAG) agents, semantic chunking pipelines, and LLM evaluation benchmarks with LangGraph.",
         "posted_date": "Just now",
         "company_url": "https://www.anthropic.com/careers",
-        "job_url": "https://www.anthropic.com/careers",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=AI+RAG+Solutions+Engineer+Anthropic",
     },
     {
         "id": "job_fs_1",
@@ -92,7 +92,7 @@ TECH_JOBS_CATALOG = [
         "description": "End-to-end feature ownership from reactive browser UI to database transactions. Implement authentication, Stripe payments, and automated test suites.",
         "posted_date": "3 days ago",
         "company_url": "https://stripe.com/jobs",
-        "job_url": "https://stripe.com/jobs",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Full+Stack+Software+Developer+Stripe",
     },
     {
         "id": "job_do_1",
@@ -107,7 +107,7 @@ TECH_JOBS_CATALOG = [
         "description": "Manage multi-cluster Kubernetes infrastructure, Terraform Infrastructure-as-Code (IaC), zero-trust security policies, and Prometheus monitoring.",
         "posted_date": "4 days ago",
         "company_url": "https://www.cncf.io/",
-        "job_url": "https://kubernetes.io/",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Cloud+DevOps+Platform+Engineer+Kubernetes",
     },
     {
         "id": "job_da_1",
@@ -122,7 +122,7 @@ TECH_JOBS_CATALOG = [
         "description": "Deliver executive KPI dashboards, customer retention cohort analyses, and automated SQL ETL pipelines from data lakes.",
         "posted_date": "2 days ago",
         "company_url": "https://www.snowflake.com/en/company/careers/",
-        "job_url": "https://www.snowflake.com/en/company/careers/",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Data+Analyst+Business+Intelligence+Snowflake",
     },
     {
         "id": "job_fe_2",
@@ -137,7 +137,7 @@ TECH_JOBS_CATALOG = [
         "description": "Transform high-fidelity Figma components into pixel-perfect, accessible React components with smooth CSS micro-animations.",
         "posted_date": "5 days ago",
         "company_url": "https://www.figma.com/careers/",
-        "job_url": "https://www.figma.com/careers/",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Frontend+UI+UX+Developer+React+Figma",
     },
     {
         "id": "job_be_2",
@@ -152,7 +152,142 @@ TECH_JOBS_CATALOG = [
         "description": "Lead architectural strategy for event-driven distributed streaming pipelines handling millions of events per second with high availability.",
         "posted_date": "1 day ago",
         "company_url": "https://www.datadoghq.com/careers/",
-        "job_url": "https://www.datadoghq.com/careers/",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Distributed+Systems+Architect+Datadog",
+    },
+    {
+        "id": "job_se_1",
+        "title": "Software Engineer (Backend / Systems)",
+        "company": "Google Engineering",
+        "location": "Mountain View, CA",
+        "location_type": "Hybrid",
+        "salary_range": "$150,000 - $200,000",
+        "experience_level": "Mid-Level",
+        "category": "Software Engineer",
+        "required_skills": ["Python", "Java", "Data Structures", "Algorithms", "System Design", "SQL", "Git", "Testing"],
+        "description": "Design and implement scalable backend services, optimize algorithms for large-scale data processing, and lead code quality initiatives.",
+        "posted_date": "1 day ago",
+        "company_url": "https://careers.google.com/",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Software+Engineer+Backend+Google",
+    },
+    {
+        "id": "job_se_2",
+        "title": "Senior Software Engineer (Platform)",
+        "company": "Stripe Engineering",
+        "location": "San Francisco, CA",
+        "location_type": "Remote",
+        "salary_range": "$175,000 - $220,000",
+        "experience_level": "Senior",
+        "category": "Software Engineer",
+        "required_skills": ["Python", "JavaScript", "REST API", "Docker", "CI/CD", "System Design", "PostgreSQL", "Testing"],
+        "description": "Build and scale mission-critical payment infrastructure serving millions of businesses. Focus on reliability, latency optimization, and API design.",
+        "posted_date": "2 days ago",
+        "company_url": "https://stripe.com/jobs",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Senior+Software+Engineer+Platform+Stripe",
+    },
+    {
+        "id": "job_ca_1",
+        "title": "Cloud Solutions Architect (AWS / GCP)",
+        "company": "Accenture Cloud First",
+        "location": "Dallas, TX",
+        "location_type": "Remote",
+        "salary_range": "$155,000 - $195,000",
+        "experience_level": "Senior",
+        "category": "Cloud",
+        "required_skills": ["AWS", "Terraform", "Kubernetes", "Docker", "Networking", "CI/CD", "Linux", "Serverless"],
+        "description": "Design multi-region cloud architectures, implement Infrastructure-as-Code automation, and lead enterprise cloud migration strategies.",
+        "posted_date": "3 days ago",
+        "company_url": "https://www.accenture.com/us-en/careers",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Cloud+Solutions+Architect+AWS+Accenture",
+    },
+    {
+        "id": "job_cs_1",
+        "title": "Cybersecurity Engineer (Offensive Security)",
+        "company": "CrowdStrike",
+        "location": "Austin, TX",
+        "location_type": "Remote",
+        "salary_range": "$135,000 - $175,000",
+        "experience_level": "Mid-Level",
+        "category": "Security",
+        "required_skills": ["Penetration Testing", "Python", "Linux", "Networking", "SIEM Tools", "Cloud Security", "Incident Response"],
+        "description": "Conduct penetration testing, develop threat detection rules, and build automated security monitoring pipelines for enterprise clients.",
+        "posted_date": "2 days ago",
+        "company_url": "https://www.crowdstrike.com/about/careers/",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Cybersecurity+Engineer+CrowdStrike",
+    },
+    {
+        "id": "job_qa_1",
+        "title": "Senior QA Automation Engineer",
+        "company": "Atlassian Quality",
+        "location": "Sydney, Australia",
+        "location_type": "Remote",
+        "salary_range": "$120,000 - $155,000",
+        "experience_level": "Senior",
+        "category": "QA",
+        "required_skills": ["Selenium/Cypress", "Python", "JavaScript", "API Testing", "CI/CD", "Git", "Performance Testing"],
+        "description": "Build and maintain comprehensive E2E test automation suites, integrate quality gates into CI/CD pipelines, and champion shift-left testing culture.",
+        "posted_date": "4 days ago",
+        "company_url": "https://www.atlassian.com/company/careers",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=QA+Automation+Engineer+Atlassian",
+    },
+    {
+        "id": "job_ios_1",
+        "title": "Senior iOS Developer (SwiftUI)",
+        "company": "Apple Services",
+        "location": "Cupertino, CA",
+        "location_type": "Hybrid",
+        "salary_range": "$165,000 - $210,000",
+        "experience_level": "Senior",
+        "category": "Mobile",
+        "required_skills": ["Swift", "SwiftUI", "UIKit", "Core Data", "REST API", "Xcode", "Testing", "MVVM Architecture"],
+        "description": "Build and ship consumer-facing iOS applications using SwiftUI with focus on performance, accessibility, and Apple Human Interface Guidelines.",
+        "posted_date": "1 day ago",
+        "company_url": "https://www.apple.com/careers/",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Senior+iOS+Developer+SwiftUI+Apple",
+    },
+    {
+        "id": "job_and_1",
+        "title": "Android Developer (Kotlin / Jetpack Compose)",
+        "company": "Spotify Mobile",
+        "location": "Stockholm, Sweden",
+        "location_type": "Remote",
+        "salary_range": "$130,000 - $170,000",
+        "experience_level": "Mid-Level",
+        "category": "Mobile",
+        "required_skills": ["Kotlin", "Jetpack Compose", "Android SDK", "REST API", "Room Database", "Firebase", "Testing", "MVVM Architecture"],
+        "description": "Develop and maintain the Spotify Android app using modern Jetpack Compose UI, Kotlin Coroutines, and clean architecture patterns.",
+        "posted_date": "3 days ago",
+        "company_url": "https://www.lifeatspotify.com/",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Android+Developer+Kotlin+Jetpack+Compose+Spotify",
+    },
+    {
+        "id": "job_bc_1",
+        "title": "Blockchain Smart Contract Developer",
+        "company": "ConsenSys",
+        "location": "New York, NY",
+        "location_type": "Remote",
+        "salary_range": "$145,000 - $190,000",
+        "experience_level": "Senior",
+        "category": "Blockchain",
+        "required_skills": ["Solidity", "JavaScript", "Web3.js/Ethers.js", "Smart Contracts", "Security Auditing", "Git", "Testing"],
+        "description": "Design, develop, and audit Solidity smart contracts for DeFi protocols. Implement security best practices and gas optimization techniques.",
+        "posted_date": "2 days ago",
+        "company_url": "https://consensys.io/careers",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Blockchain+Smart+Contract+Developer+ConsenSys",
+    },
+    {
+        "id": "job_sre_1",
+        "title": "Site Reliability Engineer (SRE)",
+        "company": "Netflix Reliability",
+        "location": "Los Gatos, CA",
+        "location_type": "Remote",
+        "salary_range": "$170,000 - $220,000",
+        "experience_level": "Senior",
+        "category": "SRE",
+        "required_skills": ["Linux", "Python", "Kubernetes", "Docker", "Monitoring", "Terraform", "CI/CD", "Incident Response"],
+        "description": "Ensure 99.99% availability for Netflix streaming infrastructure. Build chaos engineering tooling, SLO dashboards, and automated incident response.",
+        "posted_date": "Just now",
+        "company_url": "https://jobs.netflix.com/",
+        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Site+Reliability+Engineer+SRE+Netflix",
     },
 ]
 
@@ -204,79 +339,87 @@ def get_matched_jobs(
     Get all live jobs with personalized ATS and skill match percentages
     computed against the current authenticated user's profile.
     """
-    user_skills = _get_user_skill_names(db, current_user.id)
     matched_results = []
+    try:
+        user_skills = _get_user_skill_names(db, current_user.id)
+    except Exception as e:
+        print(f"[WARN] Error in _get_user_skill_names: {e}")
+        user_skills = []
 
     for job in TECH_JOBS_CATALOG:
-        # Category filter
-        if category and category.lower() != "all" and job["category"].lower() != category.lower():
-            continue
-
-        # Location filter
-        if location_type and location_type.lower() != "all" and job["location_type"].lower() != location_type.lower():
-            continue
-
-        # Search query filter
-        if search:
-            query = search.lower()
-            in_title = query in job["title"].lower()
-            in_company = query in job["company"].lower()
-            in_desc = query in job["description"].lower()
-            in_skills = any(query in sk.lower() for sk in job["required_skills"])
-            if not (in_title or in_company or in_desc or in_skills):
+        try:
+            # Category filter
+            if category and category.lower() != "all" and job["category"].lower() != category.lower():
                 continue
 
-        # Calculate matching and missing skills
-        matching_skills = []
-        missing_skills = []
+            # Location filter
+            if location_type and location_type.lower() != "all" and job["location_type"].lower() != location_type.lower():
+                continue
 
-        for req in job["required_skills"]:
-            req_clean = req.lower()
-            is_matched = any(
-                req_clean in u_sk or u_sk in req_clean for u_sk in user_skills
-            )
-            if is_matched:
-                matching_skills.append(req)
+            # Search query filter
+            if search:
+                query = search.lower()
+                in_title = query in job["title"].lower()
+                in_company = query in job["company"].lower()
+                in_desc = query in job["description"].lower()
+                in_skills = any(query in sk.lower() for sk in job["required_skills"])
+                if not (in_title or in_company or in_desc or in_skills):
+                    continue
+
+            # Calculate matching and missing skills
+            matching_skills = []
+            missing_skills = []
+
+            for req in job["required_skills"]:
+                req_clean = req.lower()
+                is_matched = any(
+                    req_clean in u_sk or u_sk in req_clean for u_sk in user_skills
+                )
+                if is_matched:
+                    matching_skills.append(req)
+                else:
+                    missing_skills.append(req)
+
+            total_req = len(job["required_skills"])
+            if total_req > 0:
+                match_pct = round((len(matching_skills) / total_req) * 100.0, 1)
             else:
-                missing_skills.append(req)
+                match_pct = 70.0
 
-        total_req = len(job["required_skills"])
-        if total_req > 0:
-            match_pct = round((len(matching_skills) / total_req) * 100.0, 1)
-        else:
-            match_pct = 70.0
+            # Optional threshold filter
+            if min_match and match_pct < min_match:
+                continue
 
-        # Optional threshold filter
-        if min_match and match_pct < min_match:
-            continue
+            state_key = f"{str(current_user.id)}:{job['id']}"
+            user_state = USER_JOB_STATES.get(state_key, {"saved": False, "applied": False})
 
-        state_key = f"{str(current_user.id)}:{job['id']}"
-        user_state = USER_JOB_STATES.get(state_key, {"saved": False, "applied": False})
+            status_str = "applied" if user_state.get("applied") else ("saved" if user_state.get("saved") else "open")
 
-        status_str = "applied" if user_state["applied"] else ("saved" if user_state["saved"] else "open")
-
-        matched_results.append(
-            JobItem(
-                id=job["id"],
-                title=job["title"],
-                company=job["company"],
-                location=job["location"],
-                location_type=job["location_type"],
-                salary_range=job["salary_range"],
-                experience_level=job["experience_level"],
-                category=job["category"],
-                required_skills=job["required_skills"],
-                description=job["description"],
-                posted_date=job["posted_date"],
-                match_pct=match_pct,
-                matching_skills=matching_skills,
-                missing_skills=missing_skills,
-                company_url=job.get("company_url"),
-                job_url=job.get("job_url"),
-                is_saved=user_state["saved"],
-                status=status_str,
+            matched_results.append(
+                JobItem(
+                    id=job["id"],
+                    title=job["title"],
+                    company=job["company"],
+                    location=job["location"],
+                    location_type=job["location_type"],
+                    salary_range=job["salary_range"],
+                    experience_level=job["experience_level"],
+                    category=job["category"],
+                    required_skills=job["required_skills"],
+                    description=job["description"],
+                    posted_date=job["posted_date"],
+                    match_pct=match_pct,
+                    matching_skills=matching_skills,
+                    missing_skills=missing_skills,
+                    company_url=job.get("company_url"),
+                    job_url=job.get("job_url"),
+                    is_saved=user_state.get("saved", False),
+                    status=status_str,
+                )
             )
-        )
+        except Exception as job_err:
+            print(f"[WARN] Error matching single job {job.get('id')}: {job_err}")
+            continue
 
     # Sort primarily by match percentage descending
     matched_results.sort(key=lambda j: j.match_pct, reverse=True)
@@ -291,24 +434,32 @@ def get_market_summary(
     """
     Get aggregated market readiness summary and top demanded skills.
     """
-    user_skills = _get_user_skill_names(db, current_user.id)
+    try:
+        user_skills = _get_user_skill_names(db, current_user.id)
+    except Exception as e:
+        print(f"[WARN] Error fetching user skills for summary: {e}")
+        user_skills = []
+
     all_scores = []
     missing_frequency = {}
     demanded_frequency = {}
 
     for job in TECH_JOBS_CATALOG:
-        matching_count = 0
-        for req in job["required_skills"]:
-            demanded_frequency[req] = demanded_frequency.get(req, 0) + 1
-            req_clean = req.lower()
-            if any(req_clean in u or u in req_clean for u in user_skills):
-                matching_count += 1
-            else:
-                missing_frequency[req] = missing_frequency.get(req, 0) + 1
+        try:
+            matching_count = 0
+            for req in job["required_skills"]:
+                demanded_frequency[req] = demanded_frequency.get(req, 0) + 1
+                req_clean = req.lower()
+                if any(req_clean in u or u in req_clean for u in user_skills):
+                    matching_count += 1
+                else:
+                    missing_frequency[req] = missing_frequency.get(req, 0) + 1
 
-        total = len(job["required_skills"])
-        score = (matching_count / total * 100.0) if total > 0 else 70.0
-        all_scores.append(score)
+            total = len(job["required_skills"])
+            score = (matching_count / total * 100.0) if total > 0 else 70.0
+            all_scores.append(score)
+        except Exception:
+            continue
 
     avg_score = round(sum(all_scores) / len(all_scores), 1) if all_scores else 0.0
     high_match = sum(1 for s in all_scores if s >= 75.0)

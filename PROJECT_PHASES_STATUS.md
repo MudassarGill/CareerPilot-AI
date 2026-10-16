@@ -21,7 +21,7 @@ CareerPilot AI is designed across 7 progressive engineering phases. As requested
 | **Phase 5** | **Skills, Career Roadmap & Job Intelligence Matcher** | **Complete** | 200+ competency catalog, target role gap analyzer, 4-stage interactive milestone roadmap, weekly completion checklist, and automated **Job Intelligence Matcher** matching live tech openings with ATS fit and missing skill alerts. |
 | **Phase 6** | **AI Mock Interview Simulator** | **Complete** | Role-tailored situational question banks, browser Web Speech Text-to-Speech audio, real-time voice speech recognition dictation, WebRTC webcam preview mirror, multi-dimensional rubric feedback, Career Readiness Score (CRS) synchronization, and printable PDF transcript export. |
 | **Phase 7** | **Career Twin & Multi-Year Simulation** | **Complete** | Deterministic multi-year career projection engine (1-yr, 3-yr, 5-yr horizons), regional salary benchmarks, dynamic 5-year compensation curve visualization, 3 What-If branch comparison scenarios (Management, Deep Tech Specialization, Startup Founder), and instant printable A4 PDF simulation forecast report. |
-| **Phase 8** | **Autonomous Job Application Agent** | *Planned Future* | Automated job board integrations, Chrome extension application assistant, cover letter generator. |
+| **Phase 8** | **Autonomous Application Pipeline & Tracker** | **Complete** | 5-stage recruitment Kanban board (Wishlist, Applied, Interviewing, Offer, Archived), direct live vacancy deep-links, 1-click tailored AI cover letter generator with customizable tone, and copy/export actions. |
 
 ---
 
@@ -133,13 +133,16 @@ CareerPilot AI is designed across 7 progressive engineering phases. As requested
 
 ---
 
-## Remaining Work (Future Phases)
-
-### Phase 8: Autonomous Application Agent
-- **Scope**:
-  - One-click cover letter customization based on ATS job requirements.
-  - Application status kanban board (Wishlist, Applied, Screening, Technical Interview, Offer).
-  - Calendar integration for upcoming interview reminders.
+### Phase 8: Autonomous Application Pipeline & Cover Letter Generator
+- **Backend Architecture**:
+  - `backend/app/schemas/applications.py`: Schemas for application item states (Wishlist, Applied, Interviewing, Offer, Archived), create/update payloads, and cover letter synthesis.
+  - `backend/app/agents/cover_letter_agent.py`: Profile synthesis agent combining verified skills and target job requirements to generate tailored, high-converting cover letters across Professional, Enthusiastic, and Executive tones.
+  - `backend/app/api/applications.py`: Endpoints for `GET /api/applications`, `POST /api/applications`, `PUT /api/applications/{id}`, `DELETE /api/applications/{id}`, and `POST /api/applications/generate-cover-letter`.
+- **Frontend Studio (`ApplicationsView.jsx`)**:
+  - **Kanban Pipeline Board**: 5 interactive stages with custom color indicators and item counters.
+  - **Direct Status Transition**: Smooth stage dropdown to move applications between Wishlist, Applied, Interviewing, Offer, and Archived.
+  - **Direct Posting Deep-Links**: Direct verification links to active job openings on the web.
+  - **AI Cover Letter Generator Modal**: 1-click tailored letter generator with instant clipboard copy and export.
 
 ---
 

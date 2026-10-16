@@ -43,6 +43,7 @@ class Settings(BaseSettings):
 
     # ---- LLM API Keys ----
     GOOGLE_API_KEY: str = ""
+    GEMINI_API_KEY: str = ""
     # OPENAI_API_KEY: str = ""  # Optional fallback
 
     # ---- JWT Authentication ----

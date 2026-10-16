@@ -29,6 +29,7 @@ function Navbar({ activeView, onNavigate, user, onSignOut, unreadCount = 3, onTo
     { id: "interview", label: "Mock Interview" },
     { id: "career", label: "Career Twin" },
     { id: "jobs", label: "Jobs" },
+    { id: "applications", label: "Applications" },
   ];
 
   const moreLinks = [

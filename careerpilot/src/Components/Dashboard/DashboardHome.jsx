@@ -88,11 +88,11 @@ const featureCards = [
     tag: "Smart Match",
   },
   {
-    id: "roadmap",
+    id: "applications",
     image: box01,
-    title: "Career Readiness Score (CRS)",
-    desc: "Aggregated readiness metrics across resume, skills, interview practice & learning.",
-    tag: "Benchmark",
+    title: "Application Pipeline & Tracker",
+    desc: "Kanban recruitment board, live vacancy deep-links, and 1-click tailored cover letters.",
+    tag: "Pipeline",
   },
 ];
 
@@ -123,10 +123,27 @@ function DashboardHome({ user, onNavigate }) {
   });
 
   useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setGreeting("Good Morning");
-    else if (hour < 17) setGreeting("Good Afternoon");
-    else setGreeting("Good Evening");
+    // Determine greeting according to Pakistan Standard Time (PKT, UTC+5)
+    try {
+      const pktFormatter = new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Karachi",
+        hour: "numeric",
+        hourCycle: "h23",
+      });
+      const pktHour = parseInt(pktFormatter.format(new Date()), 10);
+      if (pktHour >= 5 && pktHour < 12) {
+        setGreeting("Good Morning");
+      } else if (pktHour >= 12 && pktHour < 17) {
+        setGreeting("Good Afternoon");
+      } else {
+        setGreeting("Good Evening");
+      }
+    } catch {
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour < 12) setGreeting("Good Morning");
+      else if (hour >= 12 && hour < 17) setGreeting("Good Afternoon");
+      else setGreeting("Good Evening");
+    }
 
     getCRSScore()
       .then((data) => {

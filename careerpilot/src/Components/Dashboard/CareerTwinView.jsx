@@ -18,12 +18,24 @@ export default function CareerTwinView({ onNavigate }) {
   const [yearsExperience, setYearsExperience] = useState(2);
 
   const rolesList = [
+    "Software Engineer",
     "Frontend Developer",
     "Backend Developer",
-    "AI/ML Engineer",
     "Full Stack Developer",
+    "AI/ML Engineer",
     "DevOps Engineer",
     "Data Analyst",
+    "Data Engineer",
+    "Mobile Developer",
+    "Cloud Architect",
+    "Cybersecurity Engineer",
+    "QA / Test Engineer",
+    "Game Developer",
+    "Blockchain Developer",
+    "Embedded Systems Engineer",
+    "iOS Developer",
+    "Android Developer",
+    "Site Reliability Engineer",
   ];
 
   const regionsList = [

@@ -14,6 +14,7 @@ import SkillsView from "./SkillsView";
 import InterviewView from "./InterviewView";
 import JobsView from "./JobsView";
 import CareerTwinView from "./CareerTwinView";
+import ApplicationsView from "./ApplicationsView";
 
 function Dashboard({ onSignOut }) {
   const [user, setUser] = useState(null);
@@ -114,6 +115,8 @@ function Dashboard({ onSignOut }) {
         return <JobsView onNavigate={handleNavigate} />;
       case "career":
         return <CareerTwinView onNavigate={handleNavigate} />;
+      case "applications":
+        return <ApplicationsView onNavigate={handleNavigate} />;
       default:
         return <DashboardHome user={user} onNavigate={handleNavigate} />;
     }

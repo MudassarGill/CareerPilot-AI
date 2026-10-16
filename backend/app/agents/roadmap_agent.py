@@ -280,6 +280,337 @@ ROLE_ROADMAP_TEMPLATES = {
             "resources": [{"title": "Kaggle Datasets & Notebooks", "url": "https://www.kaggle.com/", "type": "tutorial", "is_free": True}],
         },
     ],
+
+    "Software Engineer": [
+        {
+            "milestone": "Milestone 1: Data Structures & Algorithms Mastery",
+            "title": "Master Arrays, Trees, Graphs & Dynamic Programming",
+            "description": "Build strong foundations in hash maps, binary trees, BFS/DFS graph traversals, and DP memoization patterns.",
+            "estimated_hours": 20,
+            "resources": [
+                {"title": "NeetCode Roadmap", "url": "https://neetcode.io/roadmap", "type": "tutorial", "is_free": True},
+                {"title": "LeetCode Problem Sets", "url": "https://leetcode.com/", "type": "tutorial", "is_free": True},
+            ],
+        },
+        {
+            "milestone": "Milestone 1: Data Structures & Algorithms Mastery",
+            "title": "Object-Oriented Design & SOLID Principles",
+            "description": "Implement design patterns (Factory, Strategy, Observer), understand SOLID principles, and write clean modular code.",
+            "estimated_hours": 14,
+            "resources": [
+                {"title": "Refactoring Guru Design Patterns", "url": "https://refactoring.guru/design-patterns", "type": "tutorial", "is_free": True},
+            ],
+        },
+        {
+            "milestone": "Milestone 2: System Design & Architecture",
+            "title": "Distributed Systems, Load Balancers & Database Sharding",
+            "description": "Design scalable architectures with caching layers, message queues, CDNs, and horizontal scaling strategies.",
+            "estimated_hours": 22,
+            "resources": [
+                {"title": "System Design Primer", "url": "https://github.com/donnemartin/system-design-primer", "type": "tutorial", "is_free": True},
+                {"title": "ByteByteGo System Design", "url": "https://bytebytego.com/", "type": "course", "is_free": False},
+            ],
+        },
+        {
+            "milestone": "Milestone 3: Full Stack Project & API Design",
+            "title": "Build Production-Grade REST/GraphQL APIs with Testing",
+            "description": "Construct complete backend services with authentication, rate limiting, comprehensive test suites, and API documentation.",
+            "estimated_hours": 24,
+            "resources": [
+                {"title": "FastAPI Documentation", "url": "https://fastapi.tiangolo.com/", "type": "docs", "is_free": True},
+                {"title": "Martin Fowler's Architecture Blog", "url": "https://martinfowler.com/", "type": "docs", "is_free": True},
+            ],
+        },
+        {
+            "milestone": "Milestone 4: DevOps, CI/CD & Interview Preparation",
+            "title": "Docker Deployment, GitHub Actions & Coding Interview Prep",
+            "description": "Containerize applications, automate CI/CD pipelines, and practice system design + behavioral interview frameworks.",
+            "estimated_hours": 16,
+            "resources": [
+                {"title": "Docker Getting Started", "url": "https://docs.docker.com/get-started/", "type": "docs", "is_free": True},
+                {"title": "Tech Interview Handbook", "url": "https://www.techinterviewhandbook.org/", "type": "tutorial", "is_free": True},
+            ],
+        },
+    ],
+
+    "Cloud Architect": [
+        {
+            "milestone": "Milestone 1: Cloud Foundations & Core Services",
+            "title": "AWS/GCP Core Services: Compute, Storage, Networking",
+            "description": "Master EC2/GCE instances, S3/GCS storage, VPCs, subnets, security groups, and IAM policies.",
+            "estimated_hours": 18,
+            "resources": [{"title": "AWS Cloud Practitioner Essentials", "url": "https://aws.amazon.com/training/digital/aws-cloud-practitioner-essentials/", "type": "course", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 2: Infrastructure as Code & Automation",
+            "title": "Terraform Modules, CloudFormation & Ansible Playbooks",
+            "description": "Provision reproducible infrastructure deterministically using IaC with state management and drift detection.",
+            "estimated_hours": 20,
+            "resources": [{"title": "HashiCorp Terraform Tutorials", "url": "https://developer.hashicorp.com/terraform/tutorials", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 3: Kubernetes & Serverless Architecture",
+            "title": "Container Orchestration, Lambda Functions & API Gateway",
+            "description": "Deploy microservices on EKS/GKE clusters, design event-driven serverless workflows, and manage API gateways.",
+            "estimated_hours": 22,
+            "resources": [{"title": "Kubernetes Official Tutorials", "url": "https://kubernetes.io/docs/tutorials/", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 4: Security, Cost Optimization & Certification",
+            "title": "Well-Architected Framework, FinOps & AWS Solutions Architect Prep",
+            "description": "Implement AWS Well-Architected pillars, optimize cloud spend, and prepare for Solutions Architect certification.",
+            "estimated_hours": 16,
+            "resources": [{"title": "AWS Well-Architected Framework", "url": "https://aws.amazon.com/architecture/well-architected/", "type": "docs", "is_free": True}],
+        },
+    ],
+
+    "Cybersecurity Engineer": [
+        {
+            "milestone": "Milestone 1: Network Security & Linux Hardening",
+            "title": "TCP/IP, Firewalls, IDS/IPS & Linux Security Configuration",
+            "description": "Configure iptables, understand TCP handshakes, deploy Snort/Suricata IDS, and harden Linux servers.",
+            "estimated_hours": 16,
+            "resources": [{"title": "OWASP Web Security Testing Guide", "url": "https://owasp.org/www-project-web-security-testing-guide/", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 2: Penetration Testing & Ethical Hacking",
+            "title": "Vulnerability Scanning, Exploitation & CTF Challenges",
+            "description": "Use Burp Suite, Metasploit, and Nmap for penetration testing. Practice with CTF platforms and bug bounties.",
+            "estimated_hours": 22,
+            "resources": [{"title": "TryHackMe Learning Paths", "url": "https://tryhackme.com/", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 3: Cloud Security & SIEM Operations",
+            "title": "AWS Security Hub, Splunk SIEM & Incident Response Playbooks",
+            "description": "Monitor security events, create correlation rules, and build automated incident response runbooks.",
+            "estimated_hours": 20,
+            "resources": [{"title": "Splunk Fundamentals", "url": "https://www.splunk.com/en_us/training/free-courses.html", "type": "course", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 4: Compliance, Governance & Certification",
+            "title": "SOC 2 / ISO 27001 Frameworks & CompTIA Security+ Prep",
+            "description": "Implement compliance frameworks, conduct security audits, and prepare for industry certifications.",
+            "estimated_hours": 14,
+            "resources": [{"title": "CompTIA Security+ Study Guide", "url": "https://www.comptia.org/certifications/security", "type": "docs", "is_free": True}],
+        },
+    ],
+
+    "QA / Test Engineer": [
+        {
+            "milestone": "Milestone 1: Testing Fundamentals & Strategy",
+            "title": "Test Planning, Test Cases & Manual Testing Mastery",
+            "description": "Design comprehensive test plans, write edge-case test scenarios, and understand testing pyramids.",
+            "estimated_hours": 12,
+            "resources": [{"title": "ISTQB Foundation Syllabus", "url": "https://www.istqb.org/", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 2: Automation Frameworks",
+            "title": "Selenium, Cypress & Playwright End-to-End Automation",
+            "description": "Build robust E2E test suites with page object models, custom commands, and parallel execution.",
+            "estimated_hours": 20,
+            "resources": [{"title": "Cypress Documentation", "url": "https://docs.cypress.io/", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 3: API & Performance Testing",
+            "title": "Postman Collections, K6 Load Testing & JMeter",
+            "description": "Validate REST/GraphQL APIs, stress test applications under load, and identify performance bottlenecks.",
+            "estimated_hours": 16,
+            "resources": [{"title": "Postman Learning Center", "url": "https://learning.postman.com/", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 4: CI/CD Integration & Quality Gates",
+            "title": "Integrate Tests in GitHub Actions, Quality Dashboards & Shift-Left Testing",
+            "description": "Embed automated tests in CI pipelines, configure quality gates, and implement shift-left testing culture.",
+            "estimated_hours": 12,
+            "resources": [{"title": "GitHub Actions CI Guide", "url": "https://docs.github.com/en/actions", "type": "docs", "is_free": True}],
+        },
+    ],
+
+    "Game Developer": [
+        {
+            "milestone": "Milestone 1: Game Engine & Programming Foundations",
+            "title": "Unity C# Scripting & Unreal Blueprints",
+            "description": "Learn game loops, physics engines, input handling, and scripting in Unity (C#) or Unreal (C++/Blueprints).",
+            "estimated_hours": 20,
+            "resources": [{"title": "Unity Learn Platform", "url": "https://learn.unity.com/", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 2: 3D Mathematics & Rendering",
+            "title": "Linear Algebra, Shader Programming & Rendering Pipelines",
+            "description": "Master vectors, matrices, quaternions, UV mapping, and write custom HLSL/GLSL shaders.",
+            "estimated_hours": 22,
+            "resources": [{"title": "Learn OpenGL", "url": "https://learnopengl.com/", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 3: Game Design & Portfolio Project",
+            "title": "Build a Complete Playable Game with Polished Mechanics",
+            "description": "Design game mechanics, level progression, UI/UX, audio integration, and publish a portfolio game.",
+            "estimated_hours": 30,
+            "resources": [{"title": "Game Design Document Templates", "url": "https://gamedesignskills.com/", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 4: Multiplayer & Platform Publishing",
+            "title": "Networking, Steam/Console Publishing & Optimization",
+            "description": "Implement multiplayer via Photon/Mirror, optimize frame rates, and publish to Steam or console stores.",
+            "estimated_hours": 18,
+            "resources": [{"title": "Gaffer On Games Networking", "url": "https://gafferongames.com/", "type": "tutorial", "is_free": True}],
+        },
+    ],
+
+    "Blockchain Developer": [
+        {
+            "milestone": "Milestone 1: Blockchain Fundamentals & Cryptography",
+            "title": "Distributed Ledgers, Consensus Mechanisms & Hash Functions",
+            "description": "Understand blockchain architecture, Proof of Work/Stake, Merkle trees, and cryptographic primitives.",
+            "estimated_hours": 14,
+            "resources": [{"title": "Ethereum Whitepaper", "url": "https://ethereum.org/en/whitepaper/", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 2: Smart Contract Development",
+            "title": "Solidity, Hardhat & Smart Contract Security Patterns",
+            "description": "Write, test, and deploy Solidity smart contracts using Hardhat with security patterns (reentrancy, access control).",
+            "estimated_hours": 22,
+            "resources": [{"title": "CryptoZombies Interactive Tutorial", "url": "https://cryptozombies.io/", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 3: DApp Frontend & Web3 Integration",
+            "title": "React DApp with Ethers.js, MetaMask & IPFS Storage",
+            "description": "Build decentralized applications connecting React frontends to on-chain smart contracts and IPFS.",
+            "estimated_hours": 20,
+            "resources": [{"title": "Ethers.js Documentation", "url": "https://docs.ethers.org/", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 4: DeFi Protocols & Security Auditing",
+            "title": "AMM Design, Lending Protocols & Audit Methodologies",
+            "description": "Study DeFi protocol architecture, implement token standards (ERC-20/721), and conduct security audits.",
+            "estimated_hours": 18,
+            "resources": [{"title": "OpenZeppelin Contracts", "url": "https://docs.openzeppelin.com/contracts/", "type": "docs", "is_free": True}],
+        },
+    ],
+
+    "Embedded Systems Engineer": [
+        {
+            "milestone": "Milestone 1: C/C++ & Microcontroller Programming",
+            "title": "Bare-Metal Programming, GPIO & Peripheral Drivers",
+            "description": "Write firmware in C for ARM Cortex-M MCUs, configure GPIO, timers, ADC, and communication peripherals.",
+            "estimated_hours": 18,
+            "resources": [{"title": "STM32 HAL Documentation", "url": "https://www.st.com/en/development-tools/stm32cubeide.html", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 2: RTOS & Real-Time Systems",
+            "title": "FreeRTOS Tasks, Semaphores & Inter-Process Communication",
+            "description": "Implement preemptive multitasking, mutex synchronization, and message queues in FreeRTOS.",
+            "estimated_hours": 20,
+            "resources": [{"title": "FreeRTOS Official Guide", "url": "https://www.freertos.org/Documentation/RTOS_book.html", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 3: Communication Protocols & IoT",
+            "title": "SPI, I2C, UART, MQTT & Wireless Connectivity",
+            "description": "Interface sensors via SPI/I2C, implement UART debugging, and connect devices via MQTT/BLE for IoT.",
+            "estimated_hours": 16,
+            "resources": [{"title": "Arduino IoT Cloud", "url": "https://docs.arduino.cc/cloud/iot-cloud", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 4: Hardware Debugging & Product Development",
+            "title": "Oscilloscope Debugging, PCB Design & Production Firmware",
+            "description": "Use logic analyzers, design PCB layouts in KiCad, and prepare production-ready firmware with OTA updates.",
+            "estimated_hours": 18,
+            "resources": [{"title": "KiCad Official Documentation", "url": "https://docs.kicad.org/", "type": "docs", "is_free": True}],
+        },
+    ],
+
+    "iOS Developer": [
+        {
+            "milestone": "Milestone 1: Swift Language & Xcode Mastery",
+            "title": "Swift Protocols, Generics & Xcode Instruments",
+            "description": "Master Swift's type system, protocol-oriented programming, optionals, and Xcode debugging tools.",
+            "estimated_hours": 16,
+            "resources": [{"title": "Swift.org Official Documentation", "url": "https://swift.org/documentation/", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 2: SwiftUI & Modern iOS Architecture",
+            "title": "SwiftUI Views, Navigation & MVVM Architecture",
+            "description": "Build declarative UIs with SwiftUI, implement MVVM pattern, and handle state with @Observable.",
+            "estimated_hours": 18,
+            "resources": [{"title": "Apple SwiftUI Tutorials", "url": "https://developer.apple.com/tutorials/swiftui", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 3: Networking, Data Persistence & APIs",
+            "title": "URLSession, Core Data, SwiftData & REST API Integration",
+            "description": "Fetch remote data, cache locally with Core Data/SwiftData, and handle offline-first architecture.",
+            "estimated_hours": 16,
+            "resources": [{"title": "Hacking with Swift", "url": "https://www.hackingwithswift.com/", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 4: App Store Deployment & Testing",
+            "title": "TestFlight, App Store Connect & XCTest Automation",
+            "description": "Write unit/UI tests with XCTest, configure TestFlight beta distribution, and submit to App Store.",
+            "estimated_hours": 12,
+            "resources": [{"title": "App Store Review Guidelines", "url": "https://developer.apple.com/app-store/review/guidelines/", "type": "docs", "is_free": True}],
+        },
+    ],
+
+    "Android Developer": [
+        {
+            "milestone": "Milestone 1: Kotlin & Android SDK Foundations",
+            "title": "Kotlin Coroutines, Flows & Android Components",
+            "description": "Master Kotlin's coroutines for async programming, understand Activities, Fragments, and the Android lifecycle.",
+            "estimated_hours": 16,
+            "resources": [{"title": "Android Developers Official", "url": "https://developer.android.com/courses", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 2: Jetpack Compose & Modern UI",
+            "title": "Compose Layouts, Navigation & Material 3 Design",
+            "description": "Build declarative UIs with Jetpack Compose, implement navigation graphs, and follow Material 3 guidelines.",
+            "estimated_hours": 18,
+            "resources": [{"title": "Jetpack Compose Basics", "url": "https://developer.android.com/jetpack/compose/tutorial", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 3: Architecture, Room & Retrofit",
+            "title": "MVVM with Hilt DI, Room Database & REST API Calls",
+            "description": "Implement clean architecture with dependency injection, local Room persistence, and Retrofit API layer.",
+            "estimated_hours": 20,
+            "resources": [{"title": "Android Architecture Guide", "url": "https://developer.android.com/topic/architecture", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 4: Testing, Firebase & Play Store",
+            "title": "JUnit, Espresso, Firebase Analytics & Play Store Deployment",
+            "description": "Write unit tests, UI tests with Espresso, integrate Firebase services, and publish to Google Play Store.",
+            "estimated_hours": 14,
+            "resources": [{"title": "Firebase Documentation", "url": "https://firebase.google.com/docs", "type": "docs", "is_free": True}],
+        },
+    ],
+
+    "Site Reliability Engineer": [
+        {
+            "milestone": "Milestone 1: Linux Administration & Networking",
+            "title": "Advanced Linux, TCP/IP Networking & Shell Scripting",
+            "description": "Master systemd services, network troubleshooting with tcpdump/ss, and write production bash scripts.",
+            "estimated_hours": 14,
+            "resources": [{"title": "Linux Journey", "url": "https://linuxjourney.com/", "type": "tutorial", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 2: Observability & Monitoring Stack",
+            "title": "Prometheus, Grafana, ELK Stack & Distributed Tracing",
+            "description": "Deploy metrics collection, build Grafana dashboards, configure log aggregation, and implement OpenTelemetry tracing.",
+            "estimated_hours": 18,
+            "resources": [{"title": "Prometheus Documentation", "url": "https://prometheus.io/docs/", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 3: Kubernetes & Infrastructure Automation",
+            "title": "K8s Operations, Helm Charts & Terraform Modules",
+            "description": "Manage production Kubernetes clusters, write Helm charts, and provision cloud infra with Terraform.",
+            "estimated_hours": 22,
+            "resources": [{"title": "Kubernetes Official Documentation", "url": "https://kubernetes.io/docs/", "type": "docs", "is_free": True}],
+        },
+        {
+            "milestone": "Milestone 4: Incident Management & SLO Engineering",
+            "title": "SLI/SLO Design, On-Call Practices & Chaos Engineering",
+            "description": "Define service level objectives, build incident response playbooks, and run chaos experiments with Gremlin/Litmus.",
+            "estimated_hours": 14,
+            "resources": [{"title": "Google SRE Book", "url": "https://sre.google/sre-book/table-of-contents/", "type": "docs", "is_free": True}],
+        },
+    ],
 }
 
 

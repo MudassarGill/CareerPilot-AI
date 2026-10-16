@@ -248,7 +248,21 @@ export default function JobsView({ onNavigate }) {
                       <span className="job-location-tag">{job.location_type} &bull; {job.location}</span>
                       <span className="job-posted-tag">{job.posted_date}</span>
                     </div>
-                    <h3 className="job-title-text">{job.title}</h3>
+                    <h3 className="job-title-text">
+                      {job.job_url ? (
+                        <a
+                          href={job.job_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="job-title-link"
+                          title={`Open official live posting for ${job.title}`}
+                        >
+                          {job.title} ↗
+                        </a>
+                      ) : (
+                        job.title
+                      )}
+                    </h3>
                   </div>
 
                   <div className="job-match-badge-wrap">
@@ -305,15 +319,15 @@ export default function JobsView({ onNavigate }) {
                   </div>
 
                   <div className="job-footer-actions">
-                    {job.company_url && (
+                    {(job.job_url || job.company_url) && (
                       <a
-                        href={job.company_url}
+                        href={job.job_url || job.company_url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn-secondary btn-sm job-external-link"
-                        title={`Open official ${job.company} portal`}
+                        title={`View actual live posting for ${job.title}`}
                       >
-                        Visit Company Site
+                        View Live Job Posting ↗
                       </a>
                     )}
 
@@ -417,15 +431,16 @@ export default function JobsView({ onNavigate }) {
             </div>
 
             <div className="modal-footer">
-              {checklistJob.company_url && (
+              {(checklistJob.job_url || checklistJob.company_url) && (
                 <a
-                  href={checklistJob.company_url}
+                  href={checklistJob.job_url || checklistJob.company_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-secondary"
                   style={{ textDecoration: "none" }}
+                  title="Open verified live posting on the web"
                 >
-                  Visit Official Company Portal ↗
+                  Open Live Job Posting ↗
                 </a>
               )}
               <button

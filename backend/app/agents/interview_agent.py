@@ -198,6 +198,193 @@ INTERVIEW_QUESTION_BANK = {
             "hint": "Group users by registration month/week and calculate percentage active across consecutive periods.",
         },
     ],
+
+    "Software Engineer": [
+        {
+            "id": "se_1",
+            "question": "Explain the time complexity differences between a hash map lookup, a binary search tree search, and a linear scan. When would you choose each?",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["o(1)", "o(log n)", "o(n)", "hash", "collision", "balanced", "bst", "amortized", "trade-off"],
+            "hint": "Discuss average vs worst-case complexities and when hash collisions degrade performance.",
+        },
+        {
+            "id": "se_2",
+            "question": "Walk me through how you would design a URL shortener service like bit.ly, including database design, encoding strategy, and handling high traffic.",
+            "category": "system_design",
+            "difficulty": "senior",
+            "expected_keywords": ["base62", "hash", "database", "cache", "redirect", "collision", "sharding", "analytics", "scale"],
+            "hint": "Mention base62 encoding, collision handling, Redis caching for hot URLs, and horizontal scaling.",
+        },
+        {
+            "id": "se_3",
+            "question": "Describe the SOLID principles in object-oriented design. Give a real example where violating one of them caused problems in your codebase.",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["single responsibility", "open closed", "liskov", "interface segregation", "dependency inversion", "refactor", "coupling"],
+            "hint": "Use a concrete example showing how violating Single Responsibility led to tightly coupled, hard-to-test code.",
+        },
+        {
+            "id": "se_4",
+            "question": "Tell me about a time you had to debug a complex production issue. What was your systematic approach to identifying and fixing the root cause?",
+            "category": "behavioral",
+            "difficulty": "mid",
+            "expected_keywords": ["logs", "monitoring", "reproduce", "isolate", "root cause", "post-mortem", "metrics", "rollback"],
+            "hint": "Use STAR format. Emphasize systematic triage: logs, isolating variables, hypothesis testing, and post-mortem documentation.",
+        },
+    ],
+
+    "Cloud Architect": [
+        {
+            "id": "ca_1",
+            "question": "How do you design a multi-region, highly available cloud architecture on AWS? Discuss failover strategies and data replication.",
+            "category": "system_design",
+            "difficulty": "senior",
+            "expected_keywords": ["multi-region", "route 53", "failover", "rds", "aurora", "replication", "s3", "availability zone", "latency"],
+            "hint": "Discuss active-active vs active-passive, Route 53 health checks, Aurora Global Database, and S3 cross-region replication.",
+        },
+        {
+            "id": "ca_2",
+            "question": "Explain Infrastructure as Code (IaC) principles. How do you manage state, handle drift, and organize Terraform modules for a large organization?",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["terraform", "state", "remote backend", "module", "drift", "plan", "apply", "workspace", "lock"],
+            "hint": "Discuss remote state backends (S3+DynamoDB), module composition, workspace isolation, and drift detection with terraform plan.",
+        },
+    ],
+
+    "Cybersecurity Engineer": [
+        {
+            "id": "cy_1",
+            "question": "Explain the OWASP Top 10. How would you implement defenses against SQL injection, XSS, and CSRF in a web application?",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["owasp", "injection", "parameterized", "sanitize", "xss", "csp", "csrf", "token", "input validation"],
+            "hint": "Discuss parameterized queries for SQL injection, Content Security Policy for XSS, and CSRF tokens for form protection.",
+        },
+        {
+            "id": "cy_2",
+            "question": "How do you conduct a penetration test on a web application? Walk me through your methodology from reconnaissance to reporting.",
+            "category": "system_design",
+            "difficulty": "senior",
+            "expected_keywords": ["reconnaissance", "enumeration", "scanning", "exploitation", "post-exploitation", "report", "nmap", "burp"],
+            "hint": "Follow methodology: information gathering, vulnerability scanning, exploitation, privilege escalation, reporting with remediation.",
+        },
+    ],
+
+    "QA / Test Engineer": [
+        {
+            "id": "qa_1",
+            "question": "Explain the testing pyramid. How do you decide the right balance between unit tests, integration tests, and end-to-end tests?",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["pyramid", "unit", "integration", "e2e", "fast", "flaky", "coverage", "mock", "stub"],
+            "hint": "More unit tests at base (fast, stable), fewer integration in middle, minimal E2E at top (slow, flaky). Discuss trade-offs.",
+        },
+        {
+            "id": "qa_2",
+            "question": "How do you handle flaky tests in a CI pipeline? What strategies do you use to identify and eliminate test flakiness?",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["flaky", "retry", "quarantine", "deterministic", "timeout", "race condition", "isolation", "parallel"],
+            "hint": "Discuss quarantining flaky tests, analyzing race conditions, ensuring test isolation, and avoiding shared state.",
+        },
+    ],
+
+    "Game Developer": [
+        {
+            "id": "gd_1",
+            "question": "Explain the game loop pattern. How do fixed timestep and variable timestep updates differ, and when would you use each?",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["game loop", "fixed", "variable", "delta time", "physics", "render", "interpolation", "accumulator"],
+            "hint": "Fixed timestep for deterministic physics simulation, variable timestep for rendering. Use accumulator pattern for hybrid approach.",
+        },
+        {
+            "id": "gd_2",
+            "question": "How do you optimize rendering performance in a 3D game? Discuss techniques for reducing draw calls and improving frame rates.",
+            "category": "technical",
+            "difficulty": "senior",
+            "expected_keywords": ["draw call", "batching", "lod", "culling", "occlusion", "instancing", "shader", "profiler", "texture atlas"],
+            "hint": "Discuss frustum culling, occlusion culling, LOD systems, static/dynamic batching, and GPU instancing.",
+        },
+    ],
+
+    "Blockchain Developer": [
+        {
+            "id": "bc_1",
+            "question": "Explain the reentrancy vulnerability in Solidity smart contracts. How do you prevent it, and what was the DAO hack?",
+            "category": "technical",
+            "difficulty": "senior",
+            "expected_keywords": ["reentrancy", "external call", "checks-effects-interactions", "mutex", "reentrancy guard", "dao", "withdraw"],
+            "hint": "Discuss checks-effects-interactions pattern, using ReentrancyGuard from OpenZeppelin, and the historic DAO exploit.",
+        },
+        {
+            "id": "bc_2",
+            "question": "How do you design a gas-efficient smart contract? What patterns and techniques reduce gas consumption on Ethereum?",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["gas", "storage", "memory", "calldata", "packing", "mapping", "events", "minimal proxy", "eip-1167"],
+            "hint": "Discuss storage vs memory vs calldata costs, struct packing, using events instead of storage, and minimal proxy patterns.",
+        },
+    ],
+
+    "iOS Developer": [
+        {
+            "id": "ios_1",
+            "question": "Explain Swift's memory management model. How do ARC, strong references, weak references, and retain cycles work?",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["arc", "strong", "weak", "unowned", "retain cycle", "reference counting", "deinit", "closure capture"],
+            "hint": "Discuss automatic reference counting, how closures can capture self strongly creating cycles, and using [weak self].",
+        },
+        {
+            "id": "ios_2",
+            "question": "How do you architect a large-scale iOS app? Compare MVC, MVVM, and The Composable Architecture (TCA).",
+            "category": "system_design",
+            "difficulty": "senior",
+            "expected_keywords": ["mvc", "mvvm", "tca", "coordinator", "dependency injection", "testable", "state", "unidirectional"],
+            "hint": "Discuss MVC's massive view controller problem, MVVM's data binding, and TCA's unidirectional data flow with testability.",
+        },
+    ],
+
+    "Android Developer": [
+        {
+            "id": "and_1",
+            "question": "Explain the Android Activity lifecycle. What happens during configuration changes like screen rotation, and how do you preserve state?",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["oncreate", "onresume", "ondestroy", "savedinstancestate", "viewmodel", "configuration change", "lifecycle"],
+            "hint": "Discuss ViewModel surviving config changes, SavedStateHandle for process death, and onSaveInstanceState for transient UI state.",
+        },
+        {
+            "id": "and_2",
+            "question": "How does Jetpack Compose differ from the traditional XML View system? What advantages does recomposition provide?",
+            "category": "technical",
+            "difficulty": "mid",
+            "expected_keywords": ["declarative", "recomposition", "state", "remember", "composable", "xml", "imperative", "side effect"],
+            "hint": "Contrast imperative XML (find view, set property) with declarative Compose (describe UI as function of state, smart recomposition).",
+        },
+    ],
+
+    "Site Reliability Engineer": [
+        {
+            "id": "sre_1",
+            "question": "What are SLIs, SLOs, and SLAs? How do you define error budgets and use them to balance reliability with feature velocity?",
+            "category": "system_design",
+            "difficulty": "mid",
+            "expected_keywords": ["sli", "slo", "sla", "error budget", "availability", "latency", "reliability", "burn rate"],
+            "hint": "SLI = metric measured, SLO = target threshold, SLA = business contract. Error budget = 100% - SLO, consumed by incidents.",
+        },
+        {
+            "id": "sre_2",
+            "question": "Describe your approach to incident management. How do you structure on-call, escalation, and blameless post-mortems?",
+            "category": "behavioral",
+            "difficulty": "mid",
+            "expected_keywords": ["on-call", "runbook", "escalation", "blameless", "post-mortem", "incident commander", "timeline", "action items"],
+            "hint": "Discuss incident roles (commander, scribe), communication channels, runbook-driven response, and blameless post-mortem culture.",
+        },
+    ],
 }
 
 

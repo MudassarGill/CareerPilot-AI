@@ -71,6 +71,66 @@ ROLE_TEMPLATES = {
         "Testing": 55, "App Store Deployment": 50, "Performance Optimization": 55,
         "Push Notifications": 45, "Offline Storage": 45,
     },
+    "Software Engineer": {
+        "Python": 80, "JavaScript": 75, "Data Structures": 85, "Algorithms": 85,
+        "System Design": 75, "SQL": 70, "Git": 75, "REST API": 75,
+        "Testing": 70, "CI/CD": 60, "Docker": 55, "Cloud (AWS/GCP)": 50,
+        "Object-Oriented Design": 80, "Linux": 55, "Agile/Scrum": 60,
+    },
+    "Cloud Architect": {
+        "Cloud (AWS/GCP)": 90, "Terraform": 80, "Docker": 80, "Kubernetes": 75,
+        "Networking": 70, "Linux": 70, "Security": 70, "CI/CD": 65,
+        "Python": 60, "Serverless": 65, "Cost Optimization": 60,
+        "Disaster Recovery": 60, "IAM & Identity": 65,
+    },
+    "Cybersecurity Engineer": {
+        "Networking": 80, "Linux": 80, "Security": 90, "Python": 70,
+        "Penetration Testing": 75, "Cryptography": 70, "Firewalls & IDS": 75,
+        "SIEM Tools": 65, "Compliance (SOC2/ISO)": 60, "Incident Response": 70,
+        "Cloud Security": 65, "Scripting (Bash/Python)": 65,
+    },
+    "QA / Test Engineer": {
+        "Testing": 90, "Selenium/Cypress": 80, "Python": 70, "JavaScript": 65,
+        "API Testing": 75, "CI/CD": 60, "Git": 65, "SQL": 55,
+        "Performance Testing": 60, "Test Planning": 75, "Agile/Scrum": 65,
+        "Docker": 40, "Accessibility Testing": 50,
+    },
+    "Game Developer": {
+        "C++": 80, "C#": 75, "Unity": 75, "Unreal Engine": 65,
+        "3D Mathematics": 70, "Physics Simulation": 60, "Shader Programming": 55,
+        "Git": 60, "Game Design": 65, "Performance Optimization": 70,
+        "Networking (Multiplayer)": 50, "Data Structures": 70,
+    },
+    "Blockchain Developer": {
+        "Solidity": 85, "JavaScript": 75, "Web3.js/Ethers.js": 80,
+        "Smart Contracts": 85, "Cryptography": 70, "Rust": 55,
+        "DeFi Protocols": 60, "Security Auditing": 65, "Git": 65,
+        "Node.js": 60, "Testing": 60, "System Design": 55,
+    },
+    "Embedded Systems Engineer": {
+        "C": 85, "C++": 80, "RTOS": 75, "Microcontrollers": 80,
+        "Assembly": 55, "Linux Kernel": 65, "Hardware Debugging": 70,
+        "Communication Protocols (SPI/I2C/UART)": 75, "Git": 60,
+        "Python": 50, "PCB Design": 45, "Signal Processing": 55,
+    },
+    "iOS Developer": {
+        "Swift": 85, "SwiftUI": 75, "UIKit": 70, "Xcode": 80,
+        "Core Data": 65, "REST API": 70, "Git": 65, "Testing": 60,
+        "App Store Deployment": 70, "MVVM Architecture": 65,
+        "Combine/Concurrency": 60, "Accessibility": 50,
+    },
+    "Android Developer": {
+        "Kotlin": 85, "Jetpack Compose": 75, "Android SDK": 80,
+        "REST API": 70, "Room Database": 65, "Git": 65, "Testing": 60,
+        "Google Play Deployment": 65, "MVVM Architecture": 65,
+        "Coroutines/Flow": 60, "Firebase": 55, "Material Design": 60,
+    },
+    "Site Reliability Engineer": {
+        "Linux": 85, "Python": 75, "Docker": 80, "Kubernetes": 80,
+        "Monitoring": 80, "CI/CD": 75, "Terraform": 65,
+        "Cloud (AWS/GCP)": 75, "Networking": 70, "Scripting (Bash/Python)": 75,
+        "Incident Response": 70, "SLO/SLI Management": 65, "Git": 70,
+    },
 }
 
 
