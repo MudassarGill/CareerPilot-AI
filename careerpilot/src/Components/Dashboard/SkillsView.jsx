@@ -417,7 +417,7 @@ export default function SkillsView({ onNavigate, defaultTab = "roadmap" }) {
                                 <h4 className="step-title-text">{step.title}</h4>
                                 <div className="step-meta-badges">
                                   {step.estimated_hours && (
-                                    <span className="hours-tag">⚡ ~{step.estimated_hours}h</span>
+                                    <span className="hours-tag">~{step.estimated_hours} hrs</span>
                                   )}
                                   {step.is_priority_gap && (
                                     <span className="priority-tag">Skill Gap Bridge</span>

@@ -139,53 +139,120 @@ export default function ResumeView({ onNavigate }) {
 
   function handleExportReport() {
     if (!selectedResume) return;
-    const lines = [
-      "============================================================",
-      "CAREERPILOT AI — ATS & RESUME READINESS SUMMARY REPORT",
-      "============================================================",
-      `File Name: ${selectedResume.original_name}`,
-      `Generated At: ${new Date().toLocaleString()}`,
-      `ATS Job Match Score: ${selectedResume.ats_score !== null ? Math.round(selectedResume.ats_score) + "%" : "Not yet scanned"}`,
-      `Quality Audit Score: ${quality.overall_score ? Math.round(quality.overall_score) + "%" : "85%"}`,
-      "",
-      `--- ACTION VERBS DETECTED (${actionVerbs.length}) ---`,
-      actionVerbs.length > 0 ? actionVerbs.join(", ") : "None detected",
-      "",
-      `--- QUANTIFIED METRICS DETECTED (${metricsFound.length}) ---`,
-      metricsFound.length > 0 ? metricsFound.join(", ") : "None detected",
-      "",
-    ];
 
-    if (atsResult) {
-      lines.push("--- ATS SCAN RESULTS ---");
-      lines.push(`Summary: ${atsResult.summary || "Scan completed"}`);
-      lines.push(`Matched Keywords (${atsResult.matched_keywords?.length || 0}): ${(atsResult.matched_keywords || []).join(", ")}`);
-      lines.push(
-        `Missing Keywords (${atsResult.missing_keywords?.length || 0}): ${
-          (atsResult.missing_keywords || [])
-            .map((m) => (typeof m === "object" ? m.keyword : m))
-            .join(", ")
-        }`
-      );
-      lines.push("");
+    const matchedList = (atsResult?.matched_keywords || [])
+      .map((k) => `<span class="badge badge-green">${k}</span>`)
+      .join(" ");
+    const missingList = (atsResult?.missing_keywords || [])
+      .map((m) => `<span class="badge badge-orange">${typeof m === "object" ? m.keyword : m}</span>`)
+      .join(" ");
+    const verbList = actionVerbs
+      .map((v) => `<span class="badge badge-green">${v}</span>`)
+      .join(" ");
+    const metricList = metricsFound
+      .map((m) => `<span class="badge badge-blue">${m}</span>`)
+      .join(" ");
+    const tipList =
+      suggestions.length > 0
+        ? suggestions.map((s) => `<li>${s}</li>`).join("")
+        : "<li>Your resume meets standard ATS structure and keyword density guidelines.</li>";
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>CareerPilot_ATS_Report_${selectedResume.original_name.replace(/\\.[^/.]+$/, "")}.pdf</title>
+        <style>
+          @page { size: A4 portrait; margin: 15mm 20mm; }
+          * { box-sizing: border-box; }
+          body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #0f172a; margin: 0; padding: 24px; font-size: 13px; line-height: 1.5; }
+          .header { border-bottom: 2px solid #ea580c; padding-bottom: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; }
+          .title { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; }
+          .subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
+          .meta-box { text-align: right; font-size: 11px; color: #475569; }
+          .scores-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 22px; }
+          .score-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; background: #fafafa; }
+          .score-card h3 { margin: 0 0 6px 0; font-size: 12px; text-transform: uppercase; color: #64748b; letter-spacing: 0.05em; }
+          .score-val { font-size: 28px; font-weight: 900; color: #ea580c; }
+          .section { margin-bottom: 20px; }
+          .section-title { font-size: 14px; font-weight: 700; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 10px; }
+          .badge { display: inline-block; padding: 3px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; margin: 2px 4px 2px 0; }
+          .badge-green { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+          .badge-orange { background: #ffedd5; color: #c2410c; border: 1px solid #fed7aa; }
+          .badge-blue { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+          ul { padding-left: 20px; margin: 6px 0; }
+          li { margin-bottom: 6px; }
+          .footer { margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 10px; color: #94a3b8; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div>
+            <h1 class="title">CareerPilot AI — ATS Readiness Report</h1>
+            <div class="subtitle">Evaluated on: ${selectedResume.original_name}</div>
+          </div>
+          <div class="meta-box">
+            <div><strong>Date:</strong> ${new Date().toLocaleDateString()}</div>
+            <div><strong>Status:</strong> ${selectedResume.status.toUpperCase()}</div>
+          </div>
+        </div>
+
+        <div class="scores-grid">
+          <div class="score-card">
+            <h3>ATS Job Compatibility Score</h3>
+            <div class="score-val">${selectedResume.ats_score !== null ? Math.round(selectedResume.ats_score) + "%" : "Pending Scan"}</div>
+          </div>
+          <div class="score-card">
+            <h3>Resume Quality & Impact Score</h3>
+            <div class="score-val">${quality.overall_score ? Math.round(quality.overall_score) + "%" : "85%"}</div>
+          </div>
+        </div>
+
+        ${atsResult ? `
+        <div class="section">
+          <div class="section-title">ATS Job Description Analysis</div>
+          <p>${atsResult.summary || "Evaluation against target job description complete."}</p>
+          <div style="margin-top: 8px;"><strong>Matched Keywords (${atsResult.matched_keywords?.length || 0}):</strong></div>
+          <div style="margin-top: 4px;">${matchedList || '<span style="color:#94a3b8">None matched directly</span>'}</div>
+          <div style="margin-top: 10px;"><strong>Missing Skill Gaps (${atsResult.missing_keywords?.length || 0}):</strong></div>
+          <div style="margin-top: 4px;">${missingList || '<span style="color:#15803d">All essential target keywords present!</span>'}</div>
+        </div>
+        ` : ""}
+
+        <div class="section">
+          <div class="section-title">Content Power & Action Verbs (${actionVerbs.length} Detected)</div>
+          <div>${verbList || '<span style="color:#94a3b8">No high-impact action verbs detected.</span>'}</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Measurable Achievements & Metrics (${metricsFound.length} Detected)</div>
+          <div>${metricList || '<span style="color:#94a3b8">Add percentages or quantified numbers to showcase impact.</span>'}</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">AI Coaching & Improvement Tips</div>
+          <ul>${tipList}</ul>
+        </div>
+
+        <div class="footer">
+          Generated automatically by CareerPilot AI Multi-Agent Platform • Candidate Readiness Report
+        </div>
+      </body>
+      </html>
+    `;
+
+    const printWin = window.open("", "_blank");
+    if (printWin) {
+      printWin.document.open();
+      printWin.document.write(htmlContent);
+      printWin.document.close();
+      printWin.focus();
+      setTimeout(() => {
+        printWin.print();
+      }, 300);
+      setSuccess("Opening PDF Print/Save dialog for ATS Readiness Report!");
     }
-
-    lines.push("--- AI RESUME IMPROVEMENT SUGGESTIONS ---");
-    if (suggestions.length > 0) {
-      suggestions.forEach((s, idx) => lines.push(`${idx + 1}. ${s}`));
-    } else {
-      lines.push("Resume satisfies standard ATS formatting and readability criteria.");
-    }
-    lines.push("============================================================");
-
-    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `CareerPilot_${selectedResume.original_name.replace(/\.[^/.]+$/, "")}_ATS_Report.txt`;
-    link.click();
-    URL.revokeObjectURL(url);
-    setSuccess("ATS Readiness Report downloaded successfully!");
   }
 
   return (
@@ -426,11 +493,10 @@ export default function ResumeView({ onNavigate }) {
                 )}
               </div>
 
-              {/* AI Content Quality & Impact Audit (Phase 4 Milestone) */}
+              {/* AI Content Quality & Impact Audit */}
               <div className="quality-audit-card">
                 <div className="quality-audit-header">
                   <div>
-                    <span className="section-pill">Phase 4 Intelligence</span>
                     <h3 className="quality-audit-title">AI Content Quality & Impact Audit</h3>
                     <p className="quality-audit-desc">
                       Automated assessment of action-verb power, measurable metric density, and ATS section structure.
@@ -513,7 +579,7 @@ export default function ResumeView({ onNavigate }) {
                       {actionVerbs.length > 0 ? (
                         actionVerbs.slice(0, 16).map((verb, idx) => (
                           <span key={idx} className="action-verb-badge">
-                            ✓ {verb}
+                            {verb}
                           </span>
                         ))
                       ) : (
@@ -530,7 +596,7 @@ export default function ResumeView({ onNavigate }) {
                       {metricsFound.length > 0 ? (
                         metricsFound.slice(0, 12).map((m, idx) => (
                           <span key={idx} className="metric-badge">
-                            ⚡ {m}
+                            {m}
                           </span>
                         ))
                       ) : (

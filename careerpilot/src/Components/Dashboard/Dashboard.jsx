@@ -8,7 +8,7 @@ import ProfileSettingsView from "./ProfileSettingsView";
 import TermsPrivacyView from "./TermsPrivacyView";
 import FAQSection from "./FAQSection";
 import ModulePlaceholder from "./ModulePlaceholder";
-import NotificationsDrawer from "./NotificationsDrawer";
+import NotificationsDrawer, { getDynamicNotifications } from "./NotificationsDrawer";
 import ResumeView from "./ResumeView";
 import SkillsView from "./SkillsView";
 
@@ -16,7 +16,43 @@ function Dashboard({ onSignOut }) {
   const [user, setUser] = useState(null);
   const [activeView, setActiveView] = useState("dashboard");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem("careerpilot_user_notifications");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // fallback
+      }
+    }
+    return getDynamicNotifications();
+  });
+
+  const unreadCount = notifications.filter((n) => n.unread).length;
+
+  function handleMarkAllNotificationsRead() {
+    setNotifications((prev) => {
+      const updated = prev.map((n) => ({ ...n, unread: false }));
+      localStorage.setItem("careerpilot_user_notifications", JSON.stringify(updated));
+      return updated;
+    });
+  }
+
+  function handleDismissNotification(id) {
+    setNotifications((prev) => {
+      const updated = prev.filter((n) => n.id !== id);
+      localStorage.setItem("careerpilot_user_notifications", JSON.stringify(updated));
+      return updated;
+    });
+  }
+
+  function handleMarkNotificationRead(id) {
+    setNotifications((prev) => {
+      const updated = prev.map((n) => (n.id === id ? { ...n, unread: false } : n));
+      localStorage.setItem("careerpilot_user_notifications", JSON.stringify(updated));
+      return updated;
+    });
+  }
 
   useEffect(() => {
     try {
@@ -100,6 +136,10 @@ function Dashboard({ onSignOut }) {
       <NotificationsDrawer
         isOpen={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}
+        notifications={notifications}
+        onMarkAllRead={handleMarkAllNotificationsRead}
+        onDismiss={handleDismissNotification}
+        onMarkRead={handleMarkNotificationRead}
       />
 
       {/* ── Main View Area (with top padding for fixed navbar) ── */}

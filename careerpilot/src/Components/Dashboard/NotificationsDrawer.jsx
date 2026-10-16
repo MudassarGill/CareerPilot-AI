@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function getDynamicNotifications() {
+export function getDynamicNotifications() {
   const list = [];
   const storedRole = localStorage.getItem("careerpilot_target_role") || "Full Stack Developer";
   const storedResume = localStorage.getItem("careerpilot_last_resume");
@@ -71,46 +71,15 @@ function getDynamicNotifications() {
   return list;
 }
 
-function NotificationsDrawer({ isOpen, onClose }) {
-  const [notifications, setNotifications] = useState(() => {
-    const saved = localStorage.getItem("careerpilot_user_notifications");
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {
-        // fallback
-      }
-    }
-    return getDynamicNotifications();
-  });
-
-  useEffect(() => {
-    if (isOpen) {
-      // refresh with current dynamic context if no custom dismissals
-      const saved = localStorage.getItem("careerpilot_user_notifications");
-      if (!saved) {
-        setNotifications(getDynamicNotifications());
-      }
-    }
-  }, [isOpen]);
-
+function NotificationsDrawer({
+  isOpen,
+  onClose,
+  notifications = [],
+  onMarkAllRead,
+  onDismiss,
+  onMarkRead,
+}) {
   if (!isOpen) return null;
-
-  function markAllRead() {
-    setNotifications((prev) => {
-      const updated = prev.map((n) => ({ ...n, unread: false }));
-      localStorage.setItem("careerpilot_user_notifications", JSON.stringify(updated));
-      return updated;
-    });
-  }
-
-  function dismiss(id) {
-    setNotifications((prev) => {
-      const updated = prev.filter((n) => n.id !== id);
-      localStorage.setItem("careerpilot_user_notifications", JSON.stringify(updated));
-      return updated;
-    });
-  }
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
@@ -124,7 +93,7 @@ function NotificationsDrawer({ isOpen, onClose }) {
           </div>
           <div className="notif-header__actions">
             {unreadCount > 0 && (
-              <button type="button" onClick={markAllRead} className="notif-read-btn">
+              <button type="button" onClick={onMarkAllRead} className="notif-read-btn">
                 Mark all read
               </button>
             )}
@@ -143,22 +112,27 @@ function NotificationsDrawer({ isOpen, onClose }) {
             notifications.map((item) => (
               <div
                 key={item.id}
-                className={`notif-item ${item.unread ? "notif-item--unread" : ""}`}
+                className={`notif-card ${item.unread ? "notif-card--unread" : ""}`}
+                onClick={() => onMarkRead && onMarkRead(item.id)}
               >
-                <div className="notif-item__top">
+                <div className="notif-card__top">
                   <span className="notif-tag">{item.tag}</span>
                   <span className="notif-time">{item.time}</span>
                   <button
                     type="button"
-                    onClick={() => dismiss(item.id)}
-                    className="notif-dismiss-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onDismiss) onDismiss(item.id);
+                    }}
+                    className="notif-card__dismiss"
                     title="Dismiss"
                   >
                     ✕
                   </button>
                 </div>
-                <h4 className="notif-item__title">{item.title}</h4>
-                <p className="notif-item__msg">{item.message}</p>
+                <h4 className="notif-card__title">{item.title}</h4>
+                <p className="notif-card__msg">{item.message}</p>
+                {item.unread && <span className="notif-dot" title="Unread" />}
               </div>
             ))
           )}
