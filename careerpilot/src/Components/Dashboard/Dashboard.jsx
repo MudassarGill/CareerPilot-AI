@@ -12,6 +12,7 @@ import NotificationsDrawer, { getDynamicNotifications } from "./NotificationsDra
 import ResumeView from "./ResumeView";
 import SkillsView from "./SkillsView";
 import InterviewView from "./InterviewView";
+import JobsView from "./JobsView";
 
 function Dashboard({ onSignOut }) {
   const [user, setUser] = useState(null);
@@ -108,8 +109,9 @@ function Dashboard({ onSignOut }) {
         return <SkillsView onNavigate={handleNavigate} defaultTab="roadmap" />;
       case "interview":
         return <InterviewView onNavigate={handleNavigate} />;
-      case "career":
       case "jobs":
+        return <JobsView onNavigate={handleNavigate} />;
+      case "career":
         return (
           <ModulePlaceholder
             moduleId={activeView}

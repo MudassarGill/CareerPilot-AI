@@ -1,15 +1,8 @@
-import box02 from "../../assets/box-02.jpg";
-import box03 from "../../assets/box-03.jpg";
-import box05 from "../../assets/box-05.jpg";
-import box06 from "../../assets/box-06.jpg";
-import box08 from "../../assets/box-08.jpg";
-
 const moduleConfigs = {
   resume: {
     phase: "Phase 4",
     title: "Resume & ATS Analyzer",
     tagline: "Upload PDF or DOCX, get parsed insights and rule-based ATS benchmark score.",
-    img: box02,
     features: [
       "Upload resume files (PDF, DOCX up to 5MB)",
       "Automated section parser (Education, Experience, Skills)",
@@ -23,7 +16,6 @@ const moduleConfigs = {
     phase: "Phase 5",
     title: "Skills & Career Roadmap",
     tagline: "Interactive skill editor, gap analysis, and tailored step-by-step career milestones.",
-    img: box06,
     features: [
       "Catalog of 200+ industry verified skills",
       "Target role gap analysis (Front-End, Back-End, AI, DevOps)",
@@ -37,7 +29,6 @@ const moduleConfigs = {
     phase: "Phase 6",
     title: "AI Mock Interview Simulator",
     tagline: "Practice text, audio, and video interviews with dynamic situational questions.",
-    img: box03,
     features: [
       "Comprehensive question bank across 30+ tech specializations",
       "Real-time audio & video recording (with full consent)",
@@ -51,7 +42,6 @@ const moduleConfigs = {
     phase: "Phase 7",
     title: "Career Twin & Simulation",
     tagline: "Simulate your future trajectory, salary progressions, and career milestones.",
-    img: box05,
     features: [
       "Rule-based projection engine for 1 to 5 year timelines",
       "Salary benchmark curves by geographic region & skill stack",
@@ -65,7 +55,6 @@ const moduleConfigs = {
     phase: "Phase 5+",
     title: "Job Intelligence Matcher",
     tagline: "Match your ATS profile with live high-growth tech positions.",
-    img: box08,
     features: [
       "Automated match % based on your parsed resume",
       "Missing keyword alerts before submitting application",
@@ -82,7 +71,6 @@ function ModulePlaceholder({ moduleId, onBackToDashboard }) {
     phase: "Next Phase",
     title: "Upcoming Career Module",
     tagline: "This feature module is currently under development.",
-    img: box02,
     features: ["Integration with CareerPilot AI core engine", "Personalized recommendations"],
     status: "Coming Soon",
   };
@@ -90,13 +78,13 @@ function ModulePlaceholder({ moduleId, onBackToDashboard }) {
   return (
     <div className="placeholder-container">
       <div className="placeholder-card">
-        <div className="placeholder-image-wrap">
-          <img src={config.img} alt={config.title} className="placeholder-img" />
+        {/* Sleek Gradient Header Badge - No external images */}
+        <div className="placeholder-top-banner">
           <span className="placeholder-phase-badge">{config.phase}</span>
+          <span className="section-pill">{config.status}</span>
         </div>
 
         <div className="placeholder-content">
-          <span className="section-pill">{config.status}</span>
           <h1 className="placeholder-title">{config.title}</h1>
           <p className="placeholder-tagline">{config.tagline}</p>
 
@@ -105,7 +93,11 @@ function ModulePlaceholder({ moduleId, onBackToDashboard }) {
             <ul className="placeholder-checklist">
               {config.features.map((feat, i) => (
                 <li key={i} className="placeholder-check-item">
-                  <span className="check-icon">✓</span>
+                  <span className="check-icon-svg">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </span>
                   <span>{feat}</span>
                 </li>
               ))}
@@ -118,10 +110,10 @@ function ModulePlaceholder({ moduleId, onBackToDashboard }) {
               className="btn-primary"
               onClick={onBackToDashboard}
             >
-              ← Back to Main Dashboard
+              Back to Main Dashboard
             </button>
             <span className="placeholder-note">
-              Phase 1 (Auth), Phase 2 (Dashboard & Navbar), and Phase 3 (Shared Features) are live!
+              Phase 1 (Auth), Phase 2 (Dashboard & Navbar), Phase 3 (Shared Features), Phase 4 (Resume), Phase 5 (Skills & Roadmap), and Phase 6 (Mock Interview) are live!
             </span>
           </div>
         </div>
