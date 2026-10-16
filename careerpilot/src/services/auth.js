@@ -4,26 +4,47 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
-/**
- * Helper to process API error response from FastAPI
- */
+export function getToken() {
+  return (
+    sessionStorage.getItem("careerpilot_access_token") ||
+    localStorage.getItem("careerpilot_access_token") ||
+    ""
+  );
+}
+
+export function saveToken(token, user = null) {
+  if (token) {
+    sessionStorage.setItem("careerpilot_access_token", token);
+    localStorage.setItem("careerpilot_access_token", token);
+  }
+  if (user) {
+    sessionStorage.setItem("careerpilot_user", JSON.stringify(user));
+    localStorage.setItem("careerpilot_user", JSON.stringify(user));
+  }
+}
+
+export function clearToken() {
+  sessionStorage.removeItem("careerpilot_access_token");
+  sessionStorage.removeItem("careerpilot_user");
+  localStorage.removeItem("careerpilot_access_token");
+  localStorage.removeItem("careerpilot_user");
+}
+
 async function parseError(response) {
+  if (response.status === 401) {
+    clearToken();
+    window.dispatchEvent(new CustomEvent("careerpilot:unauthorized"));
+    return new Error("Your session has expired. Please sign in again to continue.");
+  }
   try {
     const data = await response.json();
-    if (typeof data.detail === "string") {
-      return new Error(data.detail);
-    }
+    if (typeof data.detail === "string") return new Error(data.detail);
     if (Array.isArray(data.detail)) {
-      return new Error(data.detail.map((err) => err.msg || err.message).join(", "));
+      return new Error(data.detail.map((e) => e.msg || e.message).join(", "));
     }
-    if (data.message) {
-      return new Error(data.message);
-    }
+    if (data.message) return new Error(data.message);
   } catch {
-    // response not JSON
-  }
-  if (response.status === 502 || response.status === 504) {
-    return new Error("Backend server is not running. Please start the backend in terminal: cd backend && uvicorn app.main:app --reload --port 8000");
+    // ignore
   }
   return new Error(`Request failed with status ${response.status}`);
 }
@@ -51,8 +72,7 @@ export async function logIn({ email, password }) {
 
   const data = await response.json();
   if (data.access_token) {
-    sessionStorage.setItem("careerpilot_access_token", data.access_token);
-    sessionStorage.setItem("careerpilot_user", JSON.stringify(data.user));
+    saveToken(data.access_token, data.user);
   }
   return data;
 }
@@ -94,7 +114,7 @@ export async function signUp({ full_name, name, email, password }) {
  * @returns {Promise<object>}
  */
 export async function getMe(token) {
-  const authToken = token || sessionStorage.getItem("careerpilot_access_token");
+  const authToken = token || getToken();
   if (!authToken) {
     throw new Error("No token provided");
   }
@@ -118,6 +138,5 @@ export async function getMe(token) {
  * Log out
  */
 export function logOut() {
-  sessionStorage.removeItem("careerpilot_access_token");
-  sessionStorage.removeItem("careerpilot_user");
+  clearToken();
 }

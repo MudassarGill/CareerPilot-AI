@@ -48,8 +48,8 @@ class Settings(BaseSettings):
     # ---- JWT Authentication ----
     SECRET_KEY: str = "change-me-in-production"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 43200  # 30 days
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     VERIFICATION_TOKEN_EXPIRE_HOURS: int = 24
 
     # ---- CORS ----

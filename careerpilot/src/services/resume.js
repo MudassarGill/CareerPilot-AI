@@ -5,7 +5,9 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 function getAuthHeaders(isJson = true) {
-  const token = sessionStorage.getItem("careerpilot_access_token");
+  const token =
+    sessionStorage.getItem("careerpilot_access_token") ||
+    localStorage.getItem("careerpilot_access_token");
   const headers = {};
   if (isJson) {
     headers["Content-Type"] = "application/json";
@@ -18,6 +20,12 @@ function getAuthHeaders(isJson = true) {
 }
 
 async function parseError(response) {
+  if (response.status === 401) {
+    sessionStorage.removeItem("careerpilot_access_token");
+    localStorage.removeItem("careerpilot_access_token");
+    window.dispatchEvent(new CustomEvent("careerpilot:unauthorized"));
+    return new Error("Your session has expired. Please sign in again to continue.");
+  }
   try {
     const data = await response.json();
     if (typeof data.detail === "string") return new Error(data.detail);
@@ -41,7 +49,9 @@ export async function uploadResume(file) {
   const formData = new FormData();
   formData.append("file", file);
 
-  const token = sessionStorage.getItem("careerpilot_access_token");
+  const token =
+    sessionStorage.getItem("careerpilot_access_token") ||
+    localStorage.getItem("careerpilot_access_token");
   const headers = {};
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;

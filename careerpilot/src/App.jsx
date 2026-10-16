@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import "./App.css";
 import "./Components/Dashboard/Dashboard.css";
 
@@ -17,13 +17,33 @@ function App() {
   const [showSignUp, setShowSignUp] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [notice, setNotice] = useState("");
-  const [hasSession, setHasSession] = useState(() =>
-    Boolean(sessionStorage.getItem("careerpilot_access_token"))
-  );
+  const [hasSession, setHasSession] = useState(() => {
+    return Boolean(
+      sessionStorage.getItem("careerpilot_access_token") ||
+      localStorage.getItem("careerpilot_access_token")
+    );
+  });
+
+  // Catch unauthorized / expired token events from any API call
+  useEffect(() => {
+    function handleUnauthorized() {
+      sessionStorage.removeItem("careerpilot_access_token");
+      sessionStorage.removeItem("careerpilot_user");
+      localStorage.removeItem("careerpilot_access_token");
+      localStorage.removeItem("careerpilot_user");
+      setHasSession(false);
+      setNotice("Your session has expired. Please sign in again to continue.");
+    }
+
+    window.addEventListener("careerpilot:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("careerpilot:unauthorized", handleUnauthorized);
+  }, []);
 
   const handleSignOut = useCallback(() => {
     sessionStorage.removeItem("careerpilot_access_token");
     sessionStorage.removeItem("careerpilot_user");
+    localStorage.removeItem("careerpilot_access_token");
+    localStorage.removeItem("careerpilot_user");
     setHasSession(false);
     setNotice("You have been signed out successfully.");
   }, []);
@@ -79,8 +99,10 @@ function App() {
           onLoginSuccess={(response) => {
             if (response.access_token) {
               sessionStorage.setItem("careerpilot_access_token", response.access_token);
+              localStorage.setItem("careerpilot_access_token", response.access_token);
               if (response.user) {
                 sessionStorage.setItem("careerpilot_user", JSON.stringify(response.user));
+                localStorage.setItem("careerpilot_user", JSON.stringify(response.user));
               }
               setNotice("");
               setHasSession(true);

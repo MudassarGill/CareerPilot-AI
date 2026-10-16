@@ -106,6 +106,8 @@ def verify_access_token(token: str) -> Optional[dict]:
             algorithms=[settings.ALGORITHM],
         )
         return payload
+    except jwt.ExpiredSignatureError:
+        return {"_error": "expired"}
     except JWTError:
         return None
 
@@ -140,6 +142,12 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
         headers={"WWW-Authenticate": "Bearer"},
     )
     payload = verify_access_token(token)
+    if payload and payload.get("_error") == "expired":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Your session has expired. Please sign in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     if payload is None:
         raise credentials_exception
         
@@ -150,8 +158,14 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     user_id: str = payload.get("sub")
     if user_id is None:
         raise credentials_exception
-        
-    user = db.query(User).filter(User.id == user_id).first()
+
+    user = None
+    try:
+        user_uuid = uuid.UUID(str(user_id))
+        user = db.query(User).filter(User.id == user_uuid).first()
+    except Exception:
+        user = db.query(User).filter(User.id == user_id).first()
+
     if user is None:
         raise credentials_exception
     return user
