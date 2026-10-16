@@ -45,7 +45,7 @@ const moduleConfigs = {
       "Confidence metrics & body language telemetry",
       "30-day recording retention with privacy cleanup",
     ],
-    status: "Scheduled for Phase 6",
+    status: "Live & Fully Operational (Phase 6)",
   },
   career: {
     phase: "Phase 7",
