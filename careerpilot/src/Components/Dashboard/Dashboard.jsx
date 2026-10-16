@@ -66,8 +66,9 @@ function Dashboard({ onSignOut }) {
       case "resume":
         return <ResumeView onNavigate={handleNavigate} />;
       case "skills":
+        return <SkillsView onNavigate={handleNavigate} defaultTab="gaps" />;
       case "roadmap":
-        return <SkillsView onNavigate={handleNavigate} />;
+        return <SkillsView onNavigate={handleNavigate} defaultTab="roadmap" />;
       case "interview":
       case "career":
       case "jobs":

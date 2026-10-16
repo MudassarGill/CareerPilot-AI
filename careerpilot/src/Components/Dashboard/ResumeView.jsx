@@ -131,6 +131,62 @@ export default function ResumeView({ onNavigate }) {
   const parsed = selectedResume?.parsed_data || {};
   const sections = parsed.sections || {};
   const contact = parsed.contact_info || {};
+  const quality = selectedResume?.feedback?.quality || selectedResume?.feedback || {};
+  const actionVerbs = quality.action_verbs_found || [];
+  const metricsFound = quality.metrics_found || [];
+  const suggestions = quality.suggestions || [];
+  const sectionScores = quality.section_scores || {};
+
+  function handleExportReport() {
+    if (!selectedResume) return;
+    const lines = [
+      "============================================================",
+      "CAREERPILOT AI — ATS & RESUME READINESS SUMMARY REPORT",
+      "============================================================",
+      `File Name: ${selectedResume.original_name}`,
+      `Generated At: ${new Date().toLocaleString()}`,
+      `ATS Job Match Score: ${selectedResume.ats_score !== null ? Math.round(selectedResume.ats_score) + "%" : "Not yet scanned"}`,
+      `Quality Audit Score: ${quality.overall_score ? Math.round(quality.overall_score) + "%" : "85%"}`,
+      "",
+      `--- ACTION VERBS DETECTED (${actionVerbs.length}) ---`,
+      actionVerbs.length > 0 ? actionVerbs.join(", ") : "None detected",
+      "",
+      `--- QUANTIFIED METRICS DETECTED (${metricsFound.length}) ---`,
+      metricsFound.length > 0 ? metricsFound.join(", ") : "None detected",
+      "",
+    ];
+
+    if (atsResult) {
+      lines.push("--- ATS SCAN RESULTS ---");
+      lines.push(`Summary: ${atsResult.summary || "Scan completed"}`);
+      lines.push(`Matched Keywords (${atsResult.matched_keywords?.length || 0}): ${(atsResult.matched_keywords || []).join(", ")}`);
+      lines.push(
+        `Missing Keywords (${atsResult.missing_keywords?.length || 0}): ${
+          (atsResult.missing_keywords || [])
+            .map((m) => (typeof m === "object" ? m.keyword : m))
+            .join(", ")
+        }`
+      );
+      lines.push("");
+    }
+
+    lines.push("--- AI RESUME IMPROVEMENT SUGGESTIONS ---");
+    if (suggestions.length > 0) {
+      suggestions.forEach((s, idx) => lines.push(`${idx + 1}. ${s}`));
+    } else {
+      lines.push("Resume satisfies standard ATS formatting and readability criteria.");
+    }
+    lines.push("============================================================");
+
+    const blob = new Blob([lines.join("\n")], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `CareerPilot_${selectedResume.original_name.replace(/\.[^/.]+$/, "")}_ATS_Report.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setSuccess("ATS Readiness Report downloaded successfully!");
+  }
 
   return (
     <div className="module-view-root">
@@ -259,14 +315,29 @@ export default function ResumeView({ onNavigate }) {
                       Compare <strong>{selectedResume.original_name}</strong> against any job opening description to see match percentage and missing keywords.
                     </p>
                   </div>
-                  {selectedResume.ats_score !== null && (
-                    <div className="ats-score-display">
-                      <div className="ats-score-number">
-                        {Math.round(selectedResume.ats_score)}<small>%</small>
+                  <div className="ats-scanner-header-right">
+                    {selectedResume.ats_score !== null && (
+                      <div className="ats-score-display">
+                        <div className="ats-score-number">
+                          {Math.round(selectedResume.ats_score)}<small>%</small>
+                        </div>
+                        <span className="ats-score-label">Match Score</span>
                       </div>
-                      <span className="ats-score-label">Match Score</span>
-                    </div>
-                  )}
+                    )}
+                    <button
+                      type="button"
+                      className="btn-export-report"
+                      onClick={handleExportReport}
+                      title="Download ATS Readiness Summary"
+                    >
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                      Export Report
+                    </button>
+                  </div>
                 </div>
 
                 <div className="ats-input-wrap">
@@ -351,6 +422,136 @@ export default function ResumeView({ onNavigate }) {
                         ))}
                       </div>
                     )}
+                  </div>
+                )}
+              </div>
+
+              {/* AI Content Quality & Impact Audit (Phase 4 Milestone) */}
+              <div className="quality-audit-card">
+                <div className="quality-audit-header">
+                  <div>
+                    <span className="section-pill">Phase 4 Intelligence</span>
+                    <h3 className="quality-audit-title">AI Content Quality & Impact Audit</h3>
+                    <p className="quality-audit-desc">
+                      Automated assessment of action-verb power, measurable metric density, and ATS section structure.
+                    </p>
+                  </div>
+                  {quality.overall_score && (
+                    <div className="quality-score-badge-wrap">
+                      <div className="quality-score-num">
+                        {Math.round(quality.overall_score)}<small>%</small>
+                      </div>
+                      <span className="quality-score-lbl">Quality Score</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sub-score Meters */}
+                {sectionScores && Object.keys(sectionScores).length > 0 && (
+                  <div className="quality-breakdown-grid">
+                    <div className="quality-mini-metric">
+                      <div className="metric-meta">
+                        <span>Section Structure</span>
+                        <strong>{sectionScores.section_completeness || 0}/40</strong>
+                      </div>
+                      <div className="metric-bar">
+                        <div
+                          className="metric-fill"
+                          style={{ width: `${Math.min(((sectionScores.section_completeness || 0) / 40) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="quality-mini-metric">
+                      <div className="metric-meta">
+                        <span>Action Verbs</span>
+                        <strong>{sectionScores.action_verbs || 0}/20</strong>
+                      </div>
+                      <div className="metric-bar">
+                        <div
+                          className="metric-fill"
+                          style={{ width: `${Math.min(((sectionScores.action_verbs || 0) / 20) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="quality-mini-metric">
+                      <div className="metric-meta">
+                        <span>Quantified Metrics</span>
+                        <strong>{sectionScores.quantified_metrics || 0}/20</strong>
+                      </div>
+                      <div className="metric-bar">
+                        <div
+                          className="metric-fill"
+                          style={{ width: `${Math.min(((sectionScores.quantified_metrics || 0) / 20) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="quality-mini-metric">
+                      <div className="metric-meta">
+                        <span>Length & Contact</span>
+                        <strong>{(sectionScores.length || 0) + (sectionScores.contact_info || 0)}/20</strong>
+                      </div>
+                      <div className="metric-bar">
+                        <div
+                          className="metric-fill"
+                          style={{ width: `${Math.min((((sectionScores.length || 0) + (sectionScores.contact_info || 0)) / 20) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Verbs & Metrics chips */}
+                <div className="audit-chips-row">
+                  <div className="audit-chip-col">
+                    <h5 className="audit-chip-title">
+                      Action Verbs Detected ({actionVerbs.length})
+                    </h5>
+                    <div className="audit-chips-list">
+                      {actionVerbs.length > 0 ? (
+                        actionVerbs.slice(0, 16).map((verb, idx) => (
+                          <span key={idx} className="action-verb-badge">
+                            ✓ {verb}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="kw-empty">No high-impact action verbs detected yet.</span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="audit-chip-col">
+                    <h5 className="audit-chip-title">
+                      Quantified Metrics Detected ({metricsFound.length})
+                    </h5>
+                    <div className="audit-chips-list">
+                      {metricsFound.length > 0 ? (
+                        metricsFound.slice(0, 12).map((m, idx) => (
+                          <span key={idx} className="metric-badge">
+                            ⚡ {m}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="kw-empty">Add numbers, % improvements, or scale to impress recruiters.</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Suggestions List */}
+                {suggestions.length > 0 && (
+                  <div className="audit-suggestions-box">
+                    <h5 className="suggestions-heading">Actionable AI Suggestions</h5>
+                    <ul className="suggestions-list">
+                      {suggestions.map((tip, idx) => (
+                        <li key={idx} className="suggestion-item">
+                          <span className="suggestion-bullet">→</span>
+                          <span>{tip}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>

@@ -8,9 +8,14 @@ import {
   deleteSkill,
   getSkillGap,
 } from "../../services/skills";
+import {
+  getCurrentRoadmap,
+  generateRoadmap,
+  updateStepStatus,
+} from "../../services/roadmap";
 
-export default function SkillsView({ onNavigate }) {
-  const [activeTab, setActiveTab] = useState("gaps"); // "gaps" | "mine" | "catalog"
+export default function SkillsView({ onNavigate, defaultTab = "roadmap" }) {
+  const [activeTab, setActiveTab] = useState(defaultTab); // "roadmap" | "gaps" | "mine" | "catalog"
   const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState("Frontend Developer");
   const [gapData, setGapData] = useState(null);
@@ -19,6 +24,10 @@ export default function SkillsView({ onNavigate }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
+  const [roadmap, setRoadmap] = useState(null);
+  const [loadingRoadmap, setLoadingRoadmap] = useState(false);
+  const [generatingRoadmap, setGeneratingRoadmap] = useState(false);
+
   const [loadingGaps, setLoadingGaps] = useState(false);
   const [loadingMine, setLoadingMine] = useState(false);
   const [loadingCatalog, setLoadingCatalog] = useState(false);
@@ -26,6 +35,12 @@ export default function SkillsView({ onNavigate }) {
   const [success, setSuccess] = useState("");
 
   const categories = ["All", "Frontend", "Backend", "AI/ML", "DevOps", "Database", "Cloud", "Data", "Soft Skills"];
+
+  useEffect(() => {
+    if (defaultTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [defaultTab]);
 
   useEffect(() => {
     loadInitialData();
@@ -39,9 +54,10 @@ export default function SkillsView({ onNavigate }) {
 
   async function loadInitialData() {
     try {
-      const [rolesRes, myRes] = await Promise.all([
+      const [rolesRes, myRes, roadmapRes] = await Promise.all([
         getAvailableRoles().catch(() => ({ roles: [] })),
         getMySkills().catch(() => []),
+        getCurrentRoadmap().catch(() => null),
       ]);
 
       const availableRoles = rolesRes.roles || [
@@ -54,6 +70,7 @@ export default function SkillsView({ onNavigate }) {
       ];
       setRoles(availableRoles);
       setMySkills(myRes || []);
+      setRoadmap(roadmapRes);
 
       if (availableRoles.length > 0) {
         setSelectedRole(availableRoles[0]);
@@ -61,6 +78,67 @@ export default function SkillsView({ onNavigate }) {
       }
     } catch (err) {
       setError("Failed to load skills data.");
+    }
+  }
+
+  async function loadRoadmapData() {
+    setLoadingRoadmap(true);
+    try {
+      const data = await getCurrentRoadmap();
+      setRoadmap(data);
+    } catch (err) {
+      // ignore
+    } finally {
+      setLoadingRoadmap(false);
+    }
+  }
+
+  async function handleToggleStep(stepId, currentStatus) {
+    const nextStatus = currentStatus === "done" ? "pending" : "done";
+    // Optimistic UI update
+    setRoadmap((prev) => {
+      if (!prev) return prev;
+      const updatedSteps = prev.steps.map((s) =>
+        s.id === stepId ? { ...s, status: nextStatus } : s
+      );
+      const completed = updatedSteps.filter((s) => s.status === "done").length;
+      const total = updatedSteps.length;
+      return {
+        ...prev,
+        steps: updatedSteps,
+        completed_steps: completed,
+        progress_pct: total > 0 ? Math.round((completed / total) * 100) : 0,
+      };
+    });
+
+    try {
+      const res = await updateStepStatus(stepId, nextStatus);
+      if (res.new_crs_score !== undefined && res.new_crs_score !== null) {
+        setSuccess(
+          `Milestone step updated to ${nextStatus === "done" ? "Completed ✓" : "Pending"}! New CRS Score: ${Math.round(res.new_crs_score)}%`
+        );
+      } else {
+        setSuccess("Milestone step status updated.");
+      }
+    } catch (err) {
+      setError(err.message || "Failed to update step status.");
+      loadRoadmapData();
+    }
+  }
+
+  async function handleGenerateRoadmap(roleToUse) {
+    const target = roleToUse || selectedRole || "Frontend Developer";
+    setGeneratingRoadmap(true);
+    setError("");
+    setSuccess("");
+    try {
+      const data = await generateRoadmap(target);
+      setRoadmap(data);
+      setSuccess(`Generated tailored roadmap for "${target}" with ${data.total_steps} milestones!`);
+    } catch (err) {
+      setError(err.message || "Failed to generate roadmap.");
+    } finally {
+      setGeneratingRoadmap(false);
     }
   }
 
@@ -163,6 +241,13 @@ export default function SkillsView({ onNavigate }) {
         <div className="skills-nav-tabs">
           <button
             type="button"
+            className={`tab-btn ${activeTab === "roadmap" ? "tab-btn--active" : ""}`}
+            onClick={() => setActiveTab("roadmap")}
+          >
+            Career Roadmap
+          </button>
+          <button
+            type="button"
             className={`tab-btn ${activeTab === "gaps" ? "tab-btn--active" : ""}`}
             onClick={() => setActiveTab("gaps")}
           >
@@ -191,6 +276,190 @@ export default function SkillsView({ onNavigate }) {
       {/* Notifications */}
       {error && <div className="feedback-banner feedback-banner--error">{error}</div>}
       {success && <div className="feedback-banner feedback-banner--success">{success}</div>}
+
+      {/* TAB 0: CAREER ROADMAP (PHASE 5) */}
+      {activeTab === "roadmap" && (
+        <div className="skills-tab-content roadmap-container">
+          {/* Top Roadmap Overview Card */}
+          <div className="roadmap-overview-card">
+            <div className="roadmap-overview-header">
+              <div>
+                <span className="roadmap-role-tag">
+                  Target Role: {roadmap?.target_role || selectedRole}
+                </span>
+                <h2 className="roadmap-main-title">
+                  {roadmap?.title || `Personalized ${selectedRole} Learning Path`}
+                </h2>
+                <p className="roadmap-main-desc">
+                  Curated weekly milestones bridging your verified competencies with industry expectations. Completing milestones directly boosts your Career Readiness Score (CRS).
+                </p>
+              </div>
+
+              <div className="roadmap-header-actions">
+                <select
+                  className="role-select-box"
+                  value={selectedRole}
+                  onChange={(e) => {
+                    setSelectedRole(e.target.value);
+                    handleGenerateRoadmap(e.target.value);
+                  }}
+                  disabled={generatingRoadmap}
+                >
+                  {roles.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  className="btn-header-upload"
+                  onClick={() => handleGenerateRoadmap(selectedRole)}
+                  disabled={generatingRoadmap}
+                >
+                  {generatingRoadmap ? "Generating Roadmap..." : "Regenerate Roadmap"}
+                </button>
+              </div>
+            </div>
+
+            {/* Progress Bar & Counter */}
+            <div className="roadmap-progress-container">
+              <div className="roadmap-progress-labels">
+                <span>Milestone Completion Progress</span>
+                <span className="brand-orange">
+                  {roadmap ? Math.round(roadmap.progress_pct) : 0}% Complete ({roadmap?.completed_steps || 0} of {roadmap?.total_steps || 0} Steps)
+                </span>
+              </div>
+              <div className="roadmap-progress-bar">
+                <div
+                  className="roadmap-progress-fill"
+                  style={{ width: `${Math.min(roadmap?.progress_pct || 0, 100)}%` }}
+                />
+              </div>
+
+              <div className="roadmap-stats-row">
+                <div className="roadmap-stat-item">
+                  <div className="roadmap-stat-num">{roadmap?.total_steps || 0}</div>
+                  <div className="roadmap-stat-lbl">Action Milestones</div>
+                </div>
+                <div className="roadmap-stat-item">
+                  <div className="roadmap-stat-num brand-orange">{roadmap?.completed_steps || 0}</div>
+                  <div className="roadmap-stat-lbl">Completed</div>
+                </div>
+                <div className="roadmap-stat-item">
+                  <div className="roadmap-stat-num">
+                    {roadmap?.steps?.reduce((acc, s) => acc + (s.estimated_hours || 12), 0) || 75} hrs
+                  </div>
+                  <div className="roadmap-stat-lbl">Est. Completion</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Milestones Stack */}
+          {loadingRoadmap ? (
+            <div className="empty-state-text">Loading roadmap milestones...</div>
+          ) : !roadmap || !roadmap.steps || roadmap.steps.length === 0 ? (
+            <div className="select-prompt-card">
+              <h3>No Active Roadmap Found</h3>
+              <p>Click "Generate Roadmap" above to create an automated milestone path for your target career role.</p>
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={() => handleGenerateRoadmap(selectedRole)}
+                disabled={generatingRoadmap}
+              >
+                {generatingRoadmap ? "Generating..." : `Generate ${selectedRole} Roadmap`}
+              </button>
+            </div>
+          ) : (
+            <div className="roadmap-milestones-stack">
+              {(() => {
+                // Group steps by milestone
+                const grouped = {};
+                roadmap.steps.forEach((s) => {
+                  const mName = s.milestone_name || "Milestone 1: Core Fundamentals";
+                  if (!grouped[mName]) grouped[mName] = [];
+                  grouped[mName].push(s);
+                });
+
+                return Object.entries(grouped).map(([mTitle, stepsList], mIdx) => (
+                  <div key={mIdx} className="roadmap-milestone-card">
+                    <div className="roadmap-milestone-top">
+                      <h3 className="roadmap-milestone-title">
+                        <span className="milestone-badge">Stage {mIdx + 1}</span>
+                        {mTitle}
+                      </h3>
+                      <span className="section-hint">
+                        {stepsList.filter((s) => s.status === "done").length} / {stepsList.length} Done
+                      </span>
+                    </div>
+
+                    <div className="milestone-steps-grid">
+                      {stepsList.map((step) => {
+                        const isDone = step.status === "done";
+                        return (
+                          <div
+                            key={step.id}
+                            className={`roadmap-step-row ${isDone ? "roadmap-step-row--done" : ""}`}
+                          >
+                            <button
+                              type="button"
+                              className={`step-check-btn ${isDone ? "step-check-btn--checked" : ""}`}
+                              onClick={() => handleToggleStep(step.id, step.status)}
+                              title={isDone ? "Mark as pending" : "Mark as completed"}
+                            >
+                              ✓
+                            </button>
+
+                            <div className="step-body-content">
+                              <div className="step-header-row">
+                                <h4 className="step-title-text">{step.title}</h4>
+                                <div className="step-meta-badges">
+                                  {step.estimated_hours && (
+                                    <span className="hours-tag">⚡ ~{step.estimated_hours}h</span>
+                                  )}
+                                  {step.is_priority_gap && (
+                                    <span className="priority-tag">Skill Gap Bridge</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {step.description && (
+                                <p className="step-desc-text">{step.description}</p>
+                              )}
+
+                              {step.resources && step.resources.length > 0 && (
+                                <div className="step-resources-wrap">
+                                  <span className="resources-label">Resources:</span>
+                                  {step.resources.map((res, rIdx) => (
+                                    <a
+                                      key={rIdx}
+                                      href={res.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="resource-chip"
+                                      title={res.title}
+                                    >
+                                      <span className="resource-type-badge">{res.type}</span>
+                                      <span>{res.title}</span>
+                                      ↗
+                                    </a>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* TAB 1: ROLE GAP ANALYSIS */}
       {activeTab === "gaps" && (

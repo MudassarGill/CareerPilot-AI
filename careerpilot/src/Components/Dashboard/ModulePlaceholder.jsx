@@ -17,7 +17,7 @@ const moduleConfigs = {
       "Action-verb & quantified metric suggestions",
       "Downloadable ATS readiness summary report",
     ],
-    status: "In Active Development (Phase 4)",
+    status: "Live & Fully Operational (Phase 4)",
   },
   roadmap: {
     phase: "Phase 5",
@@ -27,11 +27,11 @@ const moduleConfigs = {
     features: [
       "Catalog of 200+ industry verified skills",
       "Target role gap analysis (Front-End, Back-End, AI, DevOps)",
-      "Career Readiness Score (Resume 20, ATS 25, Skill Gap 25, Interview 20, Learning 10)",
+      "Career Readiness Score (Resume 25, ATS 25, Skill Gap 30, Learning 20)",
       "Weekly milestone completion tracker",
       "Interactive learning resource recommendations",
     ],
-    status: "Scheduled for Phase 5",
+    status: "Live & Active (Phase 5)",
   },
   interview: {
     phase: "Phase 6",
