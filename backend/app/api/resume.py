@@ -76,7 +76,10 @@ async def upload_resume(
         parsed_data=parsed_data,
         ats_score=initial_score,
         status="analyzed",
-        feedback=quality_result,
+        feedback={
+            "summary": "Initial resume structure and quality audit completed.",
+            "quality": quality_result,
+        },
     )
     db.add(resume_record)
     db.commit()
@@ -110,7 +113,7 @@ def list_user_resumes(
 
 
 @router.get("/{resume_id}", response_model=ResumeDetailResponse)
-def get_resume_detail(
+async def get_resume_detail(
     resume_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -129,6 +132,11 @@ def get_resume_detail(
             detail="Resume not found",
         )
 
+    feedback_data = dict(resume.feedback) if isinstance(resume.feedback, dict) else {}
+    if "quality" not in feedback_data and "action_verbs_found" not in feedback_data:
+        quality_eval = await resume_agent.evaluate_quality(resume.parsed_data or {})
+        feedback_data["quality"] = quality_eval
+
     return ResumeDetailResponse(
         id=resume.id,
         original_name=resume.original_name,
@@ -136,7 +144,7 @@ def get_resume_detail(
         parsed_data=resume.parsed_data,
         ats_score=resume.ats_score,
         skill_gaps=resume.skill_gaps or [],
-        feedback=resume.feedback,
+        feedback=feedback_data,
         uploaded_at=resume.uploaded_at,
     )
 
@@ -232,6 +240,14 @@ async def score_resume_ats(
         for sf in ats_result.get("section_feedback", [])
     ]
 
+    # Preserve existing quality metrics if already present
+    existing_quality = {}
+    if isinstance(resume.feedback, dict):
+        if "quality" in resume.feedback:
+            existing_quality = resume.feedback.get("quality", {})
+        elif "overall_score" in resume.feedback:
+            existing_quality = resume.feedback
+
     # Update resume in DB
     resume.ats_score = ats_result.get("ats_score", 0.0)
     resume.skill_gaps = [m["keyword"] for m in ats_result.get("missing_keywords", [])]
@@ -240,6 +256,7 @@ async def score_resume_ats(
         "section_feedback": ats_result.get("section_feedback", []),
         "matched_count": len(ats_result.get("matched_keywords", [])),
         "missing_count": len(missing_items),
+        "quality": existing_quality,
     }
     resume.status = "optimized"
     db.commit()
