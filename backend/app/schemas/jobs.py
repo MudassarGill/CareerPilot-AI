@@ -26,6 +26,8 @@ class JobItem(BaseModel):
     match_pct: float = 0.0
     matching_skills: List[str] = []
     missing_skills: List[str] = []
+    company_url: Optional[str] = None
+    job_url: Optional[str] = None
     is_saved: bool = False
     status: str = "open"  # "open" | "saved" | "applied"
 

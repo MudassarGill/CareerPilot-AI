@@ -46,6 +46,8 @@ TECH_JOBS_CATALOG = [
         "required_skills": ["React", "TypeScript", "Next.js", "Tailwind CSS", "GraphQL", "Jest", "Web Performance"],
         "description": "Architect high-speed, accessible user interfaces using React 19 and Next.js App Router. Optimize Core Web Vitals, SSR caching, and client state pipelines.",
         "posted_date": "2 days ago",
+        "company_url": "https://vercel.com/careers",
+        "job_url": "https://vercel.com/careers",
     },
     {
         "id": "job_be_1",
@@ -59,6 +61,8 @@ TECH_JOBS_CATALOG = [
         "required_skills": ["Python", "FastAPI", "PostgreSQL", "Docker", "Redis", "Asyncio", "SQLAlchemy"],
         "description": "Build high-throughput asynchronous REST APIs and microservices. Handle database connection pools, indexing, caching layers, and CI/CD pipelines.",
         "posted_date": "1 day ago",
+        "company_url": "https://scale.com/careers",
+        "job_url": "https://scale.com/careers",
     },
     {
         "id": "job_ai_1",
@@ -72,6 +76,8 @@ TECH_JOBS_CATALOG = [
         "required_skills": ["Python", "LangChain", "Vector Databases", "Embeddings", "PyTorch", "FastAPI", "ChromaDB"],
         "description": "Design enterprise Retrieval-Augmented Generation (RAG) agents, semantic chunking pipelines, and LLM evaluation benchmarks with LangGraph.",
         "posted_date": "Just now",
+        "company_url": "https://www.anthropic.com/careers",
+        "job_url": "https://www.anthropic.com/careers",
     },
     {
         "id": "job_fs_1",
@@ -85,6 +91,8 @@ TECH_JOBS_CATALOG = [
         "required_skills": ["React", "Node.js", "Python", "TypeScript", "PostgreSQL", "Docker", "REST APIs"],
         "description": "End-to-end feature ownership from reactive browser UI to database transactions. Implement authentication, Stripe payments, and automated test suites.",
         "posted_date": "3 days ago",
+        "company_url": "https://stripe.com/jobs",
+        "job_url": "https://stripe.com/jobs",
     },
     {
         "id": "job_do_1",
@@ -98,6 +106,8 @@ TECH_JOBS_CATALOG = [
         "required_skills": ["Kubernetes", "Docker", "AWS", "Terraform", "GitHub Actions", "Linux", "CI/CD"],
         "description": "Manage multi-cluster Kubernetes infrastructure, Terraform Infrastructure-as-Code (IaC), zero-trust security policies, and Prometheus monitoring.",
         "posted_date": "4 days ago",
+        "company_url": "https://www.cncf.io/",
+        "job_url": "https://kubernetes.io/",
     },
     {
         "id": "job_da_1",
@@ -111,6 +121,8 @@ TECH_JOBS_CATALOG = [
         "required_skills": ["SQL", "Python", "Pandas", "Tableau", "Power BI", "Data Modeling", "Excel"],
         "description": "Deliver executive KPI dashboards, customer retention cohort analyses, and automated SQL ETL pipelines from data lakes.",
         "posted_date": "2 days ago",
+        "company_url": "https://www.snowflake.com/en/company/careers/",
+        "job_url": "https://www.snowflake.com/en/company/careers/",
     },
     {
         "id": "job_fe_2",
@@ -124,6 +136,8 @@ TECH_JOBS_CATALOG = [
         "required_skills": ["HTML5", "CSS3", "JavaScript", "React", "Figma", "Responsive Design", "Git"],
         "description": "Transform high-fidelity Figma components into pixel-perfect, accessible React components with smooth CSS micro-animations.",
         "posted_date": "5 days ago",
+        "company_url": "https://www.figma.com/careers/",
+        "job_url": "https://www.figma.com/careers/",
     },
     {
         "id": "job_be_2",
@@ -137,6 +151,8 @@ TECH_JOBS_CATALOG = [
         "required_skills": ["Go", "Python", "Kafka", "PostgreSQL", "Microservices", "Redis", "gRPC"],
         "description": "Lead architectural strategy for event-driven distributed streaming pipelines handling millions of events per second with high availability.",
         "posted_date": "1 day ago",
+        "company_url": "https://www.datadoghq.com/careers/",
+        "job_url": "https://www.datadoghq.com/careers/",
     },
 ]
 
@@ -255,6 +271,8 @@ def get_matched_jobs(
                 match_pct=match_pct,
                 matching_skills=matching_skills,
                 missing_skills=missing_skills,
+                company_url=job.get("company_url"),
+                job_url=job.get("job_url"),
                 is_saved=user_state["saved"],
                 status=status_str,
             )

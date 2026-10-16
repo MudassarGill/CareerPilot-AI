@@ -13,6 +13,7 @@ import ResumeView from "./ResumeView";
 import SkillsView from "./SkillsView";
 import InterviewView from "./InterviewView";
 import JobsView from "./JobsView";
+import CareerTwinView from "./CareerTwinView";
 
 function Dashboard({ onSignOut }) {
   const [user, setUser] = useState(null);
@@ -112,12 +113,7 @@ function Dashboard({ onSignOut }) {
       case "jobs":
         return <JobsView onNavigate={handleNavigate} />;
       case "career":
-        return (
-          <ModulePlaceholder
-            moduleId={activeView}
-            onBackToDashboard={() => handleNavigate("dashboard")}
-          />
-        );
+        return <CareerTwinView onNavigate={handleNavigate} />;
       default:
         return <DashboardHome user={user} onNavigate={handleNavigate} />;
     }

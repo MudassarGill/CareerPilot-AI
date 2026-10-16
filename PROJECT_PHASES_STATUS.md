@@ -20,7 +20,7 @@ CareerPilot AI is designed across 7 progressive engineering phases. As requested
 | **Phase 4** | **Resume & ATS Intelligence** | **Complete** | PDF/DOCX multi-section parser (education, experience, skills), job description ATS scoring, action-verb and quantified metric audit, instant printable A4 PDF export report. |
 | **Phase 5** | **Skills, Career Roadmap & Job Intelligence Matcher** | **Complete** | 200+ competency catalog, target role gap analyzer, 4-stage interactive milestone roadmap, weekly completion checklist, and automated **Job Intelligence Matcher** matching live tech openings with ATS fit and missing skill alerts. |
 | **Phase 6** | **AI Mock Interview Simulator** | **Complete** | Role-tailored situational question banks, browser Web Speech Text-to-Speech audio, real-time voice speech recognition dictation, WebRTC webcam preview mirror, multi-dimensional rubric feedback, Career Readiness Score (CRS) synchronization, and printable PDF transcript export. |
-| **Phase 7** | **Career Twin & Multi-Year Simulation** | *Planned Next* | Rule-based salary projection curves (1-to-5 years), promotion probability modeling, what-if scenario planner. |
+| **Phase 7** | **Career Twin & Multi-Year Simulation** | **Complete** | Deterministic multi-year career projection engine (1-yr, 3-yr, 5-yr horizons), regional salary benchmarks, dynamic 5-year compensation curve visualization, 3 What-If branch comparison scenarios (Management, Deep Tech Specialization, Startup Founder), and instant printable A4 PDF simulation forecast report. |
 | **Phase 8** | **Autonomous Job Application Agent** | *Planned Future* | Automated job board integrations, Chrome extension application assistant, cover letter generator. |
 
 ---
@@ -117,14 +117,23 @@ CareerPilot AI is designed across 7 progressive engineering phases. As requested
 
 ---
 
-## Remaining Work (Future Phases)
 
-### Phase 7: Career Twin & Multi-Year Simulation
-- **Scope**:
-  - Salary benchmark regression curves by region, role, and skill stack.
-  - 1-year, 3-year, and 5-year career projection engine.
-  - Promotion probability simulator based on acquired certifications and target companies.
-  - "What-If" scenario comparison tool (e.g. staying in Frontend vs transitioning to AI/ML Engineer).
+### Phase 7: Career Twin & Multi-Year Simulation Engine
+- **Backend Architecture**:
+  - `backend/app/schemas/career_twin.py`: Pydantic request/response models for simulation config, trajectory horizons, salary curve benchmarks, and what-if scenario branches.
+  - `backend/app/agents/career_twin_agent.py`: Multi-year projection logic mapping competencies and ambition paces (Steady, Accelerated, Executive) against market compensation medians and regional multipliers (US Tech Hubs, US Remote, Europe, APAC, Latin America).
+  - `backend/app/api/career_twin.py`: Endpoints for `POST /api/career-twin/simulate` and `GET /api/career-twin/latest` with automatic persistence in PostgreSQL `CareerProfile.career_twin_data`.
+- **Frontend Studio (`CareerTwinView.jsx`)**:
+  - **Simulation Configuration Bar**: Custom target role, timeline (3 or 5 years), progression pace, and market region.
+  - **KPI Metrics Overview**: Target 5-Year Role, Projected Year 5 Salary, 5-Year Growth Multiplier (+84%), and Overall Promotion Probability.
+  - **Multi-Year Horizon Cards**: 1-Year, 3-Year, and 5-Year checkpoints showing milestone titles, compensation, target skills, and required milestones with elevated black drop-shadows.
+  - **Dynamic Compensation Trajectory Chart**: 6-column interactive salary curve comparing compensation progression from Year 0 to Year 5.
+  - **3 What-If Career Path Scenarios**: Side-by-side comparison for Engineering Management, Deep Tech Specialization, and Early-Stage Startup Founder.
+  - **Printable A4 Simulation Forecast (PDF)**: Clean browser print/save PDF view without external dependencies or emojis.
+
+---
+
+## Remaining Work (Future Phases)
 
 ### Phase 8: Autonomous Application Agent
 - **Scope**:

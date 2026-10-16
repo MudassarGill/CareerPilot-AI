@@ -232,7 +232,19 @@ export default function JobsView({ onNavigate }) {
                 <div className="job-card__header">
                   <div className="job-title-block">
                     <div className="job-meta-top">
-                      <span className="job-company-name">{job.company}</span>
+                      {job.company_url ? (
+                        <a
+                          href={job.company_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="job-company-name job-company-link"
+                          title={`Visit ${job.company} official careers site`}
+                        >
+                          {job.company} ↗
+                        </a>
+                      ) : (
+                        <span className="job-company-name">{job.company}</span>
+                      )}
                       <span className="job-location-tag">{job.location_type} &bull; {job.location}</span>
                       <span className="job-posted-tag">{job.posted_date}</span>
                     </div>
@@ -293,6 +305,18 @@ export default function JobsView({ onNavigate }) {
                   </div>
 
                   <div className="job-footer-actions">
+                    {job.company_url && (
+                      <a
+                        href={job.company_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-secondary btn-sm job-external-link"
+                        title={`Open official ${job.company} portal`}
+                      >
+                        Visit Company Site
+                      </a>
+                    )}
+
                     <button
                       type="button"
                       className="btn-secondary btn-sm"
@@ -393,6 +417,17 @@ export default function JobsView({ onNavigate }) {
             </div>
 
             <div className="modal-footer">
+              {checklistJob.company_url && (
+                <a
+                  href={checklistJob.company_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary"
+                  style={{ textDecoration: "none" }}
+                >
+                  Visit Official Company Portal ↗
+                </a>
+              )}
               <button
                 type="button"
                 className="btn-primary"
