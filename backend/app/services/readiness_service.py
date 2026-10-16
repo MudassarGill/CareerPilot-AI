@@ -53,19 +53,27 @@ def calculate_readiness_score(db: Session, user_id: str) -> CareerReadinessScore
             interview_part = sum(valid_scores) / len(valid_scores)
             
     # 4. Learning Part (20%)
-    # Percentage of completed steps across all active roadmaps
-    # Fast path: query all steps for user's roadmaps
-    # For now, approximate based on steps where roadmap.user_id == user_id
-    total_steps_query = db.query(func.count(LearningStep.id)).filter(
-        LearningStep.roadmap_id.in_(
-            db.query(LearningStep.roadmap_id).filter(LearningStep.status != "dropped")
-        )
-    ).scalar()
-    # Need to properly join to check user ownership, but assuming this is sufficient logic
-    # Real logic:
-    # roadmaps = db.query(LearningRoadmap).filter(LearningRoadmap.user_id == user_id).all()
+    # Percentage of completed steps across the user's active roadmaps
+    from app.models.learning import LearningRoadmap
+    user_roadmaps = db.query(LearningRoadmap.id).filter(LearningRoadmap.user_id == user_id).all()
+    roadmap_ids = [r[0] for r in user_roadmaps]
     learning_part = 0.0
-    # simplified representation... if they have none, 0
+    if roadmap_ids:
+        total_steps = (
+            db.query(func.count(LearningStep.id))
+            .filter(LearningStep.roadmap_id.in_(roadmap_ids))
+            .scalar() or 0
+        )
+        done_steps = (
+            db.query(func.count(LearningStep.id))
+            .filter(
+                LearningStep.roadmap_id.in_(roadmap_ids),
+                LearningStep.status == "done"
+            )
+            .scalar() or 0
+        )
+        if total_steps > 0:
+            learning_part = (done_steps / total_steps) * 100.0
     
     # Total Calculation
     total_score = (
