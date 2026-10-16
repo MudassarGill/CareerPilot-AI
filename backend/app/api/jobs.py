@@ -146,27 +146,31 @@ USER_JOB_STATES = {}  # { f"{user_id}:{job_id}": { "saved": bool, "applied": boo
 
 def _get_user_skill_names(db: Session, user_id) -> List[str]:
     """Retrieve all skills associated with current user."""
-    skills = (
-        db.query(Skill.name)
-        .join(UserSkill, UserSkill.skill_id == Skill.id)
-        .filter(UserSkill.user_id == user_id)
-        .all()
-    )
-    names = [s[0].lower() for s in skills]
+    names = []
+    try:
+        skills = (
+            db.query(Skill.name)
+            .join(UserSkill, UserSkill.skill_id == Skill.id)
+            .filter(UserSkill.user_id == user_id)
+            .all()
+        )
+        names = [s[0].lower() for s in skills]
 
-    # Also check latest parsed resume for extracted technical skills
-    latest_resume = (
-        db.query(Resume)
-        .filter(Resume.user_id == user_id)
-        .order_by(Resume.created_at.desc())
-        .first()
-    )
-    if latest_resume and latest_resume.parsed_data:
-        res_skills = latest_resume.parsed_data.get("skills", [])
-        if isinstance(res_skills, list):
-            for item in res_skills:
-                if isinstance(item, str) and item.lower() not in names:
-                    names.append(item.lower())
+        # Also check latest parsed resume for extracted technical skills
+        latest_resume = (
+            db.query(Resume)
+            .filter(Resume.user_id == user_id)
+            .order_by(Resume.uploaded_at.desc())
+            .first()
+        )
+        if latest_resume and latest_resume.parsed_data:
+            res_skills = latest_resume.parsed_data.get("skills", [])
+            if isinstance(res_skills, list):
+                for item in res_skills:
+                    if isinstance(item, str) and item.lower() not in names:
+                        names.append(item.lower())
+    except Exception as exc:
+        print(f"[WARN] Error fetching user skills for jobs: {exc}")
 
     return names
 

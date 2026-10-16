@@ -4407,24 +4407,24 @@
    SECTION 19: PHASE 6 AI MOCK INTERVIEW STUDIO
    ============================================================ */
 
-/* Tab switcher in top header */
+/* Tab switcher in top header (Rounded 2xl) */
 .tab-pill-group {
   display: inline-flex;
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(8px);
-  padding: 4px;
-  border-radius: 9999px;
+  padding: 5px;
+  border-radius: 18px; /* rounded-2xl */
   border: 1px solid rgba(255, 255, 255, 0.25);
-  gap: 4px;
+  gap: 6px;
 }
 
 .tab-pill-btn {
   background: transparent;
   border: none;
   color: #ffffff;
-  padding: 8px 18px;
-  border-radius: 9999px;
-  font-size: 0.85rem;
+  padding: 9px 20px;
+  border-radius: 14px; /* rounded-2xl */
+  font-size: 0.86rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -4437,7 +4437,8 @@
 .tab-pill-btn--active {
   background: #ffffff;
   color: #0f172a;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 14px; /* rounded-2xl */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
 /* Pre-Interview Setup Grid */
