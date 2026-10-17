@@ -79,11 +79,25 @@ async def health_check():
 
 @app.on_event("startup")
 async def startup_event():
-    """Auto-initialize database tables if connected."""
+    """Auto-initialize database tables and additive columns if connected."""
     try:
+        from sqlalchemy import text
         from app.db.database import engine, Base
         import app.models  # noqa: F401
         Base.metadata.create_all(bind=engine)
+        
+        # Verify / add additive columns for Mock Interview upgrades (backward-compatible)
+        try:
+            with engine.connect() as conn:
+                conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS behavioral_metrics JSON;"))
+                conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS confidence_score FLOAT;"))
+                conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS avatar_latency_ms FLOAT;"))
+                conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS consent_granted BOOLEAN DEFAULT TRUE;"))
+                conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;"))
+                conn.commit()
+        except Exception as mig_err:
+            print(f"[INFO] Table alteration notice (e.g. SQLite or already present): {mig_err}")
+
         print("[INFO] CareerPilot AI database tables verified/initialized.")
         # Auto-seed standard skills if needed
         from app.scripts.seed_skills import seed_skills

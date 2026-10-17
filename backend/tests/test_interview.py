@@ -181,3 +181,103 @@ def test_schema_backward_compatibility():
     assert ans_req.visual_metrics["camera_facing_ratio"] == 0.9
     assert ans_req.speech_metrics["wpm"] == 140.0
     assert ans_req.avatar_latency_ms == 160.0
+
+
+def test_api_interview_full_flow():
+    """Integration test: start -> answer with CV & speech -> finish -> history -> detail."""
+    import uuid
+    from fastapi.testclient import TestClient
+    from app.main import app
+    from app.models.user import User
+    from app.services.auth import get_current_user
+    from app.db.database import SessionLocal
+
+    db = SessionLocal()
+    test_user = db.query(User).filter(User.email == "test_interview_runner@careerpilot.ai").first()
+    if not test_user:
+        test_user = User(
+            id=uuid.uuid4(),
+            email="test_interview_runner@careerpilot.ai",
+            hashed_password="fakehashedpassword123",
+            name="Interview Test Candidate",
+        )
+        db.add(test_user)
+        db.commit()
+        db.refresh(test_user)
+
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    client = TestClient(app)
+
+    try:
+        # 1. Start Interview
+        start_payload = {
+            "role": "Frontend Developer",
+            "interview_type": "video",
+            "question_count": 3,
+            "difficulty": "mid",
+            "consent_granted": True,
+            "interviewer_persona": "sarah",
+        }
+        resp = client.post("/api/interview/start", json=start_payload)
+        assert resp.status_code == 200, resp.text
+        data = resp.json()
+        interview_id = data["id"]
+        assert data["role"] == "Frontend Developer"
+        assert len(data["questions"]) == 3
+        assert "expires_at" in data
+        assert data["consent_granted"] is True
+
+        # 2. Submit Answer with CV & Speech telemetry
+        ans_payload = {
+            "interview_id": interview_id,
+            "question_index": 0,
+            "answer_text": "React uses reconciliation and fiber architecture for virtual DOM diffing and state batching.",
+            "duration_sec": 30,
+            "visual_metrics": {
+                "face_detected": True,
+                "face_visibility_ratio": 0.98,
+                "camera_facing_ratio": 0.92,
+                "eye_contact_ratio": 0.88,
+                "posture_stability_score": 90.0,
+                "head_movement_stability": "stable",
+            },
+            "speech_metrics": {
+                "wpm": 135.0,
+                "filler_count": 0,
+            },
+            "avatar_latency_ms": 175.0,
+        }
+        ans_resp = client.post("/api/interview/answer", json=ans_payload)
+        assert ans_resp.status_code == 200, ans_resp.text
+        ans_data = ans_resp.json()
+        assert ans_data["score"] > 50
+        assert ans_data["behavioral_insights"] is not None
+        assert ans_data["speech_analysis"] is not None
+
+        # 3. Finish Interview
+        finish_resp = client.post(f"/api/interview/{interview_id}/finish")
+        assert finish_resp.status_code == 200, finish_resp.text
+        finish_data = finish_resp.json()
+        assert finish_data["overall_score"] > 0
+        assert finish_data["confidence_score"] is not None
+        assert finish_data["confidence_breakdown"] is not None
+        assert "expires_at" in finish_data
+        assert "interpretation_limitation" in finish_data
+
+        # 4. History
+        hist_resp = client.get("/api/interview/history")
+        assert hist_resp.status_code == 200
+        hist_data = hist_resp.json()
+        assert any(item["id"] == interview_id for item in hist_data)
+
+        # 5. Detail
+        detail_resp = client.get(f"/api/interview/{interview_id}")
+        assert detail_resp.status_code == 200
+        detail_data = detail_resp.json()
+        assert detail_data["id"] == interview_id
+        assert detail_data["confidence_score"] == finish_data["confidence_score"]
+        assert detail_data["behavioral_metrics"] is not None
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+        db.close()
+
