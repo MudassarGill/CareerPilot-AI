@@ -686,7 +686,7 @@ class InterviewAgent:
                     "metric_label": "Response Cadence & Low Filler Density",
                 },
             }
-            formula_applied = "Standard SRS: Eye Contact (30%) + Posture (25%) + Vocal Clarity (25%) + Response Fluency (20%)"
+            formula_applied = "Standard Model: Eye Contact (30%) + Posture (25%) + Vocal Clarity (25%) + Response Fluency (20%)"
         else:
             # Video not active: missing signal handling with documented normalization
             eye_contact_score = None

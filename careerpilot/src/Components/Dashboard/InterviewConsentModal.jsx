@@ -57,7 +57,7 @@ export default function InterviewConsentModal({ isOpen, onClose, onAccept, role,
         {/* Header */}
         <div className="interview-modal-header">
           <div className="modal-badge-row">
-            <span className="consent-pill">SRS Security & Consent Protocol</span>
+            <span className="consent-pill">Security & Consent Protocol</span>
             <span className="retention-pill">30-Day Retention Limit</span>
           </div>
           <h2 id="consent-title" className="interview-modal-title">
@@ -88,7 +88,7 @@ export default function InterviewConsentModal({ isOpen, onClose, onAccept, role,
           </div>
 
           <div className="consent-notice-box">
-            <h4 className="notice-heading">Data Retention & Expiry (SRS Section 2.3)</h4>
+            <h4 className="notice-heading">Data Retention & 30-Day Expiry Policy</h4>
             <p className="notice-p">
               Interview transcripts, speech metrics, and aggregated presentation scores are encrypted and stored with an automated <strong>30-day retention expiry policy</strong>. Data is permanently purged upon expiration.
             </p>

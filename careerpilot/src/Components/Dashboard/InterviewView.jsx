@@ -754,7 +754,7 @@ export default function InterviewView({ onNavigate }) {
           <div class="score-card score-card--conf">
             <div>
               <div class="score-big">${debriefData.confidence_score !== undefined && debriefData.confidence_score !== null ? debriefData.confidence_score + "%" : "N/A"}</div>
-              <div class="score-lbl">SRS Presentation Confidence Score</div>
+              <div class="score-lbl">Presentation Confidence Score</div>
             </div>
             <div style="font-size: 10px; color: #0369a1; text-align: right;">
               Eye Contact (30%) + Posture (25%) + Vocal Clarity (25%) + Fluency (20%).
@@ -765,7 +765,7 @@ export default function InterviewView({ onNavigate }) {
         ${
           debriefData.confidence_breakdown
             ? `
-            <div class="section-heading">SRS Presentation & Confidence Breakdown</div>
+            <div class="section-heading">Presentation & Behavioral Confidence Breakdown</div>
             <table class="srs-table">
               <thead>
                 <tr>
@@ -850,7 +850,7 @@ export default function InterviewView({ onNavigate }) {
           <h1 className="module-main-title">AI Mock Interview Studio & Avatar Interviewer</h1>
           <p className="module-subtitle">
             Practice real-time technical and behavioral video interviews with an animated AI HR interviewer,
-            live computer vision behavioral telemetry, speech recognition, and SRS confidence scoring.
+            live computer vision behavioral telemetry, speech recognition, and presentation confidence scoring.
           </p>
         </div>
         <div className="module-header-actions">
@@ -884,7 +884,7 @@ export default function InterviewView({ onNavigate }) {
             <div>
               <h2 className="interview-section-title">Past Interview Sessions</h2>
               <p className="interview-section-sub">
-                Sessions are archived under the 30-day retention policy (SRS Section 2.3).
+                Sessions are archived under the automated 30-day data retention policy.
               </p>
             </div>
             <button
@@ -996,7 +996,7 @@ export default function InterviewView({ onNavigate }) {
               {/* Setup Configuration Card */}
               <div className="interview-setup-card">
                 <div className="interview-setup-card__header">
-                  <span className="section-pill">SRS UC-06 & FR-06 Ready</span>
+                  <span className="section-pill">AI HR Video Call Studio</span>
                   <h2 className="interview-card-title">Configure Your AI Avatar Interview</h2>
                   <p className="interview-card-subtitle">
                     Experience an interactive video call with an animated AI HR Interviewer and live computer vision behavioral feedback.
@@ -1211,7 +1211,7 @@ export default function InterviewView({ onNavigate }) {
               {/* Informational Guidance Cards */}
               <div className="interview-guidance-col">
                 <div className="guidance-card">
-                  <h4 className="guidance-card__title">SRS Presentation Confidence Formula</h4>
+                  <h4 className="guidance-card__title">Presentation Confidence Scoring Model</h4>
                   <ul className="guidance-list">
                     <li>
                       <strong>Eye Contact (30%):</strong> Measured via optical gaze vector and camera-facing alignment.
@@ -1624,12 +1624,12 @@ export default function InterviewView({ onNavigate }) {
                     </div>
                   </div>
 
-                  {/* SRS Confidence Score Ring */}
+                  {/* Presentation Confidence Score Ring */}
                   {debrief.confidence_score !== undefined && debrief.confidence_score !== null && (
                     <div className="debrief-score-ring debrief-score-ring--conf">
                       <div className="score-ring-circle score-ring-circle--conf">
                         <span className="score-ring-number">{debrief.confidence_score}%</span>
-                        <span className="score-ring-label">SRS Confidence</span>
+                        <span className="score-ring-label">Confidence Score</span>
                       </div>
                     </div>
                   )}
@@ -1679,12 +1679,12 @@ export default function InterviewView({ onNavigate }) {
                 </div>
               </div>
 
-              {/* SRS Confidence Score Breakdown Card */}
+              {/* Presentation Confidence Score Breakdown Card */}
               {debrief.confidence_breakdown && (
                 <div className="srs-breakdown-card">
                   <div className="srs-breakdown-header">
                     <div>
-                      <span className="section-pill">SRS Section 2.3 Formula</span>
+                      <span className="section-pill">Behavioral Telemetry Model</span>
                       <h3 className="srs-card-title">Presentation & Behavioral Confidence Telemetry</h3>
                     </div>
                     <span className="srs-formula-tag">
