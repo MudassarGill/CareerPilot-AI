@@ -425,15 +425,108 @@ class InterviewAgent:
         question_dict: Dict[str, Any],
         answer_text: str,
         duration_sec: int = 0,
+        visual_metrics: Optional[Dict[str, Any]] = None,
+        speech_metrics: Optional[Dict[str, Any]] = None,
+        avatar_latency_ms: Optional[float] = None,
     ) -> Dict[str, Any]:
         """
         Evaluates candidate answer against scoring rubric:
         - Keyword coverage (40%)
         - Technical depth & completeness (30%)
         - Clarity & structure (30%)
+        Additionally incorporates speech metrics (fillers, fluency, WPM)
+        and computer vision behavioral telemetry (face visibility, gaze, posture).
         """
         clean_text = answer_text.strip()
         word_count = len(clean_text.split())
+
+        # Common spoken filler words
+        filler_patterns = [
+            r"\bum\b", r"\buh\b", r"\blike\b", r"\byou know\b",
+            r"\bactually\b", r"\bbasically\b", r"\bsort of\b",
+            r"\bkind of\b", r"\bi mean\b", r"\bliterally\b"
+        ]
+        lower_answer = clean_text.lower()
+        detected_fillers = []
+        total_filler_count = 0
+        for pattern in filler_patterns:
+            matches = re.findall(pattern, lower_answer)
+            if matches:
+                detected_fillers.append(matches[0].strip())
+                total_filler_count += len(matches)
+
+        filler_density_pct = round((total_filler_count / max(word_count, 1)) * 100, 1)
+
+        # Speaking pace (Words Per Minute)
+        if duration_sec > 0:
+            words_per_minute = round((word_count / duration_sec) * 60, 1)
+        else:
+            words_per_minute = speech_metrics.get("wpm", 0.0) if speech_metrics else 0.0
+
+        # Response Fluency (0 - 100): transitions, cadence, low filler density
+        structural_markers = [
+            "because", "for example", "specifically", "however",
+            "therefore", "firstly", "in order to", "result", "benefit",
+            "consequently", "furthermore", "in contrast"
+        ]
+        structure_count = sum(1 for m in structural_markers if m in lower_answer)
+        fluency_penalty = min(total_filler_count * 4.0, 30.0)
+        fluency_score = min(max(50.0 + (structure_count * 7.0) - fluency_penalty, 25.0), 100.0)
+
+        # Vocal clarity score based on structural articulation
+        vocal_clarity = min(max(40.0 + (structure_count * 8.0) - (fluency_penalty * 0.5), 30.0), 100.0)
+
+        speech_analysis = {
+            "words_per_minute": words_per_minute,
+            "word_count": word_count,
+            "duration_sec": duration_sec,
+            "filler_words_detected": detected_fillers,
+            "filler_count": total_filler_count,
+            "filler_density_pct": filler_density_pct,
+            "fluency_score": round(fluency_score, 1),
+            "vocal_clarity_score": round(vocal_clarity, 1),
+            "pacing_category": (
+                "fast" if words_per_minute > 175
+                else "deliberate" if words_per_minute < 80 and duration_sec > 30
+                else "optimal"
+            ),
+        }
+
+        # Analyze Computer Vision Behavioral Metrics if provided
+        behavioral_insights = None
+        if visual_metrics:
+            face_detected = visual_metrics.get("face_detected", True)
+            face_visible_ratio = visual_metrics.get("face_visibility_ratio", 1.0)
+            camera_facing_ratio = visual_metrics.get("camera_facing_ratio", 0.85)
+            eye_contact_ratio = visual_metrics.get("eye_contact_ratio", 0.80)
+            posture_stability = visual_metrics.get("posture_stability_score", 85.0)
+            head_movement = visual_metrics.get("head_movement_stability", "stable")
+
+            notes = []
+            if face_visible_ratio >= 0.85:
+                notes.append("Consistent face visibility maintained.")
+            elif face_visible_ratio < 0.5:
+                notes.append("Candidate was frequently out of frame.")
+
+            if camera_facing_ratio >= 0.75:
+                notes.append("High camera-facing engagement.")
+            else:
+                notes.append("Frequent head turns away from screen center.")
+
+            if posture_stability >= 75:
+                notes.append("Upright and stable physical posture.")
+            else:
+                notes.append("Observable posture shifting or slouching.")
+
+            behavioral_insights = {
+                "face_detected": face_detected,
+                "face_visibility_ratio": face_visible_ratio,
+                "camera_facing_ratio": camera_facing_ratio,
+                "eye_contact_ratio": eye_contact_ratio,
+                "posture_stability_score": posture_stability,
+                "head_movement_stability": head_movement,
+                "observable_feedback": " ".join(notes),
+            }
 
         if word_count < 5:
             return {
@@ -443,13 +536,15 @@ class InterviewAgent:
                 "missing_keywords": question_dict.get("expected_keywords", [])[:5],
                 "clarity_score": 20.0,
                 "pacing_feedback": "Rushed response. Take time to structure your thoughts using the STAR or Problem-Solution pattern.",
+                "behavioral_insights": behavioral_insights,
+                "speech_analysis": speech_analysis,
+                "avatar_latency_ms": avatar_latency_ms,
             }
 
         # 1. Technical Keyword Match (0 - 40 points)
         expected_kws = question_dict.get("expected_keywords", [])
         matched = []
         missing = []
-        lower_answer = clean_text.lower()
 
         for kw in expected_kws:
             if kw.lower() in lower_answer:
@@ -461,7 +556,6 @@ class InterviewAgent:
         keyword_score = min(keyword_ratio * 40.0, 40.0)
 
         # 2. Depth & Detail (0 - 30 points)
-        # Optimal depth: 40 - 150 words for conversational answers
         if word_count < 20:
             depth_score = 12.0
         elif word_count < 40:
@@ -472,23 +566,19 @@ class InterviewAgent:
             depth_score = 25.0  # slightly long-winded
 
         # 3. Clarity & Structure (0 - 30 points)
-        # Checks for structured transitions (because, for example, however, first, therefore)
-        structural_markers = ["because", "for example", "specifically", "however", "therefore", "firstly", "in order to", "result", "benefit"]
-        structure_count = sum(1 for m in structural_markers if m in lower_answer)
         clarity_score = min(18.0 + (structure_count * 3.0), 30.0)
 
         total_score = round(keyword_score + depth_score + clarity_score, 1)
         total_score = max(min(total_score, 100.0), 10.0)
 
-        # Pacing feedback based on duration
+        # Pacing feedback
         if duration_sec > 0:
-            words_per_minute = (word_count / duration_sec) * 60
             if words_per_minute > 180:
-                pacing_feedback = "Your pacing was quite fast (~{:.0f} wpm). Aim for ~130-150 wpm for maximum clarity.".format(words_per_minute)
-            elif words_per_minute < 70 and duration_sec > 45:
-                pacing_feedback = "Pacing was somewhat slow. Practice speaking with steady momentum."
+                pacing_feedback = f"Pacing was brisk (~{words_per_minute:.0f} wpm). Aim for ~130-150 wpm for maximum conversational clarity."
+            elif words_per_minute < 70 and duration_sec > 40:
+                pacing_feedback = "Pacing was somewhat slow. Practice speaking with steady momentum and confidence."
             else:
-                pacing_feedback = "Excellent conversational pacing and rhythm."
+                pacing_feedback = f"Excellent conversational pacing (~{words_per_minute:.0f} wpm)."
         else:
             pacing_feedback = "Good response delivery."
 
@@ -498,6 +588,8 @@ class InterviewAgent:
             feedback_points.append(f"Strong grasp of core concepts ({', '.join(matched[:3])}).")
         if missing:
             feedback_points.append(f"Consider mentioning {', '.join(missing[:3])} to add technical depth.")
+        if total_filler_count > 3:
+            feedback_points.append(f"Noticeable filler words ({', '.join(detected_fillers[:2])}); practice pauses instead of verbal fillers.")
         if word_count < 35:
             feedback_points.append("Expand on trade-offs or real-world implementation challenges.")
         elif word_count >= 50:
@@ -512,4 +604,144 @@ class InterviewAgent:
             "missing_keywords": missing,
             "clarity_score": round(clarity_score * (100 / 30), 1),
             "pacing_feedback": pacing_feedback,
+            "behavioral_insights": behavioral_insights,
+            "speech_analysis": speech_analysis,
+            "avatar_latency_ms": avatar_latency_ms,
         }
+
+    def compute_srs_confidence_score(
+        self,
+        visual_summary: Optional[Dict[str, Any]] = None,
+        speech_summary: Optional[Dict[str, Any]] = None,
+        avg_clarity_score: float = 75.0,
+    ) -> Dict[str, Any]:
+        """
+        Implements the SRS Confidence Score formula:
+            - Eye contact: 30%
+            - Posture: 25%
+            - Vocal clarity: 25%
+            - Response fluency: 20%
+
+        Handles missing signals gracefully (e.g., camera disabled or video format omitted).
+        """
+        # 1. Vocal clarity (25% weight)
+        vocal_clarity_val = avg_clarity_score
+        if speech_summary and "vocal_clarity_score" in speech_summary:
+            vocal_clarity_val = speech_summary["vocal_clarity_score"]
+
+        # 2. Response fluency (20% weight)
+        fluency_val = 75.0
+        if speech_summary and "fluency_score" in speech_summary:
+            fluency_val = speech_summary["fluency_score"]
+
+        # 3. Eye contact (30% weight) & Posture (25% weight)
+        visual_available = bool(
+            visual_summary
+            and visual_summary.get("camera_active", True)
+            and visual_summary.get("face_detected", True)
+        )
+
+        if visual_available:
+            eye_contact_ratio = visual_summary.get("eye_contact_ratio", 0.75)
+            # Normalize 0.0 - 1.0 to 0 - 100 scale with conversational baseline
+            eye_contact_score = round(min(max(eye_contact_ratio * 100.0, 10.0), 100.0), 1)
+
+            posture_score = round(
+                float(visual_summary.get("posture_stability_score", 80.0)), 1
+            )
+            posture_score = min(max(posture_score, 10.0), 100.0)
+
+            # Standard formula: 30% eye contact + 25% posture + 25% vocal clarity + 20% fluency
+            final_score = round(
+                (0.30 * eye_contact_score)
+                + (0.25 * posture_score)
+                + (0.25 * vocal_clarity_val)
+                + (0.20 * fluency_val),
+                1
+            )
+
+            breakdown = {
+                "eye_contact": {
+                    "score": eye_contact_score,
+                    "weight_pct": 30,
+                    "status": "measured",
+                    "metric_label": "Approximate Eye Contact & Camera Focus",
+                },
+                "posture": {
+                    "score": posture_score,
+                    "weight_pct": 25,
+                    "status": "measured",
+                    "metric_label": "Posture Stability & Upright Alignment",
+                },
+                "vocal_clarity": {
+                    "score": round(vocal_clarity_val, 1),
+                    "weight_pct": 25,
+                    "status": "measured",
+                    "metric_label": "Vocal Clarity & Structured Articulation",
+                },
+                "response_fluency": {
+                    "score": round(fluency_val, 1),
+                    "weight_pct": 20,
+                    "status": "measured",
+                    "metric_label": "Response Cadence & Low Filler Density",
+                },
+            }
+            formula_applied = "Standard SRS: Eye Contact (30%) + Posture (25%) + Vocal Clarity (25%) + Response Fluency (20%)"
+        else:
+            # Video not active: missing signal handling with documented normalization
+            eye_contact_score = None
+            posture_score = None
+
+            # Re-normalize vocal clarity (55.5%) + response fluency (44.5%) = 100%
+            final_score = round(
+                (vocal_clarity_val * 0.555) + (fluency_val * 0.445), 1
+            )
+
+            breakdown = {
+                "eye_contact": {
+                    "score": None,
+                    "weight_pct": 0,
+                    "status": "unavailable (video disabled or face unobserved)",
+                    "metric_label": "Approximate Eye Contact & Camera Focus",
+                },
+                "posture": {
+                    "score": None,
+                    "weight_pct": 0,
+                    "status": "unavailable (video disabled or face unobserved)",
+                    "metric_label": "Posture Stability & Upright Alignment",
+                },
+                "vocal_clarity": {
+                    "score": round(vocal_clarity_val, 1),
+                    "weight_pct": 55,
+                    "status": "measured",
+                    "metric_label": "Vocal Clarity & Structured Articulation (Normalized)",
+                },
+                "response_fluency": {
+                    "score": round(fluency_val, 1),
+                    "weight_pct": 45,
+                    "status": "measured",
+                    "metric_label": "Response Cadence & Low Filler Density (Normalized)",
+                },
+            }
+            formula_applied = "Normalized Audio-Only: Vocal Clarity (55.5%) + Response Fluency (44.5%) [Visual indicators unavailable]"
+
+        return {
+            "confidence_score": final_score,
+            "visual_signals_available": visual_available,
+            "breakdown": breakdown,
+            "formula_applied": formula_applied,
+        }
+
+    @staticmethod
+    def get_interpretation_limitation_notice() -> str:
+        """
+        Mandatory scientific and ethical interpretation notice required by SRS.
+        """
+        return (
+            "Observable Interview Behaviour Notice: Visual indicators (face visibility, "
+            "camera-facing behaviour, approximate gaze direction, head movement, and posture) "
+            "are measured via real-time browser optical analysis to provide presentation feedback. "
+            "In alignment with scientific standards and AI ethics, these indicators do NOT "
+            "purport to determine a candidate's actual inner honesty, intelligence, personality, "
+            "competence, or psychological state. They are presented solely as observable communication signals."
+        )

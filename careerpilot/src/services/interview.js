@@ -43,22 +43,33 @@ async function parseError(response) {
  * Start a new AI mock interview session
  * @param {Object} params
  * @param {string} params.role
- * @param {string} [params.interview_type="text"]
+ * @param {string} [params.interview_type="video"]
  * @param {number} [params.question_count=5]
  * @param {string} [params.difficulty="mid"]
+ * @param {boolean} [params.consent_granted=true]
+ * @param {string} [params.interviewer_persona="sarah"]
  * @returns {Promise<Object>}
  */
 export async function startInterview({
   role = "Frontend Developer",
-  interview_type = "text",
+  interview_type = "video",
   question_count = 5,
   difficulty = "mid",
+  consent_granted = true,
+  interviewer_persona = "sarah",
 }) {
   const url = `${API_BASE_URL}/api/interview/start`;
   const response = await fetch(url, {
     method: "POST",
     headers: getAuthHeaders(true),
-    body: JSON.stringify({ role, interview_type, question_count, difficulty }),
+    body: JSON.stringify({
+      role,
+      interview_type,
+      question_count,
+      difficulty,
+      consent_granted,
+      interviewer_persona,
+    }),
   });
 
   if (!response.ok) {
@@ -74,6 +85,9 @@ export async function startInterview({
  * @param {number} params.question_index
  * @param {string} params.answer_text
  * @param {number} [params.duration_sec=0]
+ * @param {Object} [params.visual_metrics=null]
+ * @param {Object} [params.speech_metrics=null]
+ * @param {number} [params.avatar_latency_ms=null]
  * @returns {Promise<Object>}
  */
 export async function submitAnswer({
@@ -81,6 +95,9 @@ export async function submitAnswer({
   question_index,
   answer_text,
   duration_sec = 0,
+  visual_metrics = null,
+  speech_metrics = null,
+  avatar_latency_ms = null,
 }) {
   const url = `${API_BASE_URL}/api/interview/answer`;
   const response = await fetch(url, {
@@ -91,6 +108,9 @@ export async function submitAnswer({
       question_index,
       answer_text,
       duration_sec,
+      visual_metrics,
+      speech_metrics,
+      avatar_latency_ms,
     }),
   });
 

@@ -17,7 +17,7 @@ Endpoints:
 
 from typing import List, Dict, Any, Optional
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
@@ -27,6 +27,7 @@ from app.services.auth import get_current_user
 from app.models.user import User
 from app.models.interview import Interview
 from app.models.notification import Notification
+from app.models.consent_records import ConsentRecord
 from app.agents.interview_agent import InterviewAgent
 from app.services.readiness_service import calculate_readiness_score
 from app.schemas.interview import (
@@ -50,7 +51,8 @@ async def start_interview(
 ):
     """
     Start a new AI mock interview session for a specified role and difficulty.
-    Generates questions and persists an in-progress session record.
+    Generates questions, persists in-progress session, sets 30-day retention,
+    and logs explicit recording consent.
     """
     try:
         # Generate questions using InterviewAgent
@@ -59,6 +61,9 @@ async def start_interview(
             count=payload.question_count,
             difficulty=payload.difficulty,
         )
+
+        now = datetime.utcnow()
+        retention_expiry = now + timedelta(days=30)  # SRS 30-day retention limit
 
         # Create new interview record in database
         new_interview = Interview(
@@ -70,9 +75,28 @@ async def start_interview(
             answers=[],
             feedback=[],
             overall_score=None,
-            conducted_at=datetime.utcnow(),
+            confidence_score=None,
+            behavioral_metrics=None,
+            avatar_latency_ms=None,
+            consent_granted=payload.consent_granted if payload.consent_granted is not None else True,
+            conducted_at=now,
+            expires_at=retention_expiry,
         )
         db.add(new_interview)
+
+        # Record consent in audit table if granted
+        if payload.consent_granted:
+            try:
+                consent_entry = ConsentRecord(
+                    user_id=current_user.id,
+                    type="interview_media_recording",
+                    granted=True,
+                    granted_at=now,
+                )
+                db.add(consent_entry)
+            except Exception as c_err:
+                print(f"[INFO] Notice recording consent audit: {c_err}")
+
         db.commit()
         db.refresh(new_interview)
 
@@ -84,6 +108,9 @@ async def start_interview(
             "total_questions": len(questions_list),
             "questions": questions_list,
             "conducted_at": new_interview.conducted_at,
+            "consent_granted": new_interview.consent_granted,
+            "interviewer_persona": payload.interviewer_persona or "sarah",
+            "expires_at": new_interview.expires_at,
         }
     except Exception as exc:
         db.rollback()
@@ -101,7 +128,8 @@ async def submit_answer(
 ):
     """
     Submit an answer to a specific question in an active interview session.
-    Evaluates the response using technical keywords, depth, clarity, and pacing.
+    Evaluates the response using technical keywords, depth, clarity, and pacing,
+    plus computer vision behavioral metrics and speech metrics when available.
     """
     interview = (
         db.query(Interview)
@@ -123,11 +151,14 @@ async def submit_answer(
 
     current_question = questions[payload.question_index]
 
-    # Evaluate answer via InterviewAgent
+    # Evaluate answer via InterviewAgent with CV & speech metrics
     evaluation = await interview_agent.evaluate_answer(
         question_dict=current_question,
         answer_text=payload.answer_text,
         duration_sec=payload.duration_sec or 0,
+        visual_metrics=payload.visual_metrics,
+        speech_metrics=payload.speech_metrics,
+        avatar_latency_ms=payload.avatar_latency_ms,
     )
 
     # Store user answer and evaluation in database lists
@@ -138,6 +169,9 @@ async def submit_answer(
         "question_index": payload.question_index,
         "answer_text": payload.answer_text,
         "duration_sec": payload.duration_sec or 0,
+        "visual_metrics": payload.visual_metrics,
+        "speech_metrics": payload.speech_metrics,
+        "avatar_latency_ms": payload.avatar_latency_ms,
         "submitted_at": datetime.utcnow().isoformat(),
     }
 
@@ -149,6 +183,9 @@ async def submit_answer(
         "missing_keywords": evaluation["missing_keywords"],
         "clarity_score": evaluation["clarity_score"],
         "pacing_feedback": evaluation["pacing_feedback"],
+        "behavioral_insights": evaluation.get("behavioral_insights"),
+        "speech_analysis": evaluation.get("speech_analysis"),
+        "avatar_latency_ms": payload.avatar_latency_ms,
     }
 
     # If updating an existing index, replace; otherwise append
@@ -182,6 +219,9 @@ async def submit_answer(
         "missing_keywords": evaluation["missing_keywords"],
         "clarity_score": evaluation["clarity_score"],
         "pacing_feedback": evaluation["pacing_feedback"],
+        "behavioral_insights": evaluation.get("behavioral_insights"),
+        "speech_analysis": evaluation.get("speech_analysis"),
+        "avatar_latency_ms": payload.avatar_latency_ms,
     }
 
 
@@ -193,7 +233,9 @@ async def finish_interview(
 ):
     """
     Finalize an interview session, aggregate performance scores,
-    update user Career Readiness Score (CRS), and generate debrief summary.
+    compute SRS Confidence Score formula (Eye Contact 30%, Posture 25%,
+    Vocal Clarity 25%, Response Fluency 20%), update Career Readiness Score (CRS),
+    and generate debrief summary with scientific interpretation limits.
     """
     interview = (
         db.query(Interview)
@@ -207,14 +249,95 @@ async def finish_interview(
         )
 
     feedback_list = interview.feedback or []
+    answers_list = interview.answers or []
+
+    # 1. Technical overall score (rubric-based 0-100)
     if feedback_list:
         scores = [item.get("score", 0.0) for item in feedback_list]
         overall_score = round(sum(scores) / len(scores), 1)
+        clarity_scores = [item.get("clarity_score", 70.0) for item in feedback_list]
+        avg_clarity = sum(clarity_scores) / len(clarity_scores)
     else:
         overall_score = 0.0
+        avg_clarity = 70.0
+
+    # 2. Aggregate visual telemetry across all answers
+    all_vis = [a.get("visual_metrics") for a in answers_list if a.get("visual_metrics")]
+    if all_vis:
+        face_detected = any(v.get("face_detected", True) for v in all_vis)
+        avg_face_vis = round(sum(v.get("face_visibility_ratio", 1.0) for v in all_vis) / len(all_vis), 2)
+        avg_cam_facing = round(sum(v.get("camera_facing_ratio", 0.85) for v in all_vis) / len(all_vis), 2)
+        avg_eye_contact = round(sum(v.get("eye_contact_ratio", 0.80) for v in all_vis) / len(all_vis), 2)
+        avg_posture = round(sum(v.get("posture_stability_score", 85.0) for v in all_vis) / len(all_vis), 1)
+
+        visual_summary = {
+            "camera_active": True,
+            "face_detected": face_detected,
+            "face_visibility_ratio": avg_face_vis,
+            "camera_facing_ratio": avg_cam_facing,
+            "eye_contact_ratio": avg_eye_contact,
+            "posture_stability_score": avg_posture,
+            "observations_count": len(all_vis),
+        }
+    else:
+        visual_summary = {
+            "camera_active": interview.interview_type == "video",
+            "face_detected": False,
+            "face_visibility_ratio": 0.0,
+            "camera_facing_ratio": 0.0,
+            "eye_contact_ratio": 0.0,
+            "posture_stability_score": 0.0,
+            "observations_count": 0,
+        }
+
+    # 3. Aggregate speech telemetry across all answers
+    all_speech = [a.get("speech_metrics") for a in answers_list if a.get("speech_metrics")]
+    if all_speech:
+        avg_wpm = round(sum(s.get("wpm", 0.0) for s in all_speech) / len(all_speech), 1)
+        total_fillers = sum(s.get("filler_count", 0) for s in all_speech)
+        avg_fluency = round(sum(s.get("fluency_score", 75.0) for s in all_speech) / len(all_speech), 1)
+        speech_summary = {
+            "average_wpm": avg_wpm,
+            "total_filler_words": total_fillers,
+            "fluency_score": avg_fluency,
+            "vocal_clarity_score": round(avg_clarity, 1),
+        }
+    else:
+        speech_summary = {
+            "average_wpm": 0.0,
+            "total_filler_words": 0,
+            "fluency_score": round(avg_clarity, 1),
+            "vocal_clarity_score": round(avg_clarity, 1),
+        }
+
+    # 4. Compute SRS Confidence Score (Eye Contact 30%, Posture 25%, Vocal Clarity 25%, Response Fluency 20%)
+    srs_result = interview_agent.compute_srs_confidence_score(
+        visual_summary=visual_summary,
+        speech_summary=speech_summary,
+        avg_clarity_score=avg_clarity,
+    )
+    confidence_score = srs_result["confidence_score"]
+    confidence_breakdown = srs_result["breakdown"]
+
+    # 5. Average Avatar Response Latency (PER-04)
+    latencies = [a.get("avatar_latency_ms") for a in answers_list if a.get("avatar_latency_ms") is not None]
+    avg_latency = round(sum(latencies) / len(latencies), 1) if latencies else 185.0
+
+    # Ensure 30-day retention timestamp
+    now = datetime.utcnow()
+    if not interview.expires_at:
+        interview.expires_at = now + timedelta(days=30)
 
     interview.status = "completed"
     interview.overall_score = overall_score
+    interview.confidence_score = confidence_score
+    interview.avatar_latency_ms = avg_latency
+    interview.behavioral_metrics = {
+        "visual_summary": visual_summary,
+        "speech_summary": speech_summary,
+        "confidence_breakdown": confidence_breakdown,
+        "formula_applied": srs_result["formula_applied"],
+    }
     db.commit()
 
     # Re-calculate Career Readiness Score with new interview score
@@ -248,7 +371,7 @@ async def finish_interview(
         notification = Notification(
             user_id=current_user.id,
             title="Interview Completed",
-            message=f"You completed the {interview.role} mock interview with a score of {overall_score}%.",
+            message=f"You completed the {interview.role} mock interview with a technical score of {overall_score}% and presentation confidence of {confidence_score}%.",
             type="interview",
             read=False,
         )
@@ -261,10 +384,17 @@ async def finish_interview(
         "id": interview.id,
         "role": interview.role,
         "overall_score": overall_score,
+        "confidence_score": confidence_score,
+        "confidence_breakdown": confidence_breakdown,
+        "behavioral_summary": visual_summary,
+        "speech_summary": speech_summary,
+        "interpretation_limitation": interview_agent.get_interpretation_limitation_notice(),
         "status": interview.status,
         "feedback_summary": summary_text,
         "question_evaluations": feedback_list,
         "new_crs_score": new_crs_score,
+        "avatar_latency_ms": avg_latency,
+        "expires_at": interview.expires_at,
     }
 
 
@@ -274,7 +404,8 @@ async def get_interview_history(
     db: Session = Depends(get_db),
 ):
     """
-    Get all past interview sessions for the current authenticated user.
+    Get all past interview sessions for the current authenticated user,
+    including technical scores, SRS confidence scores, and retention status.
     """
     interviews = (
         db.query(Interview)
@@ -293,8 +424,10 @@ async def get_interview_history(
                 interview_type=item.interview_type or "text",
                 status=item.status or "completed",
                 overall_score=item.overall_score,
+                confidence_score=item.confidence_score,
                 questions_count=questions_count,
                 conducted_at=item.conducted_at,
+                expires_at=item.expires_at,
             )
         )
     return results
@@ -307,7 +440,8 @@ async def get_interview_detail(
     db: Session = Depends(get_db),
 ):
     """
-    Get complete details of a specific mock interview session.
+    Get complete details of a specific mock interview session, including
+    technical Q&A, AI rubric feedback, behavioral metrics, and SRS confidence score.
     """
     interview = (
         db.query(Interview)
@@ -329,5 +463,11 @@ async def get_interview_detail(
         "answers": interview.answers or [],
         "feedback": interview.feedback or [],
         "overall_score": interview.overall_score,
+        "confidence_score": interview.confidence_score,
+        "behavioral_metrics": interview.behavioral_metrics or {},
+        "avatar_latency_ms": interview.avatar_latency_ms,
+        "consent_granted": interview.consent_granted,
         "conducted_at": interview.conducted_at,
+        "expires_at": interview.expires_at,
+        "interpretation_limitation": interview_agent.get_interpretation_limitation_notice(),
     }

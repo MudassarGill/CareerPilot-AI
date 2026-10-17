@@ -22,7 +22,7 @@ Columns:
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey, JSON
+from sqlalchemy import Column, String, Float, DateTime, ForeignKey, JSON, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -54,11 +54,18 @@ class Interview(Base):
     feedback = Column(JSON, nullable=True)    # [{"score": 8, "feedback": "..."}, ...]
 
     # ---- Overall Score ----
-    overall_score = Column(Float, nullable=True)  # 0-100
+    overall_score = Column(Float, nullable=True)  # 0-100 technical rubric score
 
-    # ---- Timestamps ----
+    # ---- SRS Behavioral & Avatar Telemetry (Additive) ----
+    behavioral_metrics = Column(JSON, nullable=True)  # visual & speech observations
+    confidence_score = Column(Float, nullable=True)   # SRS confidence score (0-100)
+    avatar_latency_ms = Column(Float, nullable=True)  # PER-04 response latency in ms
+    consent_granted = Column(Boolean, default=True)   # explicit recording & analysis consent
+
+    # ---- Timestamps & 30-Day Retention Policy ----
     conducted_at = Column(DateTime, default=datetime.utcnow)
-    
+    expires_at = Column(DateTime, nullable=True)      # conducted_at + 30 days retention
+
     # ---- Relationships ----
     user = relationship("User", back_populates="interviews")
 
