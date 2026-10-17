@@ -172,3 +172,45 @@ export async function getInterviewDetail(interview_id) {
   }
   return response.json();
 }
+
+/**
+ * Real-time conversational dialogue with the AI avatar (warm-up, self-introduction, Q&A)
+ * @param {Object} params
+ * @param {string} [params.interview_id]
+ * @param {string} params.message
+ * @param {string} [params.persona="sarah"]
+ * @param {string} [params.role="Software Engineer"]
+ * @param {string} [params.dialogue_state="intro"]
+ * @param {string} [params.candidate_name]
+ * @param {string} [params.language="auto"]
+ * @returns {Promise<Object>}
+ */
+export async function converseWithAvatar({
+  interview_id,
+  message,
+  persona = "sarah",
+  role = "Software Engineer",
+  dialogue_state = "intro",
+  candidate_name,
+  language = "auto",
+}) {
+  const url = `${API_BASE_URL}/api/interview/converse`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: getAuthHeaders(true),
+    body: JSON.stringify({
+      interview_id,
+      message,
+      persona,
+      role,
+      dialogue_state,
+      candidate_name,
+      language,
+    }),
+  });
+
+  if (!response.ok) {
+    throw await parseError(response);
+  }
+  return response.json();
+}

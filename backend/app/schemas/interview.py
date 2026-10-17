@@ -104,3 +104,23 @@ class InterviewHistoryItem(BaseModel):
     expires_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class InterviewConversationRequest(BaseModel):
+    """Request payload for conversational dialogue with avatar."""
+    interview_id: Optional[UUID] = None
+    message: str
+    persona: str = "sarah"               # "sarah" | "marcus"
+    role: str = "Software Engineer"
+    dialogue_state: str = "intro"        # "intro" | "ready_check" | "general_qna"
+    candidate_name: Optional[str] = None
+    language: str = "auto"               # "auto" | "en" | "ur" | "roman_urdu"
+
+
+class InterviewConversationResponse(BaseModel):
+    """Avatar's conversational audio-speech response."""
+    reply: str
+    detected_language: str               # "en" | "ur" | "roman_urdu"
+    candidate_name: Optional[str] = None
+    proceed_to_questions: bool = False
+    next_dialogue_state: str             # "ready_check" | "in_questions"

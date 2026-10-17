@@ -745,3 +745,175 @@ class InterviewAgent:
             "purport to determine a candidate's actual inner honesty, intelligence, personality, "
             "competence, or psychological state. They are presented solely as observable communication signals."
         )
+
+    @classmethod
+    def handle_interview_conversation(
+        cls,
+        message: str,
+        persona: str = "sarah",
+        role: str = "Software Engineer",
+        dialogue_state: str = "intro",
+        candidate_name: Optional[str] = None,
+        language: str = "auto",
+    ) -> Dict[str, Any]:
+        """
+        Handle conversational warm-up, self-introduction, Q&A, and bilingual
+        Urdu/English dialogue with the avatar before technical questions begin.
+        """
+        import httpx
+        from app.config import settings
+
+        msg_clean = message.strip()
+
+        # 1. Detect language (Urdu script, Roman Urdu, or English)
+        has_urdu_script = bool(re.search(r"[\u0600-\u06FF]", msg_clean))
+        roman_urdu_tokens = {
+            "mera", "meri", "naam", "aap", "kaise", "kaisa", "kaisi", "theek", "haan",
+            "shuru", "karein", "karna", "salam", "assalam", "ji", "acha", "batao",
+            "mujhy", "kar", "hain", "hoon", "shukriya", "karen", "chalo", "bilkul",
+            "tayyar", "kaun", "kya", "kyun", "kahan"
+        }
+        words = set(re.findall(r"\b\w+\b", msg_clean.lower()))
+        is_roman_urdu = len(words.intersection(roman_urdu_tokens)) >= 1
+
+        if has_urdu_script:
+            detected_lang = "ur"
+        elif is_roman_urdu:
+            detected_lang = "roman_urdu"
+        else:
+            detected_lang = "en"
+
+        # 2. Extract candidate name if not yet known
+        extracted_name = candidate_name
+        if not extracted_name:
+            name_match = re.search(
+                r"(?:my name is|i am|i'm|call me|this is|mera naam|naam hai|naam)\s+([A-Za-z]+)",
+                msg_clean,
+                re.IGNORECASE,
+            )
+            if name_match:
+                extracted_name = name_match.group(1).title()
+
+        # 3. Detect readiness to start questions
+        ready_pattern = r"\b(yes|ready|start|let's start|let's begin|sure|yep|yeah|let's go|begin|okay|ok|i am ready|i'm ready|haan|shuru|karein|chalo|ji|bilkul|tayyar)\b"
+        is_ready = bool(re.search(ready_pattern, msg_clean, re.IGNORECASE))
+
+        # Persona title & tone
+        if persona == "marcus":
+            interviewer_name = "Marcus Vance"
+            interviewer_role = "VP of Engineering & Systems Architect"
+        else:
+            interviewer_name = "Sarah Chen"
+            interviewer_role = "Lead Technical Recruiter & Talent Partner"
+
+        # 4. Optional Gemini 1.5 Flash LLM call if API key configured
+        gemini_key = getattr(settings, "GEMINI_API_KEY", "") or getattr(settings, "GOOGLE_API_KEY", "")
+        if gemini_key:
+            try:
+                system_prompt = (
+                    f"You are {interviewer_name}, {interviewer_role} at a top tech company. "
+                    f"You are having a live voice conversation with a candidate interviewing for {role}. "
+                    f"Candidate says: '{msg_clean}'. "
+                    f"Candidate name (if known): {extracted_name or 'Candidate'}. "
+                    f"Current stage: {dialogue_state}. "
+                    f"Detected language: {detected_lang}. "
+                    "Rules: "
+                    "1. Respond directly, warmly, and concisely (2 to 3 sentences maximum) as if speaking aloud over a video call. "
+                    "2. If the candidate speaks Urdu or Roman Urdu, reply fluently in the SAME language (Roman Urdu or Urdu script). "
+                    "3. If they just introduced themselves, acknowledge their name and background warmly, and ask: 'Are you ready to begin our interview questions?' "
+                    "4. If they indicated readiness or say yes/start, say excellent let's begin our first question. "
+                    "5. If they asked a question about you or the role, answer it conversationally. "
+                    "Do NOT include stage directions or markdown asterisks."
+                )
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}"
+                with httpx.Client(timeout=4.0) as client:
+                    resp = client.post(url, json={"contents": [{"parts": [{"text": system_prompt}]}]})
+                    if resp.status_code == 200:
+                        res_json = resp.json()
+                        llm_reply = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+                        if llm_reply:
+                            return {
+                                "reply": llm_reply,
+                                "detected_language": detected_lang,
+                                "candidate_name": extracted_name,
+                                "proceed_to_questions": is_ready,
+                                "next_dialogue_state": "in_questions" if is_ready else "ready_check",
+                            }
+            except Exception as gemini_err:
+                print(f"[INFO] Gemini conversational fallback: {gemini_err}")
+
+        # 5. Natural High-Fidelity Rule-Based Conversational Engine
+        name_greeting = f", {extracted_name}" if extracted_name else ""
+
+        # Case A: Candidate confirms readiness to begin
+        if is_ready:
+            if detected_lang == "ur":
+                reply = f"بہترین! چلیے {role} کے لیے پہلا سوال شروع کرتے ہیں۔"
+            elif detected_lang == "roman_urdu":
+                reply = f"Zabardast! Chaliye {role} position ke liye pehla sawal shuru kartay hain."
+            else:
+                reply = f"Awesome! Let's dive right into our first question for the {role} position."
+            return {
+                "reply": reply,
+                "detected_language": detected_lang,
+                "candidate_name": extracted_name,
+                "proceed_to_questions": True,
+                "next_dialogue_state": "in_questions",
+            }
+
+        # Case B: Candidate introduces themselves
+        if dialogue_state == "intro" or extracted_name or any(k in msg_clean.lower() for k in ["experience", "developer", "engineer", "student", "working", "background", "mern", "python", "react"]):
+            if detected_lang == "ur":
+                reply = (
+                    f"آپ سے مل کر بہت خوشی ہوئی{name_greeting}! آپ کا بیک گراؤنڈ بہت اچھا ہے۔ "
+                    f"کیا آپ انٹرویو شروع کرنے کے لیے تیار ہیں؟ جب آپ تیار ہوں تو 'جی شروع کریں' کہیں۔"
+                )
+            elif detected_lang == "roman_urdu":
+                reply = (
+                    f"Bohot achha laga aapse mil kar{name_greeting}! Aapka background bohot zabardast hai. "
+                    f"Kya aap interview questions ke liye tayar hain? Jab aap ready hon, 'Haan shuru karein' ya 'Yes' bolein."
+                )
+            else:
+                reply = (
+                    f"It's a pleasure to meet you{name_greeting}! Thank you for sharing your background with me. "
+                    f"Whenever you're ready to start the interview questions, say 'Yes' or 'Let's start'!"
+                )
+            return {
+                "reply": reply,
+                "detected_language": detected_lang,
+                "candidate_name": extracted_name,
+                "proceed_to_questions": False,
+                "next_dialogue_state": "ready_check",
+            }
+
+        # Case C: Candidate asks how the interviewer is / chit-chat
+        if any(q in msg_clean.lower() for q in ["how are you", "aap kaise", "kasa ho", "kase ho", "kaise hain"]):
+            if detected_lang == "roman_urdu":
+                reply = f"Main bilkul theek hoon, poochne ka bohot shukriya! Main aaj aapke session ke liye bohot excited hoon. Jab aap tayar hon, batayein taake pehla question shuru karein."
+            elif detected_lang == "ur":
+                reply = f"میں بالکل ٹھیک ہوں، پوچھنے کا شکریہ! میں آج کے انٹرویو کے لیے پرجوش ہوں۔ جب آپ تیار ہوں تو بتائیں۔"
+            else:
+                reply = f"I'm doing wonderful, thank you for asking! I'm really looking forward to our session today. Let me know whenever you'd like to begin."
+            return {
+                "reply": reply,
+                "detected_language": detected_lang,
+                "candidate_name": extracted_name,
+                "proceed_to_questions": False,
+                "next_dialogue_state": "ready_check",
+            }
+
+        # Default conversational acknowledgment
+        if detected_lang == "roman_urdu":
+            reply = f"Theek hai{name_greeting}! Jab bhi aap pehle question ke liye ready hon, 'Haan' ya 'Start' bolein."
+        elif detected_lang == "ur":
+            reply = f"ٹھیک ہے! جب بھی آپ سوالات کے لیے تیار ہوں تو بتائیں۔"
+        else:
+            reply = f"Understood{name_greeting}! Let me know whenever you're ready to begin the questions by saying 'Yes' or 'Let's start'."
+
+        return {
+            "reply": reply,
+            "detected_language": detected_lang,
+            "candidate_name": extracted_name,
+            "proceed_to_questions": False,
+            "next_dialogue_state": "ready_check",
+        }

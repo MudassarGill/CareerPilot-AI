@@ -37,10 +37,39 @@ from app.schemas.interview import (
     QuestionEvaluation,
     InterviewFinishResponse,
     InterviewHistoryItem,
+    InterviewConversationRequest,
+    InterviewConversationResponse,
 )
 
 router = APIRouter()
 interview_agent = InterviewAgent()
+
+
+@router.post("/converse", response_model=InterviewConversationResponse)
+async def converse_with_avatar(
+    payload: InterviewConversationRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Real-time conversational dialogue with the AI avatar (warm-up,
+    self-introductions, chit-chat, Q&A, and bilingual Urdu/English interaction).
+    """
+    try:
+        candidate_name = payload.candidate_name or getattr(current_user, "name", None)
+        return interview_agent.handle_interview_conversation(
+            message=payload.message,
+            persona=payload.persona,
+            role=payload.role,
+            dialogue_state=payload.dialogue_state,
+            candidate_name=candidate_name,
+            language=payload.language,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Conversational error: {str(exc)}",
+        )
 
 
 @router.post("/start", response_model=InterviewSessionResponse)

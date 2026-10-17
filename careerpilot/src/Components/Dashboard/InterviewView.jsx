@@ -5,6 +5,7 @@ import {
   finishInterview,
   getInterviewHistory,
   getInterviewDetail,
+  converseWithAvatar,
 } from "../../services/interview";
 import AIAvatarInterviewer from "./AIAvatarInterviewer";
 import InterviewConsentModal from "./InterviewConsentModal";
@@ -35,6 +36,14 @@ export default function InterviewView({ onNavigate }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const [debrief, setDebrief] = useState(null); // Final result object
+
+  // Conversational Warm-up & Introduction States
+  const [interviewPhase, setInterviewPhase] = useState("warmup"); // "warmup" | "questions"
+  const [warmupMessages, setWarmupMessages] = useState([]);
+  const [warmupInput, setWarmupInput] = useState("");
+  const [isAvatarReplying, setIsAvatarReplying] = useState(false);
+  const [dialogueState, setDialogueState] = useState("intro"); // "intro" | "ready_check"
+  const [candidateName, setCandidateName] = useState("");
 
   // Avatar states
   const [avatarState, setAvatarState] = useState("idle"); // 'idle' | 'listening' | 'speaking' | 'processing'
@@ -201,19 +210,93 @@ export default function InterviewView({ onNavigate }) {
       });
 
       setSession(newSession);
+      setInterviewPhase("warmup");
+      setDialogueState("intro");
+      setCandidateName("");
       setCurrentIndex(0);
       setAnswerText("");
+      setWarmupInput("");
       setEvaluations({});
       setAnswers({});
       setDebrief(null);
       setShowHint(false);
       resetAggregator();
       setAvatarState("idle");
-      setSuccess(`Mock interview initialized for ${newSession.role}. Good luck!`);
+
+      const initialGreeting = interviewerPersona === "marcus"
+        ? `Hello! I am Marcus Vance, VP of Engineering. Welcome to your interview session for the ${newSession.role} position. Before we dive into technical architecture, could you please introduce yourself and tell me a bit about your background?`
+        : `Hello! I am Sarah Chen, your lead interviewer for today's session. It's wonderful to meet you! Before we start our technical questions for ${newSession.role}, could you please introduce yourself and tell me a bit about your background?`;
+
+      setWarmupMessages([
+        { sender: "avatar", text: initialGreeting, time: "Just now" }
+      ]);
+      setSuccess(`Mock interview initialized for ${newSession.role}. Introduce yourself to begin!`);
+
+      // Avatar speaks initial introduction aloud
+      setTimeout(() => {
+        speakQuestionWithAvatar(initialGreeting);
+      }, 700);
     } catch (err) {
       setError(err.message || "Failed to start interview. Check backend connection.");
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  // Handle conversational dialogue with avatar during warm-up phase
+  async function handleSendWarmupMessage(customMsg) {
+    const textToSend = (typeof customMsg === "string" ? customMsg : warmupInput).trim();
+    if (!textToSend || isAvatarReplying) return;
+
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+
+    setWarmupInput("");
+    const userMsgObj = { sender: "user", text: textToSend, time: "Just now" };
+    setWarmupMessages((prev) => [...prev, userMsgObj]);
+    setIsAvatarReplying(true);
+    setAvatarState("processing");
+
+    try {
+      const res = await converseWithAvatar({
+        interview_id: session?.id,
+        message: textToSend,
+        persona: session?.interviewer_persona || interviewerPersona,
+        role: session?.role || selectedRole,
+        dialogue_state: dialogueState,
+        candidate_name: candidateName,
+      });
+
+      if (res.candidate_name) {
+        setCandidateName(res.candidate_name);
+      }
+      if (res.next_dialogue_state) {
+        setDialogueState(res.next_dialogue_state);
+      }
+
+      const avatarMsgObj = { sender: "avatar", text: res.reply, time: "Just now" };
+      setWarmupMessages((prev) => [...prev, avatarMsgObj]);
+
+      speakQuestionWithAvatar(res.reply);
+
+      if (res.proceed_to_questions) {
+        setTimeout(() => {
+          setInterviewPhase("questions");
+          setCurrentIndex(0);
+          if (session?.questions?.[0]) {
+            speakQuestionWithAvatar(session.questions[0].question);
+          }
+        }, 3000);
+      }
+    } catch (err) {
+      console.warn("Warmup conversation fallback:", err);
+      const fallbackReply = "That's wonderful background! Whenever you're ready, say 'Yes' or 'Let's start' and we will begin with our first question.";
+      setWarmupMessages((prev) => [...prev, { sender: "avatar", text: fallbackReply, time: "Just now" }]);
+      speakQuestionWithAvatar(fallbackReply);
+    } finally {
+      setIsAvatarReplying(false);
     }
   }
 
@@ -307,10 +390,17 @@ export default function InterviewView({ onNavigate }) {
         for (let i = event.resultIndex; i < event.results.length; ++i) {
           transcript += event.results[i][0].transcript;
         }
-        setAnswerText((prev) => {
-          const separator = prev.length && !prev.endsWith(" ") ? " " : "";
-          return prev + separator + transcript;
-        });
+        if (interviewPhase === "warmup") {
+          setWarmupInput((prev) => {
+            const separator = prev.length && !prev.endsWith(" ") ? " " : "";
+            return prev + separator + transcript;
+          });
+        } else {
+          setAnswerText((prev) => {
+            const separator = prev.length && !prev.endsWith(" ") ? " " : "";
+            return prev + separator + transcript;
+          });
+        }
       };
 
       recognition.onerror = (event) => {
@@ -1253,9 +1343,13 @@ export default function InterviewView({ onNavigate }) {
                 <div className="statusbar-left">
                   <span className="statusbar-role">{session.role}</span>
                   <span className="statusbar-format-pill">{session.interview_type}</span>
-                  <span className="statusbar-progress">
-                    Question {currentIndex + 1} of {session.questions.length}
-                  </span>
+                  {interviewPhase === "warmup" ? (
+                    <span className="statusbar-progress">Interactive Warm-Up Phase</span>
+                  ) : (
+                    <span className="statusbar-progress">
+                      Question {currentIndex + 1} of {session.questions.length}
+                    </span>
+                  )}
                 </div>
 
                 <div className="statusbar-right">
@@ -1286,11 +1380,21 @@ export default function InterviewView({ onNavigate }) {
                   <AIAvatarInterviewer
                     state={avatarState}
                     persona={session.interviewer_persona || interviewerPersona}
-                    currentQuestion={currentQuestion.question}
+                    currentQuestion={
+                      interviewPhase === "warmup"
+                        ? (warmupMessages[warmupMessages.length - 1]?.text || "Welcome to your AI Interview Session")
+                        : currentQuestion.question
+                    }
                     latencyMs={avatarLatencyMs}
                     isAudioMuted={isAudioMuted}
                     onToggleMute={() => setIsAudioMuted((prev) => !prev)}
-                    onReplayAudio={() => speakQuestionWithAvatar(currentQuestion.question)}
+                    onReplayAudio={() =>
+                      speakQuestionWithAvatar(
+                        interviewPhase === "warmup"
+                          ? (warmupMessages[warmupMessages.length - 1]?.text || "")
+                          : currentQuestion.question
+                      )
+                    }
                   />
                 </div>
 
@@ -1373,8 +1477,143 @@ export default function InterviewView({ onNavigate }) {
                 </div>
               </div>
 
-              {/* Main Live Grid: Question & Response vs Rubric Feedback & Navigator */}
-              <div className="interview-live-grid">
+              {/* EITHER Warmup Conversation Stage OR Technical Question Grid */}
+              {interviewPhase === "warmup" ? (
+                <div className="interview-warmup-card">
+                  <div className="warmup-card-header">
+                    <div className="warmup-header-title-row">
+                      <span className="section-pill">Interactive Warm-Up Phase</span>
+                      <span className="warmup-live-indicator">Voice Call Active (English & Urdu)</span>
+                    </div>
+                    <h3 className="warmup-title">Meet Your AI Interviewer & Self Introduction</h3>
+                    <p className="warmup-desc">
+                      Speak or type your introduction. You can introduce yourself, ask the interviewer questions, or speak in Urdu / Roman Urdu. Say <strong>&quot;Yes&quot;</strong> or <strong>&quot;Let&apos;s start&quot;</strong> when you are ready to begin the technical questions!
+                    </p>
+                  </div>
+
+                  {/* Conversation History Log */}
+                  <div className="warmup-chat-log">
+                    {warmupMessages.map((msg, idx) => (
+                      <div
+                        key={idx}
+                        className={`warmup-bubble-wrap ${
+                          msg.sender === "avatar"
+                            ? "warmup-bubble-wrap--avatar"
+                            : "warmup-bubble-wrap--user"
+                        }`}
+                      >
+                        <div className="warmup-bubble-sender">
+                          {msg.sender === "avatar"
+                            ? (session.interviewer_persona === "marcus" ? "Marcus Vance (AI Interviewer)" : "Sarah Chen (AI Interviewer)")
+                            : (candidateName ? `${candidateName} (You)` : "You (Candidate)")}
+                        </div>
+                        <div className="warmup-bubble-text">{msg.text}</div>
+                        {msg.sender === "avatar" && (
+                          <button
+                            type="button"
+                            className="warmup-replay-btn"
+                            onClick={() => speakQuestionWithAvatar(msg.text)}
+                            title="Listen to avatar voice again"
+                          >
+                            Listen Again
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {isAvatarReplying && (
+                      <div className="warmup-bubble-wrap warmup-bubble-wrap--avatar">
+                        <div className="warmup-bubble-sender">AI Interviewer</div>
+                        <div className="warmup-bubble-text warmup-bubble-text--thinking">
+                          <span className="dot-pulse" /> Listening & replying...
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Action Suggestion Chips */}
+                  <div className="warmup-chips-row">
+                    <span className="chips-label">Quick Suggestions:</span>
+                    <button
+                      type="button"
+                      className="warmup-chip"
+                      onClick={() => handleSendWarmupMessage(`Hi! My name is ${candidateName || "Candidate"} and I have experience as a ${selectedRole}.`)}
+                    >
+                      &ldquo;My name is... and I am a {selectedRole}&rdquo;
+                    </button>
+                    <button
+                      type="button"
+                      className="warmup-chip warmup-chip--primary"
+                      onClick={() => handleSendWarmupMessage("Yes, I am ready! Let's start the interview.")}
+                    >
+                      &ldquo;Yes, I&apos;m ready! Let&apos;s start.&rdquo;
+                    </button>
+                    <button
+                      type="button"
+                      className="warmup-chip"
+                      onClick={() => handleSendWarmupMessage("Haan shuru karein, main tayar hoon.")}
+                    >
+                      &ldquo;Haan shuru karein, main tayar hoon (Urdu)&rdquo;
+                    </button>
+                    <button
+                      type="button"
+                      className="warmup-chip"
+                      onClick={() => handleSendWarmupMessage("Aap kaise hain aur yeh interview kaisa hoga?")}
+                    >
+                      &ldquo;Aap kaise hain? (Urdu Chit-chat)&rdquo;
+                    </button>
+                  </div>
+
+                  {/* Message Input & Voice Dictation Controls */}
+                  <div className="warmup-input-bar">
+                    <button
+                      type="button"
+                      className={`btn-dictation ${isListening ? "btn-dictation--listening" : ""}`}
+                      onClick={handleToggleVoiceDictation}
+                      title="Speak using microphone"
+                    >
+                      {isListening ? "Recording Voice..." : "Speak via Mic"}
+                    </button>
+
+                    <input
+                      type="text"
+                      className="warmup-input-field"
+                      placeholder="Type or speak: 'Hi, my name is...', or 'Yes let\'s start', or in Urdu..."
+                      value={warmupInput}
+                      onChange={(e) => setWarmupInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSendWarmupMessage();
+                      }}
+                      disabled={isAvatarReplying}
+                    />
+
+                    <button
+                      type="button"
+                      className="btn-primary"
+                      onClick={() => handleSendWarmupMessage()}
+                      disabled={!warmupInput.trim() || isAvatarReplying}
+                    >
+                      {isAvatarReplying ? "Replying..." : "Send Message"}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => {
+                        setInterviewPhase("questions");
+                        setCurrentIndex(0);
+                        if (session?.questions?.[0]) {
+                          speakQuestionWithAvatar(session.questions[0].question);
+                        }
+                      }}
+                      title="Skip straight to Question 1"
+                    >
+                      Start Technical Questions ➔
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Main Live Grid: Question & Response vs Rubric Feedback & Navigator */
+                <div className="interview-live-grid">
                 {/* Left Col: Current Question & Candidate Response */}
                 <div className="interview-primary-col">
                   {/* Question Card */}
@@ -1607,8 +1846,9 @@ export default function InterviewView({ onNavigate }) {
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
           {/* STATE 3: FINAL DEBRIEF & SCORE */}
           {debrief && (

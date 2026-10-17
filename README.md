@@ -15,7 +15,7 @@ All 8 development phases are built, integrated, tested, and operational:
 | **Phase 3** | **Shared Features & Reactive System** | **Complete** | Reactive notifications drawer with instant badge count clearance, About Us view, interactive FAQs, Contact Support form, Terms & Privacy policy, modern footer. |
 | **Phase 4** | **Resume & ATS Intelligence** | **Complete** | PDF/DOCX multi-section parser (education, experience, skills), job description ATS scoring, action-verb and quantified metric audit, instant printable A4 PDF export report. |
 | **Phase 5** | **Skills, Roadmap & Job Matcher** | **Complete** | 200+ competency catalog, target role gap analyzer, 4-stage interactive milestone roadmap, weekly completion checklist, and automated Job Intelligence Matcher connecting live tech openings with ATS fit and missing skill alerts. |
-| **Phase 6** | **AI Mock Interview Simulator** | **Complete** | Role-tailored situational question banks, browser Web Speech Text-to-Speech audio, real-time voice speech recognition dictation, WebRTC webcam preview mirror, multi-dimensional rubric feedback, Career Readiness Score (CRS) synchronization, and printable PDF transcript export. |
+| **Phase 6** | **AI Mock Interview Simulator** | **Complete** | Role-tailored situational question banks, **interactive conversational warm-up phase** (avatar introduces itself, asks candidate's name and background, supports real-time bilingual English/Urdu dialogue like a real person), browser Web Speech Text-to-Speech audio, real-time voice speech recognition dictation, WebRTC webcam preview mirror, multi-dimensional rubric feedback, Career Readiness Score (CRS) synchronization, and printable PDF transcript export. |
 | **Phase 7** | **Career Twin & Simulation Engine** | **Complete** | Deterministic multi-year career projection engine (1-yr, 3-yr, 5-yr horizons), regional salary benchmarks, dynamic 5-year compensation curve visualization, 3 What-If branch comparison scenarios (Management, Deep Tech Specialization, Startup Founder), and instant printable A4 PDF simulation forecast report. |
 | **Phase 8** | **Autonomous Application Pipeline** | **Complete** | 5-stage Kanban recruitment board (Wishlist, Applied, Interviewing, Offer, Archived), live posting deep-links, 1-click tailored AI cover letter generator with customizable tone, and copy/export actions. |
 
@@ -23,7 +23,7 @@ All 8 development phases are built, integrated, tested, and operational:
 
 ## 2. Technical Deep Dive: How Everything Works Under the Hood
 
-### A. Animated AI HR Interviewer & Speech Synchronization (SRS UC-06 & FR-06)
+### A. Animated AI HR Interviewer & Speech Synchronization
 - **Underlying Technology**: HTML5 Canvas, Web Audio API, and Browser Native **Web Speech API (`window.speechSynthesis`)**.
 - **How it Works**:
   1. **Visual State Machine**: The avatar (`AIAvatarInterviewer.jsx`) transitions dynamically between 4 lifelike states:
@@ -34,6 +34,18 @@ All 8 development phases are built, integrated, tested, and operational:
   2. **Speech-Synchronized Visemes**: Tracks `speechSynthesisUtterance.onboundary` word events to modulate mouth height (`3px - 22px`) and width (`32px - 44px`) based on character cadences and syllable timing.
   3. **Personas**: Candidates can toggle between **Sarah Chen** (Senior Technical Recruiter) and **Marcus Vance** (VP of Engineering).
   4. **Latency Tracking (PER-04 Target < 2.0s)**: Measures the exact time delta between candidate answer submission and the avatar asking the next question. Recorded live latency (typically 120ms–240ms) is displayed directly on the avatar status badge.
+
+### A.1 Interactive Conversational Warm-Up & Bilingual Avatar Dialogue
+- **Underlying Technology**: FastAPI conversational endpoint (`/api/interview/converse`) + Google Gemini 1.5 Flash (optional) + Rule-Based Bilingual Fallback Engine + Browser Web Speech API.
+- **How it Works — Real-Person-Like Conversation Flow**:
+  1. **Avatar Introduces Itself First**: When a new interview session starts, the AI avatar (Sarah Chen or Marcus Vance) greets the candidate by name and role, introduces itself aloud via Text-to-Speech, and asks: *"Could you please introduce yourself and tell me a bit about your background?"*
+  2. **Candidate Responds Naturally**: The candidate can type or speak (via microphone dictation) their self-introduction. The avatar reads/listens, extracts the candidate's name using NLP regex, acknowledges their background warmly, and then asks: *"Are you ready to begin our interview questions?"*
+  3. **Bilingual English & Urdu/Roman Urdu Support**: If the candidate speaks or types in Urdu script (اردو) or Roman Urdu (e.g., *"Mera naam Ahmad hai"*, *"Haan shuru karein"*), the avatar **detects the language automatically** and responds fluently in the **same language**. Conversation can freely switch between English and Urdu at any point.
+  4. **Readiness Confirmation → Questions Begin**: The candidate says *"Yes"*, *"Let's start"*, *"I'm ready"*, *"Haan shuru karein"*, or *"Bilkul tayar hoon"* — the avatar responds with *"Awesome! Let's dive into our first question"* and automatically transitions to Question 1.
+  5. **Free-Form Chit-Chat**: Before starting questions, the candidate can ask the avatar anything (e.g., *"How are you?"*, *"Aap kaise hain?"*, *"What will this interview cover?"*) and receive natural, conversational responses.
+  6. **Quick Suggestion Chips**: Pre-built clickable chips for common responses: self-introduction, readiness confirmation (English & Urdu), and casual chit-chat.
+  7. **Google Gemini 1.5 Flash Integration (Optional)**: When a `GEMINI_API_KEY` is configured, conversations are powered by Google Gemini for ultra-natural responses. If the key is absent or the API is unreachable, the system falls back to a high-fidelity rule-based bilingual conversation engine with zero downtime.
+  8. **Voice-First Experience**: The avatar speaks every response aloud via Text-to-Speech with lip-sync visemes, and the candidate can respond via microphone — creating a seamless voice-call-like interview experience similar to ChatGPT voice mode.
 
 ### B. Live Voice Speech Recognition, Filler-Word & Pacing Analysis
 - **Underlying Technology**: Browser Native **Web Speech Recognition API (`window.SpeechRecognition || window.webkitSpeechRecognition`)** + Backend Regex Speech Pipeline.
@@ -240,6 +252,7 @@ All 8 development phases are built, integrated, tested, and operational:
 - `POST /api/jobs/apply` - Log application
 
 ### AI Mock Interview Studio (`/api/interview`)
+- `POST /api/interview/converse` - Real-time bilingual conversational dialogue with AI avatar (warm-up, introductions, English/Urdu chit-chat)
 - `POST /api/interview/start` - Initialize new interview session
 - `POST /api/interview/answer` - Submit and evaluate candidate response
 - `POST /api/interview/{id}/finish` - Complete interview and recalculate CRS
