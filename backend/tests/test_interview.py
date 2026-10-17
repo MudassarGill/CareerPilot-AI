@@ -203,7 +203,8 @@ def test_api_interview_full_flow():
         )
         db.add(test_user)
         db.commit()
-        db.refresh(test_user)
+    test_user_id = test_user.id
+    db.close()
 
     app.dependency_overrides[get_current_user] = lambda: test_user
     client = TestClient(app)
@@ -279,5 +280,4 @@ def test_api_interview_full_flow():
         assert detail_data["behavioral_metrics"] is not None
     finally:
         app.dependency_overrides.pop(get_current_user, None)
-        db.close()
 
