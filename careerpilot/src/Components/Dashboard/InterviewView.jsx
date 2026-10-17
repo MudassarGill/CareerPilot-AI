@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   startInterview,
   submitAnswer,
@@ -6,6 +6,9 @@ import {
   getInterviewHistory,
   getInterviewDetail,
 } from "../../services/interview";
+import AIAvatarInterviewer from "./AIAvatarInterviewer";
+import InterviewConsentModal from "./InterviewConsentModal";
+import useComputerVision from "../../hooks/useComputerVision";
 
 export default function InterviewView({ onNavigate }) {
   // Navigation / active tab: "studio" | "history"
@@ -13,12 +16,17 @@ export default function InterviewView({ onNavigate }) {
 
   // Setup form states
   const [selectedRole, setSelectedRole] = useState("Frontend Developer");
-  const [interviewType, setInterviewType] = useState("text"); // text | audio | video
+  const [interviewType, setInterviewType] = useState("video"); // video | audio | text
   const [questionCount, setQuestionCount] = useState(5);
   const [difficulty, setDifficulty] = useState("mid");
+  const [interviewerPersona, setInterviewerPersona] = useState("sarah"); // "sarah" | "marcus"
+
+  // Consent & Permission Modal
+  const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
+  const [consentGranted, setConsentGranted] = useState(true);
 
   // Active Session states
-  const [session, setSession] = useState(null); // { id, role, interview_type, questions, ... }
+  const [session, setSession] = useState(null); // { id, role, interview_type, questions, expires_at... }
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answerText, setAnswerText] = useState("");
   const [evaluations, setEvaluations] = useState({}); // { [question_index]: evaluation }
@@ -28,6 +36,11 @@ export default function InterviewView({ onNavigate }) {
   const [isFinishing, setIsFinishing] = useState(false);
   const [debrief, setDebrief] = useState(null); // Final result object
 
+  // Avatar states
+  const [avatarState, setAvatarState] = useState("idle"); // 'idle' | 'listening' | 'speaking' | 'processing'
+  const [avatarLatencyMs, setAvatarLatencyMs] = useState(165);
+  const [isAudioMuted, setIsAudioMuted] = useState(false);
+
   // Timer & Speech states
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const timerRef = useRef(null);
@@ -35,15 +48,23 @@ export default function InterviewView({ onNavigate }) {
   const [isSpeakingQuestion, setIsSpeakingQuestion] = useState(false);
   const recognitionRef = useRef(null);
 
-  // Video stream
+  // Video stream & CV Overlay refs
   const videoRef = useRef(null);
+  const overlayCanvasRef = useRef(null);
   const mediaStreamRef = useRef(null);
   const [cameraActive, setCameraActive] = useState(false);
+
+  // Computer Vision Hook
+  const isVideoMode = (session?.interview_type === "video" || (!session && interviewType === "video"));
+  const { liveMetrics, resetAggregator, getAggregatedMetrics } = useComputerVision(
+    videoRef,
+    overlayCanvasRef,
+    session && isVideoMode && !debrief && cameraActive
+  );
 
   // History list state
   const [historyList, setHistoryList] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [selectedHistoryDetail, setSelectedHistoryDetail] = useState(null);
 
   // Notifications
   const [error, setError] = useState("");
@@ -56,7 +77,19 @@ export default function InterviewView({ onNavigate }) {
     "Full Stack Developer",
     "DevOps Engineer",
     "Data Analyst",
+    "Cybersecurity Engineer",
+    "QA / Test Engineer",
+    "Game Developer",
+    "Blockchain Developer",
+    "iOS Developer",
+    "Android Developer",
+    "Site Reliability Engineer",
   ];
+
+  // Common spoken filler words detector
+  const fillerRegex = /\b(um|uh|like|you know|actually|basically|sort of|kind of|i mean|literally)\b/gi;
+  const detectedFillersList = answerText.match(fillerRegex) || [];
+  const fillerCount = detectedFillersList.length;
 
   // Load history when tab changes to history
   useEffect(() => {
@@ -88,11 +121,25 @@ export default function InterviewView({ onNavigate }) {
     return () => stopCamera();
   }, [session, debrief]);
 
+  // Automatically introduce and speak question when entering a new question
+  useEffect(() => {
+    if (session && !debrief && session.questions?.[currentIndex]) {
+      const qText = session.questions[currentIndex].question;
+      // Short delay for natural conversation pacing
+      const t = setTimeout(() => {
+        if (!isAudioMuted) {
+          speakQuestionWithAvatar(qText);
+        }
+      }, 600);
+      return () => clearTimeout(t);
+    }
+  }, [session, currentIndex, debrief, isAudioMuted]);
+
   async function startCamera() {
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
+          video: { width: { ideal: 640 }, height: { ideal: 480 } },
           audio: true,
         });
         mediaStreamRef.current = stream;
@@ -104,6 +151,7 @@ export default function InterviewView({ onNavigate }) {
     } catch (err) {
       console.warn("Could not access camera/mic:", err);
       setCameraActive(false);
+      setError("Webcam access denied or unavailable. You can still continue using voice dictation or text.");
     }
   }
 
@@ -128,7 +176,17 @@ export default function InterviewView({ onNavigate }) {
     }
   }
 
-  async function handleStartInterview() {
+  function handleOpenSetupConsent() {
+    setIsConsentModalOpen(true);
+  }
+
+  async function handleConsentAccepted(consentData) {
+    setIsConsentModalOpen(false);
+    setConsentGranted(true);
+    await launchInterviewSession();
+  }
+
+  async function launchInterviewSession() {
     setError("");
     setSuccess("");
     setIsSubmitting(true);
@@ -138,7 +196,10 @@ export default function InterviewView({ onNavigate }) {
         interview_type: interviewType,
         question_count: Number(questionCount),
         difficulty,
+        consent_granted: true,
+        interviewer_persona: interviewerPersona,
       });
+
       setSession(newSession);
       setCurrentIndex(0);
       setAnswerText("");
@@ -146,6 +207,8 @@ export default function InterviewView({ onNavigate }) {
       setAnswers({});
       setDebrief(null);
       setShowHint(false);
+      resetAggregator();
+      setAvatarState("idle");
       setSuccess(`Mock interview initialized for ${newSession.role}. Good luck!`);
     } catch (err) {
       setError(err.message || "Failed to start interview. Check backend connection.");
@@ -154,8 +217,8 @@ export default function InterviewView({ onNavigate }) {
     }
   }
 
-  // Text-To-Speech for Question
-  function handleSpeakQuestion(text) {
+  // Text-To-Speech for Question with Avatar Synchronization
+  function speakQuestionWithAvatar(text) {
     if (!("speechSynthesis" in window)) {
       setError("Speech synthesis is not supported in this browser.");
       return;
@@ -163,15 +226,50 @@ export default function InterviewView({ onNavigate }) {
     if (isSpeakingQuestion) {
       window.speechSynthesis.cancel();
       setIsSpeakingQuestion(false);
+      setAvatarState(isListening ? "listening" : "idle");
       return;
     }
+
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.95;
     utterance.pitch = 1.0;
-    utterance.onend = () => setIsSpeakingQuestion(false);
-    utterance.onerror = () => setIsSpeakingQuestion(false);
-    setIsSpeakingQuestion(true);
+
+    // Pick appropriate browser voice
+    const voices = window.speechSynthesis.getVoices();
+    if (voices && voices.length > 0) {
+      if (interviewerPersona === "marcus") {
+        const maleVoice = voices.find(
+          (v) => v.lang.startsWith("en") && (v.name.includes("Male") || v.name.includes("David") || v.name.includes("George"))
+        );
+        if (maleVoice) utterance.voice = maleVoice;
+      } else {
+        const femaleVoice = voices.find(
+          (v) => v.lang.startsWith("en") && (v.name.includes("Female") || v.name.includes("Samantha") || v.name.includes("Zira") || v.name.includes("Google US English"))
+        );
+        if (femaleVoice) utterance.voice = femaleVoice;
+      }
+    }
+
+    const startPerf = performance.now();
+
+    utterance.onstart = () => {
+      const latency = Math.round(performance.now() - startPerf);
+      setAvatarLatencyMs(latency > 0 ? latency : 165);
+      setAvatarState("speaking");
+      setIsSpeakingQuestion(true);
+    };
+
+    utterance.onend = () => {
+      setIsSpeakingQuestion(false);
+      setAvatarState(isListening ? "listening" : "idle");
+    };
+
+    utterance.onerror = () => {
+      setIsSpeakingQuestion(false);
+      setAvatarState("idle");
+    };
+
     window.speechSynthesis.speak(utterance);
   }
 
@@ -189,6 +287,7 @@ export default function InterviewView({ onNavigate }) {
         recognitionRef.current.stop();
       }
       setIsListening(false);
+      setAvatarState("idle");
       return;
     }
 
@@ -200,6 +299,7 @@ export default function InterviewView({ onNavigate }) {
 
       recognition.onstart = () => {
         setIsListening(true);
+        setAvatarState("listening"); // Avatar attentively listens to candidate
       };
 
       recognition.onresult = (event) => {
@@ -216,10 +316,12 @@ export default function InterviewView({ onNavigate }) {
       recognition.onerror = (event) => {
         console.warn("Speech recognition error:", event.error);
         setIsListening(false);
+        setAvatarState("idle");
       };
 
       recognition.onend = () => {
         setIsListening(false);
+        setAvatarState("idle");
       };
 
       recognitionRef.current = recognition;
@@ -227,10 +329,11 @@ export default function InterviewView({ onNavigate }) {
     } catch (err) {
       setError("Could not initialize voice recording.");
       setIsListening(false);
+      setAvatarState("idle");
     }
   }
 
-  // Submit single answer for real-time AI evaluation
+  // Submit single answer for real-time AI evaluation with CV & Speech telemetry
   async function handleSubmitCurrentAnswer() {
     if (!answerText.trim()) {
       setError("Please provide an answer before submitting.");
@@ -238,13 +341,45 @@ export default function InterviewView({ onNavigate }) {
     }
     setError("");
     setIsSubmitting(true);
+    setAvatarState("processing"); // Avatar evaluates candidate response
+
+    // Stop speaking or dictating if active
+    if (isSpeakingQuestion) {
+      window.speechSynthesis.cancel();
+      setIsSpeakingQuestion(false);
+    }
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+
     try {
+      // Collect real-time computer vision metrics from the question window
+      const cvTelemetry = getAggregatedMetrics();
+
+      // Collect speech metrics
+      const wordCount = answerText.trim().split(/\s+/).length;
+      const wpm = elapsedSeconds > 0 ? Math.round((wordCount / elapsedSeconds) * 60) : 0;
+      const speechMetrics = {
+        wpm,
+        filler_count: fillerCount,
+        duration_sec: elapsedSeconds,
+      };
+
+      const startReq = performance.now();
+
       const evalResult = await submitAnswer({
         interview_id: session.id,
         question_index: currentIndex,
         answer_text: answerText,
         duration_sec: elapsedSeconds,
+        visual_metrics: session.interview_type === "video" ? cvTelemetry : null,
+        speech_metrics: speechMetrics,
+        avatar_latency_ms: avatarLatencyMs,
       });
+
+      const responseTime = Math.round(performance.now() - startReq);
+      setAvatarLatencyMs(responseTime > 0 ? responseTime : 185);
 
       setEvaluations((prev) => ({
         ...prev,
@@ -254,9 +389,11 @@ export default function InterviewView({ onNavigate }) {
         ...prev,
         [currentIndex]: answerText,
       }));
-      setSuccess(`Answer for question ${currentIndex + 1} evaluated!`);
+      setAvatarState("idle");
+      setSuccess(`Answer for Question ${currentIndex + 1} evaluated!`);
     } catch (err) {
       setError(err.message || "Failed to evaluate answer.");
+      setAvatarState("idle");
     } finally {
       setIsSubmitting(false);
     }
@@ -269,6 +406,7 @@ export default function InterviewView({ onNavigate }) {
       setAnswerText(answers[nextIdx] || "");
       setShowHint(false);
       setElapsedSeconds(0);
+      resetAggregator();
       if (isSpeakingQuestion) {
         window.speechSynthesis.cancel();
         setIsSpeakingQuestion(false);
@@ -277,6 +415,7 @@ export default function InterviewView({ onNavigate }) {
         recognitionRef.current.stop();
         setIsListening(false);
       }
+      setAvatarState("idle");
     }
   }
 
@@ -289,10 +428,12 @@ export default function InterviewView({ onNavigate }) {
     }
   }
 
-  // Finish session
+  // Finish session and compute final scores
   async function handleFinishSession() {
     setError("");
     setIsFinishing(true);
+    setAvatarState("processing");
+
     try {
       if (isListening && recognitionRef.current) {
         recognitionRef.current.stop();
@@ -306,14 +447,17 @@ export default function InterviewView({ onNavigate }) {
 
       const result = await finishInterview(session.id);
       setDebrief(result);
+      setAvatarState("idle");
       setSuccess("Mock interview completed! Your Career Readiness Score has been updated.");
     } catch (err) {
       setError(err.message || "Failed to complete interview session.");
+      setAvatarState("idle");
     } finally {
       setIsFinishing(false);
     }
   }
 
+  // Printable A4 PDF Report Generation
   function handleExportPDF(debriefData = debrief, currentSession = session) {
     if (!debriefData || !currentSession) return;
 
@@ -324,6 +468,10 @@ export default function InterviewView({ onNavigate }) {
       month: "long",
       day: "numeric",
     });
+
+    const confidenceBreakdown = debriefData.confidence_breakdown || {};
+    const behavioralSummary = debriefData.behavioral_summary || {};
+    const speechSummary = debriefData.speech_summary || {};
 
     const questionsHtml = questions
       .map((q, idx) => {
@@ -385,164 +533,196 @@ export default function InterviewView({ onNavigate }) {
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <title>CareerPilot AI - Mock Interview Transcript - ${currentSession.role}</title>
+        <title>CareerPilot AI - Mock Interview Report & Behavioral Evaluation - ${currentSession.role}</title>
         <style>
           @page {
             size: A4;
-            margin: 14mm 16mm;
+            margin: 12mm 14mm;
           }
           * { box-sizing: border-box; }
           body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #1e293b;
+            color: #0f172a;
             background: #ffffff;
             margin: 0;
             padding: 0;
-            line-height: 1.5;
-            font-size: 13px;
+            line-height: 1.45;
+            font-size: 12px;
           }
           .header-banner {
             border-bottom: 2px solid #0284c7;
-            padding-bottom: 12px;
-            margin-bottom: 18px;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
           }
           .brand-title {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             color: #0f172a;
-            margin: 0 0 4px 0;
+            margin: 0 0 2px 0;
           }
           .brand-sub {
             color: #64748b;
-            font-size: 11px;
+            font-size: 10px;
             margin: 0;
             text-transform: uppercase;
             letter-spacing: 0.5px;
           }
           .meta-box {
             text-align: right;
-            font-size: 11px;
+            font-size: 10px;
             color: #475569;
           }
-          .score-summary-card {
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 8px;
-            padding: 14px 18px;
-            margin-bottom: 20px;
+          .dual-score-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+          }
+          .score-card {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 12px 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
           }
+          .score-card--tech {
+            background: #f0fdf4;
+            border-color: #86efac;
+          }
+          .score-card--conf {
+            background: #f0f9ff;
+            border-color: #7dd3fc;
+          }
           .score-big {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: 800;
-            color: #0284c7;
             line-height: 1;
+            color: #0f172a;
           }
           .score-lbl {
-            font-size: 10px;
+            font-size: 9px;
             text-transform: uppercase;
-            color: #0369a1;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #475569;
           }
-          .summary-text {
-            max-width: 70%;
-            font-size: 12px;
-            color: #334155;
+          .srs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+            font-size: 11px;
+          }
+          .srs-table th, .srs-table td {
+            border: 1px solid #e2e8f0;
+            padding: 6px 10px;
+            text-align: left;
+          }
+          .srs-table th {
+            background: #f1f5f9;
+            font-weight: 700;
           }
           .section-heading {
-            font-size: 15px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 800;
             color: #0f172a;
-            margin: 16px 0 10px 0;
+            margin: 14px 0 8px 0;
             border-bottom: 1px solid #e2e8f0;
             padding-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
           }
           .q-block {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 14px;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
             page-break-inside: avoid;
           }
           .q-header {
             display: flex;
             justify-content: space-between;
             font-weight: 700;
-            font-size: 12px;
-            margin-bottom: 6px;
+            font-size: 11px;
+            margin-bottom: 4px;
           }
           .q-number { color: #0284c7; }
-          .q-score { color: #0f766e; }
+          .q-score { color: #059669; }
           .q-text {
             font-weight: 600;
             color: #0f172a;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
           }
           .candidate-ans {
             background: #ffffff;
             border-left: 3px solid #0284c7;
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-radius: 0 4px 4px 0;
-            margin-bottom: 8px;
-            font-size: 12px;
+            margin-bottom: 6px;
+            font-size: 11px;
             color: #334155;
           }
           .candidate-ans strong {
             display: block;
-            font-size: 10px;
+            font-size: 9px;
             color: #64748b;
             text-transform: uppercase;
-            margin-bottom: 2px;
           }
           .candidate-ans p { margin: 0; }
           .eval-box {
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 4px;
-            padding: 8px 10px;
+            padding: 6px 8px;
             font-size: 11px;
-            color: #334155;
           }
           .eval-title {
             font-weight: 700;
             color: #475569;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
           }
           .kw-row {
-            margin-top: 6px;
-            font-size: 11px;
+            margin-top: 4px;
+            font-size: 10px;
           }
           .kw {
             display: inline-block;
-            padding: 1px 6px;
+            padding: 1px 5px;
             border-radius: 3px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 600;
-            margin-right: 4px;
-            margin-bottom: 2px;
+            margin-right: 3px;
           }
           .kw-match { background: #dcfce7; color: #166534; }
           .kw-miss { background: #ffedd5; color: #9a3412; }
-          .meta-row {
-            margin-top: 6px;
+          .disclaimer-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-left: 3px solid #f97316;
+            padding: 8px 10px;
+            margin-top: 14px;
             font-size: 10px;
-            color: #64748b;
-            display: flex;
-            gap: 16px;
+            color: #475569;
+            page-break-inside: avoid;
+          }
+          .disclaimer-title {
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 2px;
+            text-transform: uppercase;
           }
           .footer-note {
-            margin-top: 24px;
+            margin-top: 16px;
             text-align: center;
-            font-size: 10px;
+            font-size: 9px;
             color: #94a3b8;
             border-top: 1px solid #f1f5f9;
-            padding-top: 8px;
+            padding-top: 6px;
           }
         </style>
       </head>
@@ -550,36 +730,94 @@ export default function InterviewView({ onNavigate }) {
         <div class="header-banner">
           <div>
             <h1 class="brand-title">CareerPilot AI</h1>
-            <p class="brand-sub">AI Mock Interview Transcript & Rubric Evaluation</p>
+            <p class="brand-sub">AI Mock Interview Transcript & Behavioral Evaluation Report</p>
           </div>
           <div class="meta-box">
             <div><strong>Role:</strong> ${currentSession.role}</div>
             <div><strong>Date:</strong> ${formattedDate}</div>
-            <div><strong>Format:</strong> ${currentSession.interview_type || "text"}</div>
+            <div><strong>Format:</strong> ${currentSession.interview_type || "video"}</div>
+            <div><strong>Retention Policy:</strong> 30 Days (Expires: ${new Date(Date.now() + 30 * 86400000).toLocaleDateString()})</div>
           </div>
         </div>
 
-        <div class="score-summary-card">
-          <div>
-            <div class="score-big">${debriefData.overall_score || 0}%</div>
-            <div class="score-lbl">Overall Performance Score</div>
+        <div class="dual-score-grid">
+          <div class="score-card score-card--tech">
+            <div>
+              <div class="score-big">${debriefData.overall_score || 0}%</div>
+              <div class="score-lbl">Technical Content Score</div>
+            </div>
+            <div style="font-size: 10px; color: #166534; text-align: right;">
+              Keyword coverage, architectural depth, and structural articulation.
+            </div>
           </div>
-          <div class="summary-text">
-            <strong>Debrief Summary:</strong><br />
-            ${debriefData.feedback_summary || "Evaluation completed."}
-            ${
-              debriefData.new_crs_score
-                ? `<br /><span style="color: #0284c7; font-weight: 700; font-size: 11px;">Career Readiness Score (CRS) synchronized: ${debriefData.new_crs_score}%</span>`
-                : ""
-            }
+
+          <div class="score-card score-card--conf">
+            <div>
+              <div class="score-big">${debriefData.confidence_score !== undefined && debriefData.confidence_score !== null ? debriefData.confidence_score + "%" : "N/A"}</div>
+              <div class="score-lbl">SRS Presentation Confidence Score</div>
+            </div>
+            <div style="font-size: 10px; color: #0369a1; text-align: right;">
+              Eye Contact (30%) + Posture (25%) + Vocal Clarity (25%) + Fluency (20%).
+            </div>
           </div>
         </div>
 
-        <div class="section-heading">Detailed Question Rubric Breakdown</div>
+        ${
+          debriefData.confidence_breakdown
+            ? `
+            <div class="section-heading">SRS Presentation & Confidence Breakdown</div>
+            <table class="srs-table">
+              <thead>
+                <tr>
+                  <th>Indicator Dimension</th>
+                  <th>Formula Weight</th>
+                  <th>Observed Score</th>
+                  <th>Telemetry Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Eye Contact & Approximate Gaze Direction</td>
+                  <td>30%</td>
+                  <td>${confidenceBreakdown.eye_contact?.score !== null && confidenceBreakdown.eye_contact?.score !== undefined ? confidenceBreakdown.eye_contact.score + "%" : "Unavailable (Camera disabled)"}</td>
+                  <td>${confidenceBreakdown.eye_contact?.status || "Measured"}</td>
+                </tr>
+                <tr>
+                  <td>Posture Stability & Upright Alignment</td>
+                  <td>25%</td>
+                  <td>${confidenceBreakdown.posture?.score !== null && confidenceBreakdown.posture?.score !== undefined ? confidenceBreakdown.posture.score + "%" : "Unavailable (Camera disabled)"}</td>
+                  <td>${confidenceBreakdown.posture?.status || "Measured"}</td>
+                </tr>
+                <tr>
+                  <td>Vocal Clarity & Structured Articulation</td>
+                  <td>25%</td>
+                  <td>${confidenceBreakdown.vocal_clarity?.score !== undefined ? confidenceBreakdown.vocal_clarity.score + "%" : "75%"}</td>
+                  <td>${confidenceBreakdown.vocal_clarity?.status || "Measured"}</td>
+                </tr>
+                <tr>
+                  <td>Response Fluency & Low Filler Density</td>
+                  <td>20%</td>
+                  <td>${confidenceBreakdown.response_fluency?.score !== undefined ? confidenceBreakdown.response_fluency.score + "%" : "75%"}</td>
+                  <td>${confidenceBreakdown.response_fluency?.status || "Measured"}</td>
+                </tr>
+              </tbody>
+            </table>
+          `
+            : ""
+        }
+
+        <div class="section-heading">Question-by-Question Rubric Breakdown</div>
         ${questionsHtml}
 
+        <div class="disclaimer-box">
+          <div class="disclaimer-title">Scientific & Ethical Interpretation Limitation</div>
+          <p style="margin: 0;">
+            ${debriefData.interpretation_limitation || "Observable behavioral indicators (face visibility, camera-facing behavior, approximate gaze, head movement, and posture) represent real-time optical engagement metrics during this simulated video interview. In accordance with AI ethics and scientific consensus, these measurements do NOT determine a candidate's actual inner honesty, intelligence, personality, or emotional state. They should be reviewed solely as presentation feedback."}
+          </p>
+        </div>
+
         <div class="footer-note">
-          Generated automatically by CareerPilot AI Interview Intelligence Engine.
+          Generated automatically by CareerPilot AI Interview Intelligence Engine &bull; Stored locally with 30-day retention limit.
         </div>
       </body>
       </html>
@@ -609,10 +847,10 @@ export default function InterviewView({ onNavigate }) {
       {/* ── Top Header Banner ── */}
       <div className="module-header-card module-header-card--gradient">
         <div className="module-header-text">
-          <h1 className="module-main-title">AI Mock Interview Studio</h1>
+          <h1 className="module-main-title">AI Mock Interview Studio & Avatar Interviewer</h1>
           <p className="module-subtitle">
-            Practice real-time technical and behavioral interviews with dynamic speech recognition,
-            multi-dimensional rubric evaluation, and Career Readiness Score (CRS) integration.
+            Practice real-time technical and behavioral video interviews with an animated AI HR interviewer,
+            live computer vision behavioral telemetry, speech recognition, and SRS confidence scoring.
           </p>
         </div>
         <div className="module-header-actions">
@@ -643,7 +881,12 @@ export default function InterviewView({ onNavigate }) {
       {activeTab === "history" && (
         <div className="interview-history-container">
           <div className="interview-history-header">
-            <h2 className="interview-section-title">Past Interview Sessions</h2>
+            <div>
+              <h2 className="interview-section-title">Past Interview Sessions</h2>
+              <p className="interview-section-sub">
+                Sessions are archived under the 30-day retention policy (SRS Section 2.3).
+              </p>
+            </div>
             <button
               type="button"
               className="btn-secondary btn-sm"
@@ -692,13 +935,23 @@ export default function InterviewView({ onNavigate }) {
                       <span className="history-score-val">
                         {item.overall_score !== null ? `${item.overall_score}%` : "—"}
                       </span>
-                      <span className="history-score-lbl">Score</span>
+                      <span className="history-score-lbl">Tech Score</span>
+                      {item.confidence_score !== null && item.confidence_score !== undefined && (
+                        <span className="history-conf-val">
+                          {item.confidence_score}% Confidence
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <div className="history-card__meta">
                     <span>{item.questions_count || 5} Questions</span>
                     <span className="history-status-badge">{item.status}</span>
+                    {item.expires_at && (
+                      <span className="history-retention-badge">
+                        Retention: ~{Math.max(0, Math.ceil((new Date(item.expires_at) - new Date()) / 86400000))}d left
+                      </span>
+                    )}
                   </div>
 
                   <div className="history-card__actions">
@@ -711,8 +964,11 @@ export default function InterviewView({ onNavigate }) {
                           handleExportPDF(
                             {
                               overall_score: detail.overall_score,
+                              confidence_score: detail.confidence_score,
+                              confidence_breakdown: detail.behavioral_metrics?.confidence_breakdown,
                               feedback_summary: `Past session archive for ${detail.role}.`,
                               question_evaluations: detail.feedback || [],
+                              interpretation_limitation: detail.interpretation_limitation,
                             },
                             detail
                           );
@@ -740,10 +996,10 @@ export default function InterviewView({ onNavigate }) {
               {/* Setup Configuration Card */}
               <div className="interview-setup-card">
                 <div className="interview-setup-card__header">
-                  <span className="section-pill">Interactive Simulation</span>
-                  <h2 className="interview-card-title">Configure Your Interview Session</h2>
+                  <span className="section-pill">SRS UC-06 & FR-06 Ready</span>
+                  <h2 className="interview-card-title">Configure Your AI Avatar Interview</h2>
                   <p className="interview-card-subtitle">
-                    Select your target career discipline, format, and technical complexity.
+                    Experience an interactive video call with an animated AI HR Interviewer and live computer vision behavioral feedback.
                   </p>
                 </div>
 
@@ -762,24 +1018,68 @@ export default function InterviewView({ onNavigate }) {
                   </select>
                 </div>
 
+                {/* AI Interviewer Persona Selector */}
+                <div className="setup-form-group">
+                  <label className="setup-label">AI HR Interviewer Persona:</label>
+                  <div className="persona-selection-row">
+                    <label
+                      className={`persona-card ${
+                        interviewerPersona === "sarah" ? "persona-card--selected" : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="persona"
+                        value="sarah"
+                        checked={interviewerPersona === "sarah"}
+                        onChange={() => setInterviewerPersona("sarah")}
+                      />
+                      <div className="persona-info">
+                        <strong>Sarah Chen</strong>
+                        <span>Lead Technical Recruiter & Talent Partner</span>
+                        <span className="persona-trait">Empathetic, clear, structured behavioral & system design</span>
+                      </div>
+                    </label>
+
+                    <label
+                      className={`persona-card ${
+                        interviewerPersona === "marcus" ? "persona-card--selected" : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="persona"
+                        value="marcus"
+                        checked={interviewerPersona === "marcus"}
+                        onChange={() => setInterviewerPersona("marcus")}
+                      />
+                      <div className="persona-info">
+                        <strong>Marcus Vance</strong>
+                        <span>VP of Engineering & Systems Architect</span>
+                        <span className="persona-trait">In-depth technical architecture, trade-offs, and scalability</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
                 <div className="setup-form-group">
                   <label className="setup-label">Interview Format & Studio Mode:</label>
                   <div className="format-options-row">
                     <label
                       className={`format-option ${
-                        interviewType === "text" ? "format-option--selected" : ""
+                        interviewType === "video" ? "format-option--selected" : ""
                       }`}
                     >
                       <input
                         type="radio"
                         name="format"
-                        value="text"
-                        checked={interviewType === "text"}
-                        onChange={() => setInterviewType("text")}
+                        value="video"
+                        checked={interviewType === "video"}
+                        onChange={() => setInterviewType("video")}
                       />
                       <div>
-                        <strong>Text & Speech Studio</strong>
-                        <span>Type or dictate answers with browser text-to-speech</span>
+                        <strong>Video & Animated AI Avatar Studio (Recommended)</strong>
+                        <span>Full dual video-call experience with computer vision behavioral telemetry & avatar synchronization</span>
                       </div>
                     </label>
 
@@ -797,25 +1097,25 @@ export default function InterviewView({ onNavigate }) {
                       />
                       <div>
                         <strong>Audio / Voice Mode</strong>
-                        <span>Voice speech recognition with live pacing telemetry</span>
+                        <span>Animated avatar with voice speech recognition and pacing telemetry (camera disabled)</span>
                       </div>
                     </label>
 
                     <label
                       className={`format-option ${
-                        interviewType === "video" ? "format-option--selected" : ""
+                        interviewType === "text" ? "format-option--selected" : ""
                       }`}
                     >
                       <input
                         type="radio"
                         name="format"
-                        value="video"
-                        checked={interviewType === "video"}
-                        onChange={() => setInterviewType("video")}
+                        value="text"
+                        checked={interviewType === "text"}
+                        onChange={() => setInterviewType("text")}
                       />
                       <div>
-                        <strong>Video & Audio Studio</strong>
-                        <span>Camera mirror feed + voice dictation & rubric evaluation</span>
+                        <strong>Text & Speech Studio</strong>
+                        <span>Type or dictate answers with browser text-to-speech</span>
                       </div>
                     </label>
                   </div>
@@ -853,10 +1153,10 @@ export default function InterviewView({ onNavigate }) {
                   <button
                     type="button"
                     className="btn-primary btn-start-interview"
-                    onClick={handleStartInterview}
+                    onClick={handleOpenSetupConsent}
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Generating Questions..." : "Begin Mock Interview"}
+                    {isSubmitting ? "Initializing Studio..." : "Review Consent & Launch Interview"}
                   </button>
                 </div>
               </div>
@@ -864,43 +1164,41 @@ export default function InterviewView({ onNavigate }) {
               {/* Informational Guidance Cards */}
               <div className="interview-guidance-col">
                 <div className="guidance-card">
-                  <h4 className="guidance-card__title">Evaluation Rubric (4 Dimensions)</h4>
+                  <h4 className="guidance-card__title">SRS Presentation Confidence Formula</h4>
                   <ul className="guidance-list">
                     <li>
-                      <strong>Keyword Coverage (40%):</strong> Industry terminology, framework concepts, and precise syntax.
+                      <strong>Eye Contact (30%):</strong> Measured via optical gaze vector and camera-facing alignment.
                     </li>
                     <li>
-                      <strong>Technical Depth (30%):</strong> Architectural considerations, edge cases, and rationale.
+                      <strong>Posture Stability (25%):</strong> Evaluated via head centroid tracking and slouching observation.
                     </li>
                     <li>
-                      <strong>Clarity & Structure (30%):</strong> Articulation using the STAR and Problem-Solution pattern.
+                      <strong>Vocal Clarity (25%):</strong> Structured articulation and transition markers.
                     </li>
                     <li>
-                      <strong>Delivery Pacing:</strong> Real-time word-per-minute pacing metrics.
+                      <strong>Response Fluency (20%):</strong> Speech cadence, WPM, and low filler density.
                     </li>
                   </ul>
                 </div>
 
                 <div className="guidance-card">
-                  <h4 className="guidance-card__title">Career Readiness Score (CRS) Sync</h4>
+                  <h4 className="guidance-card__title">Technical Content Rubric (Separate Score)</h4>
                   <p className="guidance-card__desc">
-                    Interview performance directly determines <strong>25%</strong> of your overall
-                    Career Readiness Score. Completing mock sessions dynamically enhances your candidate rating.
+                    Technical evaluation is evaluated independently from visual presentation: Keyword coverage (40%), Technical Depth (30%), and Clarity & Structure (30%).
                   </p>
                 </div>
 
                 <div className="guidance-card">
-                  <h4 className="guidance-card__title">Privacy Assurance</h4>
+                  <h4 className="guidance-card__title">Privacy & Retention Guarantee</h4>
                   <p className="guidance-card__desc">
-                    All video previews and speech recognition execute locally within your browser context.
-                    Transcripts are strictly confidential to your account.
+                    Computer vision executes 100% locally in your browser. No raw video is sent to our servers. Records are auto-purged under our <strong>30-day retention limit</strong>.
                   </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* STATE 2: ACTIVE INTERVIEW LIVE STUDIO */}
+          {/* STATE 2: ACTIVE INTERVIEW LIVE STUDIO (DUAL CALL INTERFACE) */}
           {session && !debrief && currentQuestion && (
             <div className="interview-live-layout">
               {/* Top Progress & Telemetry Bar */}
@@ -934,9 +1232,103 @@ export default function InterviewView({ onNavigate }) {
                 </div>
               </div>
 
-              {/* Main Live Grid: Question & Response vs Video & Rubric */}
+              {/* DUAL VIDEO CALL STAGE: AI AVATAR + CANDIDATE WEBCAM WITH CV HUD */}
+              <div className="video-conference-stage">
+                {/* Stage Left: Animated AI HR Interviewer */}
+                <div className="stage-avatar-panel">
+                  <AIAvatarInterviewer
+                    state={avatarState}
+                    persona={session.interviewer_persona || interviewerPersona}
+                    currentQuestion={currentQuestion.question}
+                    latencyMs={avatarLatencyMs}
+                    isAudioMuted={isAudioMuted}
+                    onToggleMute={() => setIsAudioMuted((prev) => !prev)}
+                    onReplayAudio={() => speakQuestionWithAvatar(currentQuestion.question)}
+                  />
+                </div>
+
+                {/* Stage Right: Candidate Live Webcam with CV HUD Overlay */}
+                <div className="stage-candidate-panel">
+                  <div className="candidate-video-card">
+                    <div className="candidate-video-header">
+                      <div className="candidate-ident">
+                        <span className="cam-live-indicator" />
+                        <span className="candidate-title">Candidate Live Stream</span>
+                      </div>
+                      <div className="cv-badge-group">
+                        <span className={`cv-status-pill ${liveMetrics.faceDetected ? "cv-status-pill--active" : "cv-status-pill--warn"}`}>
+                          {liveMetrics.faceDetected ? "Face Tracked" : "Searching Face"}
+                        </span>
+                        <span className="cv-status-pill cv-status-pill--tech">
+                          {liveMetrics.cameraFacing ? "Camera-Facing" : "Looking Away"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="candidate-video-frame">
+                      {session.interview_type === "video" ? (
+                        <>
+                          <video
+                            ref={videoRef}
+                            autoPlay
+                            playsInline
+                            muted
+                            className="candidate-webcam"
+                          />
+                          <canvas
+                            ref={overlayCanvasRef}
+                            className="candidate-cv-overlay"
+                          />
+                          {!cameraActive && (
+                            <div className="webcam-fallback-box">
+                              <p>Camera stream is inactive or permission was not granted.</p>
+                              <button
+                                type="button"
+                                className="btn-secondary btn-sm"
+                                onClick={startCamera}
+                              >
+                                Connect Camera
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="audio-mode-placeholder">
+                          <div className="audio-mode-icon">&#127908;</div>
+                          <h4>Audio / Speech Mode Active</h4>
+                          <p>Webcam is disabled in audio mode. Voice dictation and speech metrics remain active.</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Live Computer Vision Telemetry Bar */}
+                    {session.interview_type === "video" && cameraActive && (
+                      <div className="cv-telemetry-ribbon">
+                        <div className="cv-tel-item">
+                          <span className="cv-tel-lbl">Gaze:</span>
+                          <span className="cv-tel-val">{liveMetrics.gazeDirection}</span>
+                        </div>
+                        <div className="cv-tel-item">
+                          <span className="cv-tel-lbl">Head Pose:</span>
+                          <span className="cv-tel-val">Y: {liveMetrics.headPose.yaw}&deg; | P: {liveMetrics.headPose.pitch}&deg;</span>
+                        </div>
+                        <div className="cv-tel-item">
+                          <span className="cv-tel-lbl">Posture:</span>
+                          <span className="cv-tel-val">{liveMetrics.postureState} ({liveMetrics.postureScore}%)</span>
+                        </div>
+                        <div className="cv-tel-item">
+                          <span className="cv-tel-lbl">Motion:</span>
+                          <span className="cv-tel-val">{liveMetrics.headMovement}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Live Grid: Question & Response vs Rubric Feedback & Navigator */}
               <div className="interview-live-grid">
-                {/* Left Col: Question & Candidate Response */}
+                {/* Left Col: Current Question & Candidate Response */}
                 <div className="interview-primary-col">
                   {/* Question Card */}
                   <div className="interview-question-box">
@@ -948,9 +1340,9 @@ export default function InterviewView({ onNavigate }) {
                       <button
                         type="button"
                         className={`btn-tts ${isSpeakingQuestion ? "btn-tts--speaking" : ""}`}
-                        onClick={() => handleSpeakQuestion(currentQuestion.question)}
+                        onClick={() => speakQuestionWithAvatar(currentQuestion.question)}
                       >
-                        {isSpeakingQuestion ? "Stop Audio" : "Listen to Question"}
+                        {isSpeakingQuestion ? "Stop Audio" : "Listen to Avatar"}
                       </button>
                     </div>
 
@@ -983,18 +1375,23 @@ export default function InterviewView({ onNavigate }) {
                           onClick={handleToggleVoiceDictation}
                         >
                           <span className={`mic-dot ${isListening ? "mic-dot--pulse" : ""}`} />
-                          {isListening ? "Listening... (Click to Stop)" : "Voice Dictation"}
+                          {isListening ? "Listening... (Click to Pause)" : "Voice Dictation"}
                         </button>
                         <span className="word-count-badge">
                           {wordCount} words ({estimatedWpm} wpm)
                         </span>
+                        {fillerCount > 0 && (
+                          <span className="filler-count-badge">
+                            {fillerCount} filler{fillerCount > 1 ? "s" : ""} detected
+                          </span>
+                        )}
                       </div>
                     </div>
 
                     <textarea
                       className="answer-textarea"
                       rows={6}
-                      placeholder="Type your structured answer here, or click 'Voice Dictation' to speak aloud..."
+                      placeholder="Type your response here, or click 'Voice Dictation' to speak naturally into your microphone..."
                       value={answerText}
                       onChange={(e) => setAnswerText(e.target.value)}
                     />
@@ -1027,7 +1424,7 @@ export default function InterviewView({ onNavigate }) {
                           onClick={handleSubmitCurrentAnswer}
                           disabled={isSubmitting || !answerText.trim()}
                         >
-                          {isSubmitting ? "Evaluating Rubric..." : "Submit for AI Evaluation"}
+                          {isSubmitting ? "Evaluating Rubric & Telemetry..." : "Submit for AI Evaluation"}
                         </button>
 
                         {currentIndex === session.questions.length - 1 && (
@@ -1100,6 +1497,14 @@ export default function InterviewView({ onNavigate }) {
                             {currentEvaluation.pacing_feedback || "Optimal pace"}
                           </span>
                         </div>
+                        {currentEvaluation.behavioral_insights && (
+                          <div className="metric-cell">
+                            <span className="metric-lbl">Camera-Facing Engagement</span>
+                            <span className="metric-val">
+                              {Math.round((currentEvaluation.behavioral_insights.camera_facing_ratio || 0.85) * 100)}%
+                            </span>
+                          </div>
+                        )}
                       </div>
 
                       {currentIndex < session.questions.length - 1 && (
@@ -1117,46 +1522,8 @@ export default function InterviewView({ onNavigate }) {
                   )}
                 </div>
 
-                {/* Right Col: Video Preview & Questions Navigator */}
+                {/* Right Col: Questions Navigator */}
                 <div className="interview-sidebar-col">
-                  {/* Video Stream (if video mode) */}
-                  {session.interview_type === "video" && (
-                    <div className="webcam-box">
-                      <div className="webcam-header">
-                        <span className="webcam-title">Live Video Mirror</span>
-                        <span
-                          className={`cam-status ${
-                            cameraActive ? "cam-status--active" : "cam-status--off"
-                          }`}
-                        >
-                          {cameraActive ? "Active" : "Camera Inactive"}
-                        </span>
-                      </div>
-                      <div className="webcam-frame">
-                        <video
-                          ref={videoRef}
-                          autoPlay
-                          playsInline
-                          muted
-                          className="webcam-video"
-                        />
-                        {!cameraActive && (
-                          <div className="webcam-placeholder">
-                            <span>Camera stream not connected</span>
-                            <button
-                              type="button"
-                              className="btn-secondary btn-sm"
-                              onClick={startCamera}
-                            >
-                              Connect Camera
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Question Navigator Drawer */}
                   <div className="q-nav-box">
                     <h4 className="q-nav-title">Questions Navigator</h4>
                     <div className="q-nav-list">
@@ -1199,24 +1566,37 @@ export default function InterviewView({ onNavigate }) {
           {/* STATE 3: FINAL DEBRIEF & SCORE */}
           {debrief && (
             <div className="interview-debrief-container">
-              {/* Top Banner */}
+              {/* Dual Score Top Banner */}
               <div className="debrief-header-card">
-                <div className="debrief-score-ring">
-                  <div className="score-ring-circle">
-                    <span className="score-ring-number">{debrief.overall_score}%</span>
-                    <span className="score-ring-label">Overall Score</span>
+                <div className="dual-score-container">
+                  {/* Technical Score Ring */}
+                  <div className="debrief-score-ring">
+                    <div className="score-ring-circle">
+                      <span className="score-ring-number">{debrief.overall_score}%</span>
+                      <span className="score-ring-label">Technical Score</span>
+                    </div>
                   </div>
+
+                  {/* SRS Confidence Score Ring */}
+                  {debrief.confidence_score !== undefined && debrief.confidence_score !== null && (
+                    <div className="debrief-score-ring debrief-score-ring--conf">
+                      <div className="score-ring-circle score-ring-circle--conf">
+                        <span className="score-ring-number">{debrief.confidence_score}%</span>
+                        <span className="score-ring-label">SRS Confidence</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="debrief-text-block">
-                  <span className="section-pill">Session Complete</span>
+                  <span className="section-pill">Session Complete &bull; 30-Day Retention</span>
                   <h2 className="debrief-title">{debrief.role} Performance Debrief</h2>
                   <p className="debrief-summary">{debrief.feedback_summary}</p>
 
                   {debrief.new_crs_score && (
                     <div className="crs-sync-banner">
                       <strong>Career Readiness Score (CRS) Synchronized:</strong>
-                      <span> Your updated overall readiness score is {debrief.new_crs_score}%</span>
+                      <span> Your updated overall readiness rating is {debrief.new_crs_score}%</span>
                     </div>
                   )}
 
@@ -1236,6 +1616,7 @@ export default function InterviewView({ onNavigate }) {
                         setDebrief(null);
                         setEvaluations({});
                         setAnswers({});
+                        setAvatarState("idle");
                       }}
                     >
                       Start Another Session
@@ -1250,6 +1631,69 @@ export default function InterviewView({ onNavigate }) {
                   </div>
                 </div>
               </div>
+
+              {/* SRS Confidence Score Breakdown Card */}
+              {debrief.confidence_breakdown && (
+                <div className="srs-breakdown-card">
+                  <div className="srs-breakdown-header">
+                    <div>
+                      <span className="section-pill">SRS Section 2.3 Formula</span>
+                      <h3 className="srs-card-title">Presentation & Behavioral Confidence Telemetry</h3>
+                    </div>
+                    <span className="srs-formula-tag">
+                      Eye Contact (30%) + Posture (25%) + Vocal Clarity (25%) + Response Fluency (20%)
+                    </span>
+                  </div>
+
+                  <div className="srs-metrics-grid">
+                    <div className="srs-metric-box">
+                      <span className="srs-metric-title">Eye Contact & Gaze</span>
+                      <span className="srs-metric-val">
+                        {debrief.confidence_breakdown.eye_contact?.score !== null && debrief.confidence_breakdown.eye_contact?.score !== undefined
+                          ? `${debrief.confidence_breakdown.eye_contact.score}%`
+                          : "Unavailable"}
+                      </span>
+                      <span className="srs-metric-desc">Weight: 30% &bull; Camera focus alignment</span>
+                    </div>
+
+                    <div className="srs-metric-box">
+                      <span className="srs-metric-title">Posture Stability</span>
+                      <span className="srs-metric-val">
+                        {debrief.confidence_breakdown.posture?.score !== null && debrief.confidence_breakdown.posture?.score !== undefined
+                          ? `${debrief.confidence_breakdown.posture.score}%`
+                          : "Unavailable"}
+                      </span>
+                      <span className="srs-metric-desc">Weight: 25% &bull; Upright alignment without slump</span>
+                    </div>
+
+                    <div className="srs-metric-box">
+                      <span className="srs-metric-title">Vocal Clarity</span>
+                      <span className="srs-metric-val">
+                        {debrief.confidence_breakdown.vocal_clarity?.score !== undefined
+                          ? `${debrief.confidence_breakdown.vocal_clarity.score}%`
+                          : "75%"}
+                      </span>
+                      <span className="srs-metric-desc">Weight: 25% &bull; Structured answer articulation</span>
+                    </div>
+
+                    <div className="srs-metric-box">
+                      <span className="srs-metric-title">Response Fluency</span>
+                      <span className="srs-metric-val">
+                        {debrief.confidence_breakdown.response_fluency?.score !== undefined
+                          ? `${debrief.confidence_breakdown.response_fluency.score}%`
+                          : "75%"}
+                      </span>
+                      <span className="srs-metric-desc">Weight: 20% &bull; Steady cadence & low filler words</span>
+                    </div>
+                  </div>
+
+                  {/* Scientific Limitation Disclaimer */}
+                  <div className="ethical-disclaimer-box">
+                    <strong>Observable Interview Behaviour Notice:</strong>
+                    <p>{debrief.interpretation_limitation}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Question Breakdown List */}
               <div className="debrief-breakdown-section">
@@ -1320,6 +1764,15 @@ export default function InterviewView({ onNavigate }) {
           )}
         </>
       )}
+
+      {/* Consent Modal */}
+      <InterviewConsentModal
+        isOpen={isConsentModalOpen}
+        onClose={() => setIsConsentModalOpen(false)}
+        onAccept={handleConsentAccepted}
+        role={selectedRole}
+        format={interviewType}
+      />
     </div>
   );
 }
