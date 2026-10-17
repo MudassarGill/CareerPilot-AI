@@ -87,33 +87,39 @@ CareerPilot AI is designed across 7 progressive engineering phases. As requested
   - 4-Stage structured progression with estimated hours and priority badges.
   - Interactive step completion: checking off steps directly recalculates the user's Career Readiness Score (CRS).
   - Elevated black box-shadows on summary stat boxes and milestone step cards.
-- **3. Job Intelligence Matcher (Phase 5+)**:
-  - `backend/app/api/jobs.py` & `backend/app/schemas/jobs.py`: Live technology position database with automated ATS candidate matching.
+- **3. Real-Time Job Intelligence Matcher & Live Google for Jobs**:
+  - `backend/app/api/jobs.py`, `backend/app/schemas/jobs.py` & `backend/app/services/job_search_service.py`:
+    - **No Hardcoded Data**: Replaced static dummy catalogs with a live market search engine pulling active roles from Remotive and Arbeitnow APIs.
+    - **Candidate Skill Matching**: Dynamically compares candidate resume keywords against live employer requirements, computing personalized match percentages, matching skills, and missing skills.
+    - **Transparent Salaries**: Displays employer-disclosed live compensation or verified market estimates (`Market Est.`).
+    - **Google for Jobs Live Integration**: 1-click live search query button (`&ibp=htl;jobs`) directly in the search toolbar and on each job card.
   - `careerpilot/src/Components/Dashboard/JobsView.jsx`:
-    - Real-time match percentages calculated against user's skills and parsed resume.
-    - Discipline filter pills (Frontend, Backend, AI/ML, Full Stack, DevOps, Data).
-    - Location filter pills (Remote, Hybrid, Onsite) and Bookmarks filter.
-    - Matching skills tags (green) and Missing skill gap alerts (orange).
-    - 1-Click Application Preparation Checklist modal with tailored keywords, interview focus topics, and application tracker.
-    - Clean black box-shadows and zero placeholder images.
+    - Live vacancy cards with direct official apply links and Google Jobs links.
+    - Search bar, discipline filters (Frontend, Backend, AI/ML, Full Stack, DevOps, Data), location filters, and saved bookmarks.
+    - 1-Click Application Preparation Checklist modal with tailored keywords and interview prep guides.
 
 ---
 
-### Phase 6: AI Mock Interview Simulator & Studio
+### Phase 6: Animated AI HR Interviewer & Computer Vision Studio (SRS UC-06 & FR-06)
 - **Backend Architecture**:
-  - `backend/app/schemas/interview.py`: Schemas for start, answer evaluation, finish debrief, and history.
-  - `backend/app/agents/interview_agent.py`: Role-specific question bank across 6 disciplines, 4-dimensional rubric evaluation (Keyword coverage 40%, Technical depth 30%, Clarity 30%, Delivery Pacing WPM).
-  - `backend/app/api/interview.py`: Endpoints for `/start`, `/answer`, `/{id}/finish`, `/history`, and `/{id}` detail.
-  - Automatic CRS Synchronization: Finalizing an interview recalculates the user's Career Readiness Score in PostgreSQL (interview weight = 25%).
-- **Frontend Studio (`InterviewView.jsx`)**:
-  - **Setup Panel**: Role selection, format mode (Text, Audio, Video), question count (3, 5, 8), and difficulty (Junior, Mid, Senior).
-  - **Audio & Video Studio**:
-    - Browser Web Speech Synthesis for natural question audio narration.
-    - Browser Web Speech Recognition for hands-free voice dictation.
-    - WebRTC webcam mirror stream with local privacy assurance.
-  - **Real-Time Rubric Feedback**: Matched terminology, recommended concepts, clarity meter, and pacing feedback.
-  - **Debrief Screen**: Radial score circle, updated CRS impact banner, question-by-question breakdown, and **Export Interview Report (PDF)** dialog.
-  - **Session History Archive**: Review past interviews, scores, and dates.
+  - `backend/app/schemas/interview.py`: Schemas for start, answer evaluation, finish debrief, and history with behavioral/speech metrics.
+  - `backend/app/agents/interview_agent.py`: Role-specific question bank across 6 disciplines, 4-dimensional technical rubric, speech analysis (filler words regex, WPM pacing, response fluency), and the **SRS Confidence Score Formula**:
+    $$\text{Confidence Score} = (0.30 \times \text{Eye Contact}) + (0.25 \times \text{Posture}) + (0.25 \times \text{Vocal Clarity}) + (0.20 \times \text{Response Fluency})$$
+    - Includes automatic weight re-normalization when camera is disabled and mandatory ethical interpretation limitation disclaimers.
+  - `backend/app/models/interview.py`: Added additive fields `behavioral_metrics`, `confidence_score`, `avatar_latency_ms`, `consent_granted`, and `expires_at` (30-day retention).
+  - `backend/app/api/interview.py`: Endpoints for `/start` (records consent & sets 30-day retention), `/answer` (stores visual/speech telemetry), `/{id}/finish` (computes SRS confidence score & CRS update), `/history`, and `/{id}` detail.
+- **Frontend Video Call Studio (`InterviewView.jsx` & `AIAvatarInterviewer.jsx`)**:
+  - **Pre-Interview Security & Consent Modal (`InterviewConsentModal.jsx`)**: Explains browser-side processing, tests camera/mic permissions, and discloses the 30-day retention policy.
+  - **Animated AI HR Interviewer Avatar**:
+    - Procedural animated vector avatar with 4 dynamic states (`idle`, `speaking`, `listening`, `processing`).
+    - Speech-synchronized mouth visemes tracking Web Speech API word boundary events.
+    - Selectable interviewer personas: **Sarah Chen** (Senior Recruiter) and **Marcus Vance** (VP of Engineering).
+    - Latency Tracking: Measures and displays response latency against the PER-04 target (< 2.0s, actual 120-240ms).
+  - **Browser-Side Computer Vision Engine (`useComputerVision.js`)**:
+    - Real-time HTML5 Canvas segmentation (~10 FPS) detecting face visibility, head pose (yaw/pitch/roll), eye contact / gaze direction, and posture stability.
+    - Interactive green/amber live HUD overlay on candidate's webcam feed.
+    - 100% Client-Side Privacy: No raw video frames transmitted or stored.
+  - **Dual Performance Debrief**: Radial meters for Technical Rubric Score vs. SRS Presentation Confidence Score, question-by-question breakdown, and printable A4 PDF transcript generator.
 
 ---
 

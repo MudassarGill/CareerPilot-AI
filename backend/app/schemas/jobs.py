@@ -28,6 +28,8 @@ class JobItem(BaseModel):
     missing_skills: List[str] = []
     company_url: Optional[str] = None
     job_url: Optional[str] = None
+    google_jobs_url: Optional[str] = None
+    linkedin_jobs_url: Optional[str] = None
     is_saved: bool = False
     status: str = "open"  # "open" | "saved" | "applied"
 

@@ -160,6 +160,16 @@ export default function JobsView({ onNavigate }) {
           <button type="submit" className="btn-primary btn-search-jobs">
             Search Opportunities
           </button>
+          <a
+            href={`https://www.google.com/search?q=${encodeURIComponent((searchTerm || "software developer") + " jobs")}&ibp=htl;jobs`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary btn-search-google"
+            style={{ display: "inline-flex", alignItems: "center", gap: "6px", textDecoration: "none", padding: "10px 16px", borderRadius: "8px", fontWeight: "600", whiteSpace: "nowrap" }}
+            title="Search directly on Google for Jobs in real-time"
+          >
+            <span>Google Jobs Live ↗</span>
+          </a>
         </form>
 
         <div className="jobs-pills-row">
@@ -328,6 +338,19 @@ export default function JobsView({ onNavigate }) {
                         title={`View actual live posting for ${job.title}`}
                       >
                         View Live Job Posting ↗
+                      </a>
+                    )}
+
+                    {(job.google_jobs_url || job.job_url) && (
+                      <a
+                        href={job.google_jobs_url || `https://www.google.com/search?q=${encodeURIComponent(job.title + " " + job.company + " jobs")}&ibp=htl;jobs`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-secondary btn-sm"
+                        style={{ color: "#38bdf8", borderColor: "rgba(56, 189, 248, 0.3)" }}
+                        title={`Search Google Jobs directly for ${job.title}`}
+                      >
+                        Google Jobs ↗
                       </a>
                     )}
 

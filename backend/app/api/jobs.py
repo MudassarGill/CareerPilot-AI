@@ -29,6 +29,7 @@ from app.schemas.jobs import (
     JobApplyRequest,
     JobMarketSummary,
 )
+from app.services.job_search_service import get_realtime_jobs
 
 router = APIRouter()
 
@@ -346,7 +347,14 @@ def get_matched_jobs(
         print(f"[WARN] Error in _get_user_skill_names: {e}")
         user_skills = []
 
-    for job in TECH_JOBS_CATALOG:
+    active_jobs = get_realtime_jobs(
+        search_query=search,
+        user_skills=user_skills,
+        category=category,
+        location_type=location_type,
+    )
+
+    for job in active_jobs:
         try:
             # Category filter
             if category and category.lower() != "all" and job["category"].lower() != category.lower():
@@ -413,6 +421,8 @@ def get_matched_jobs(
                     missing_skills=missing_skills,
                     company_url=job.get("company_url"),
                     job_url=job.get("job_url"),
+                    google_jobs_url=job.get("google_jobs_url"),
+                    linkedin_jobs_url=job.get("linkedin_jobs_url"),
                     is_saved=user_state.get("saved", False),
                     status=status_str,
                 )
@@ -444,7 +454,9 @@ def get_market_summary(
     missing_frequency = {}
     demanded_frequency = {}
 
-    for job in TECH_JOBS_CATALOG:
+    active_jobs = get_realtime_jobs(user_skills=user_skills)
+
+    for job in active_jobs:
         try:
             matching_count = 0
             for req in job["required_skills"]:
@@ -469,7 +481,7 @@ def get_market_summary(
     sorted_missing = sorted(missing_frequency.keys(), key=lambda k: missing_frequency[k], reverse=True)[:5]
 
     return JobMarketSummary(
-        total_jobs=len(TECH_JOBS_CATALOG),
+        total_jobs=len(active_jobs),
         high_match_count=high_match,
         average_match_pct=avg_score,
         top_demanded_skills=sorted_demanded,
