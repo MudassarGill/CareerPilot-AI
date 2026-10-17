@@ -7156,68 +7156,205 @@
   cursor: not-allowed;
 }
 
-/* ── Persona Selector Cards ── */
-.persona-selection-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+/* ── Persona Selector Cards (Upgraded Luxury UI) ── */
+.setup-label-with-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 12px;
 }
 
-@media (max-width: 640px) {
-  .persona-selection-row {
+.setup-sublabel {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #64748b);
+  font-weight: 500;
+}
+
+.persona-selection-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .persona-selection-grid {
     grid-template-columns: 1fr;
   }
 }
 
-.persona-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px;
-  border: 1.5px solid var(--color-border, #e2e8f0);
-  border-radius: var(--radius-md, 8px);
-  background: #ffffff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.persona-card:hover {
-  border-color: #94a3b8;
-  background: #f8fafc;
-}
-
-.persona-card--selected {
-  border-color: var(--color-primary-orange, #f97316);
-  background: #fff7ed;
-  box-shadow: 0 0 0 1px var(--color-primary-orange, #f97316);
-}
-
-.persona-card input[type="radio"] {
-  margin-top: 3px;
-  accent-color: var(--color-primary-orange, #f97316);
-}
-
-.persona-info {
+.persona-card-premium {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  padding: 18px 20px;
+  border: 1.5px solid var(--color-border, #e2e8f0);
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 14px -3px rgba(0, 0, 0, 0.05);
+  user-select: none;
+  outline: none;
 }
 
-.persona-info strong {
-  font-size: 0.92rem;
+.persona-card-premium:hover {
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.08);
+}
+
+.persona-card-premium:focus-visible {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25);
+}
+
+.persona-card-premium--selected.persona-card-premium--sarah {
+  border-color: #f97316;
+  background: linear-gradient(180deg, #fffaf5 0%, #ffffff 100%);
+  box-shadow: 0 10px 24px -4px rgba(249, 115, 22, 0.16), 0 0 0 1.5px #f97316;
+}
+
+.persona-card-premium--selected.persona-card-premium--marcus {
+  border-color: #0284c7;
+  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+  box-shadow: 0 10px 24px -4px rgba(2, 132, 199, 0.16), 0 0 0 1.5px #0284c7;
+}
+
+.persona-card-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.persona-avatar-wrap {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px -1px rgba(0, 0, 0, 0.12);
+}
+
+.persona-avatar-wrap--sarah {
+  background: linear-gradient(135deg, #fed7aa 0%, #f97316 100%);
+}
+
+.persona-avatar-wrap--marcus {
+  background: linear-gradient(135deg, #bae6fd 0%, #0284c7 100%);
+}
+
+.persona-avatar-initials {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+}
+
+.persona-online-dot {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 12px;
+  height: 12px;
+  background: #10b981;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+.persona-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.persona-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.persona-name {
+  font-size: 1.02rem;
+  font-weight: 700;
   color: var(--color-text-main, #0f172a);
 }
 
-.persona-info span {
-  font-size: 0.78rem;
-  color: var(--color-text-muted, #64748b);
+.persona-selected-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
 }
 
-.persona-trait {
-  font-size: 0.72rem !important;
-  color: #0369a1 !important;
+.persona-badge--sarah {
+  background: #f97316;
+  color: #ffffff;
+}
+
+.persona-badge--marcus {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+.persona-select-pill {
+  font-size: 0.72rem;
   font-weight: 600;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  transition: all 0.15s ease;
+}
+
+.persona-card-premium:hover .persona-select-pill {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.persona-role {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-text-muted, #64748b);
   margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.persona-card-body {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.persona-summary {
+  font-size: 0.82rem;
+  color: #334155;
+  line-height: 1.45;
+  margin: 0 0 10px 0;
+}
+
+.persona-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.persona-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+.persona-card-premium--selected .persona-tag {
+  background: #ffffff;
+  border-color: #cbd5e1;
 }
 
 /* ── Dual Video Conference Stage ── */

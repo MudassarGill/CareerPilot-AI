@@ -1020,45 +1020,92 @@ export default function InterviewView({ onNavigate }) {
 
                 {/* AI Interviewer Persona Selector */}
                 <div className="setup-form-group">
-                  <label className="setup-label">AI HR Interviewer Persona:</label>
-                  <div className="persona-selection-row">
-                    <label
-                      className={`persona-card ${
-                        interviewerPersona === "sarah" ? "persona-card--selected" : ""
+                  <div className="setup-label-with-sub">
+                    <label className="setup-label">AI HR Interviewer Persona:</label>
+                    <span className="setup-sublabel">Select your simulated interviewer style and evaluation persona</span>
+                  </div>
+                  <div className="persona-selection-grid">
+                    <div
+                      className={`persona-card-premium ${
+                        interviewerPersona === "sarah" ? "persona-card-premium--selected persona-card-premium--sarah" : ""
                       }`}
+                      onClick={() => setInterviewerPersona("sarah")}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") setInterviewerPersona("sarah");
+                      }}
                     >
-                      <input
-                        type="radio"
-                        name="persona"
-                        value="sarah"
-                        checked={interviewerPersona === "sarah"}
-                        onChange={() => setInterviewerPersona("sarah")}
-                      />
-                      <div className="persona-info">
-                        <strong>Sarah Chen</strong>
-                        <span>Lead Technical Recruiter & Talent Partner</span>
-                        <span className="persona-trait">Empathetic, clear, structured behavioral & system design</span>
+                      <div className="persona-card-top">
+                        <div className="persona-avatar-wrap persona-avatar-wrap--sarah">
+                          <span className="persona-avatar-initials">SC</span>
+                          <span className="persona-online-dot" title="Active AI Persona" />
+                        </div>
+                        <div className="persona-header-text">
+                          <div className="persona-name-row">
+                            <span className="persona-name">Sarah Chen</span>
+                            {interviewerPersona === "sarah" ? (
+                              <span className="persona-selected-badge persona-badge--sarah">Active ✓</span>
+                            ) : (
+                              <span className="persona-select-pill">Select</span>
+                            )}
+                          </div>
+                          <span className="persona-role">Lead Technical Recruiter & Talent Partner</span>
+                        </div>
                       </div>
-                    </label>
 
-                    <label
-                      className={`persona-card ${
-                        interviewerPersona === "marcus" ? "persona-card--selected" : ""
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="persona"
-                        value="marcus"
-                        checked={interviewerPersona === "marcus"}
-                        onChange={() => setInterviewerPersona("marcus")}
-                      />
-                      <div className="persona-info">
-                        <strong>Marcus Vance</strong>
-                        <span>VP of Engineering & Systems Architect</span>
-                        <span className="persona-trait">In-depth technical architecture, trade-offs, and scalability</span>
+                      <div className="persona-card-body">
+                        <p className="persona-summary">
+                          Empathetic, structured, and insightful. Evaluates behavioral competency (STAR framework), communication clarity, and candidate culture alignment.
+                        </p>
+                        <div className="persona-tags-row">
+                          <span className="persona-tag">Behavioral & STAR</span>
+                          <span className="persona-tag">System Design</span>
+                          <span className="persona-tag">Culture Fit</span>
+                        </div>
                       </div>
-                    </label>
+                    </div>
+
+                    <div
+                      className={`persona-card-premium ${
+                        interviewerPersona === "marcus" ? "persona-card-premium--selected persona-card-premium--marcus" : ""
+                      }`}
+                      onClick={() => setInterviewerPersona("marcus")}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") setInterviewerPersona("marcus");
+                      }}
+                    >
+                      <div className="persona-card-top">
+                        <div className="persona-avatar-wrap persona-avatar-wrap--marcus">
+                          <span className="persona-avatar-initials">MV</span>
+                          <span className="persona-online-dot" title="Active AI Persona" />
+                        </div>
+                        <div className="persona-header-text">
+                          <div className="persona-name-row">
+                            <span className="persona-name">Marcus Vance</span>
+                            {interviewerPersona === "marcus" ? (
+                              <span className="persona-selected-badge persona-badge--marcus">Active ✓</span>
+                            ) : (
+                              <span className="persona-select-pill">Select</span>
+                            )}
+                          </div>
+                          <span className="persona-role">VP of Engineering & Systems Architect</span>
+                        </div>
+                      </div>
+
+                      <div className="persona-card-body">
+                        <p className="persona-summary">
+                          Rigorous, deep, and analytical. Probes architectural trade-offs, production scalability, fault tolerance, API design, and system bottlenecks.
+                        </p>
+                        <div className="persona-tags-row">
+                          <span className="persona-tag">Technical Depth</span>
+                          <span className="persona-tag">Scalability Trade-Offs</span>
+                          <span className="persona-tag">Executive Direct</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
