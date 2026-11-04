@@ -20,12 +20,26 @@ function ForgotPasswordForm({ onBackToLogin }) {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email.trim().toLowerCase() }),
       });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.detail || "Something went wrong. Please try again.");
+        let errorMsg = "Something went wrong. Please try again.";
+        try {
+          const data = await response.json();
+          if (typeof data.detail === "string") {
+            errorMsg = data.detail;
+          } else if (Array.isArray(data.detail)) {
+            errorMsg = data.detail.map((e) => e.msg || e.message).join(", ");
+          } else if (data.message) {
+            errorMsg = data.message;
+          }
+        } catch {
+          if (response.status === 500 || response.status === 502 || response.status === 504) {
+            errorMsg = "Unable to connect to the backend server. Please make sure the backend is running on port 8000.";
+          }
+        }
+        throw new Error(errorMsg);
       }
 
       setSent(true);

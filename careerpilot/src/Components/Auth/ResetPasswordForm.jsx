@@ -48,8 +48,22 @@ function ResetPasswordForm({ token, onBackToLogin }) {
       });
 
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.detail || "Failed to reset password. The link may have expired.");
+        let errorMsg = "Failed to reset password. The link may have expired.";
+        try {
+          const data = await response.json();
+          if (typeof data.detail === "string") {
+            errorMsg = data.detail;
+          } else if (Array.isArray(data.detail)) {
+            errorMsg = data.detail.map((e) => e.msg || e.message).join(", ");
+          } else if (data.message) {
+            errorMsg = data.message;
+          }
+        } catch {
+          if (response.status === 500 || response.status === 502 || response.status === 504) {
+            errorMsg = "Unable to connect to the backend server. Please make sure the backend is running on port 8000.";
+          }
+        }
+        throw new Error(errorMsg);
       }
 
       setSuccess(true);

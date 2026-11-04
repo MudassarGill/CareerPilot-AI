@@ -89,6 +89,7 @@ async def startup_event():
         # Verify / add additive columns for Mock Interview upgrades (backward-compatible)
         try:
             with engine.connect() as conn:
+                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_token VARCHAR(255);"))
                 conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS behavioral_metrics JSON;"))
                 conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS confidence_score FLOAT;"))
                 conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS avatar_latency_ms FLOAT;"))

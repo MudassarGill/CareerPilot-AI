@@ -118,6 +118,7 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
 
     if not user or not verify_password(credentials.password, user.hashed_password):
         if user:
+
             user.failed_login_count = (user.failed_login_count or 0) + 1
             if user.failed_login_count >= 5:
                 user.locked_until = datetime.utcnow() + timedelta(minutes=15)
@@ -179,19 +180,26 @@ async def get_me(current_user: User = Depends(get_current_user)):
 
 @router.post("/forgot-password", response_model=MessageResponse)
 async def forgot_password(req: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == req.email).first()
+    email_clean = str(req.email).strip().lower()
+    user = db.query(User).filter(User.email.ilike(email_clean)).first()
     if user:
-        from secrets import token_urlsafe
-        token = token_urlsafe(32)
-        user.reset_password_token = token
-        db.commit()
-        
-        reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
-        await email_service.send_email(
-            to_email=user.email,
-            subject="Reset Your CareerPilot AI Password",
-            body=f"Hi {user.name},\n\nPlease click the link below to reset your password:\n{reset_link}\n\nThis link will expire in 2 hours."
-        )
+        try:
+            from secrets import token_urlsafe
+            token = token_urlsafe(32)
+            user.reset_password_token = token
+            db.commit()
+            
+            user_display_name = user.name or "there"
+            reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+            await email_service.send_email(
+                to_email=user.email,
+                subject="Reset Your CareerPilot AI Password",
+                body=f"Hi {user_display_name},\n\nPlease click the link below to reset your password:\n{reset_link}\n\nThis link will expire in 2 hours."
+            )
+        except Exception as exc:
+            db.rollback()
+            import logging
+            logging.getLogger(__name__).error(f"forgot_password error: {exc}")
     
     return {"message": "If that email exists in our system, a password reset link has been sent."}
 
