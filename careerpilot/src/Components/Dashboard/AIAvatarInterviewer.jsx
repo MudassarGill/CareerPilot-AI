@@ -33,7 +33,7 @@ export default function AIAvatarInterviewer({
 
   const personas = {
     sarah: {
-      name: "Sarah Chen",
+      name: "Mudassar Hussain",
       role: "Lead Technical Recruiter & Talent Partner",
       badge: "AI HR INTERVIEWER",
       skinTone: "#f5c6a5",
@@ -42,7 +42,7 @@ export default function AIAvatarInterviewer({
       suitColor: "#1e293b",
     },
     marcus: {
-      name: "Marcus Vance",
+      name: "Hussnina Khan",
       role: "VP of Engineering & Systems Architect",
       badge: "AI HR INTERVIEWER",
       skinTone: "#d49b74",

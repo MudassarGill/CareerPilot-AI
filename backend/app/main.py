@@ -39,7 +39,11 @@ app = FastAPI(
 # Allows the frontend to communicate with the backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_origins=(
+        list(settings.ALLOWED_ORIGINS) + ([settings.FRONTEND_URL] if settings.FRONTEND_URL and settings.FRONTEND_URL not in settings.ALLOWED_ORIGINS else [])
+        if isinstance(settings.ALLOWED_ORIGINS, list)
+        else [str(settings.ALLOWED_ORIGINS)]
+    ),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
