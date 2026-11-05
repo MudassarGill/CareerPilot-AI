@@ -201,8 +201,19 @@ def fetch_live_jobs_from_jsearch(query: str, rapidapi_key: str) -> List[Dict[str
             resp = client.get(url, headers=headers, params=params)
             if resp.status_code == 200:
                 data = resp.json()
+                raw_items = []
+                if isinstance(data, list):
+                    raw_items = data
+                elif isinstance(data, dict):
+                    if isinstance(data.get("data"), list):
+                        raw_items = data.get("data")
+                    elif isinstance(data.get("jobs"), list):
+                        raw_items = data.get("jobs")
+                    elif isinstance(data.get("data"), dict) and isinstance(data.get("data", {}).get("jobs"), list):
+                        raw_items = data.get("data", {}).get("jobs")
+
                 results = []
-                for item in data.get("data", []):
+                for item in raw_items:
                     title = item.get("job_title", "Software Engineer")
                     company = item.get("employer_name", "Technology Employer")
                     city = item.get("job_city") or ""
@@ -225,7 +236,19 @@ def fetch_live_jobs_from_jsearch(query: str, rapidapi_key: str) -> List[Dict[str
                     skills = []
                     reqs = item.get("job_required_skills") or []
                     if isinstance(reqs, list):
-                        skills.extend(reqs)
+                        skills.extend([s for s in reqs if isinstance(s, str)])
+                    
+                    highlights = item.get("job_highlights") or {}
+                    if isinstance(highlights, dict):
+                        quals = highlights.get("Qualifications") or []
+                        if isinstance(quals, list):
+                            for q in quals[:4]:
+                                words = re.findall(r"[A-Za-z0-9+#.]{2,}", str(q))
+                                for w in words:
+                                    if len(w) > 2 and w.lower() in ["react", "node", "python", "javascript", "typescript", "aws", "docker", "kubernetes", "sql", "git", "api", "rest", "vue", "angular", "java", "c#", "go", "ci/cd", "graphql", "tailwind"]:
+                                        if w not in skills:
+                                            skills.append(w)
+
                     if not skills:
                         skills = [infer_category(title, []), "Git", "REST APIs", "Problem Solving"]
                         
