@@ -93,14 +93,31 @@ async def startup_event():
         
         # Verify / add additive columns for Mock Interview upgrades (backward-compatible)
         try:
-            if engine.dialect.name == "postgresql":
-                with engine.connect() as conn:
+            with engine.connect() as conn:
+                if engine.dialect.name == "postgresql":
                     conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_token VARCHAR(255);"))
                     conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS behavioral_metrics JSON;"))
                     conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS confidence_score FLOAT;"))
                     conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS avatar_latency_ms FLOAT;"))
                     conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS consent_granted BOOLEAN DEFAULT TRUE;"))
                     conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;"))
+                    conn.commit()
+                elif engine.dialect.name == "sqlite":
+                    user_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(users);")).fetchall()]
+                    if "reset_password_token" not in user_cols:
+                        conn.execute(text("ALTER TABLE users ADD COLUMN reset_password_token VARCHAR(255);"))
+
+                    interview_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(interviews);")).fetchall()]
+                    col_defs = [
+                        ("behavioral_metrics", "JSON"),
+                        ("confidence_score", "FLOAT"),
+                        ("avatar_latency_ms", "FLOAT"),
+                        ("consent_granted", "BOOLEAN DEFAULT 1"),
+                        ("expires_at", "TIMESTAMP"),
+                    ]
+                    for col_name, col_type in col_defs:
+                        if col_name not in interview_cols:
+                            conn.execute(text(f"ALTER TABLE interviews ADD COLUMN {col_name} {col_type};"))
                     conn.commit()
         except Exception as mig_err:
             print(f"[INFO] Table alteration notice (e.g. SQLite or already present): {mig_err}")
