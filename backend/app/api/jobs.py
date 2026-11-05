@@ -34,265 +34,8 @@ from app.services.job_search_service import get_realtime_jobs
 router = APIRouter()
 
 # Comprehensive curated high-growth tech positions database
-TECH_JOBS_CATALOG = [
-    {
-        "id": "job_fe_1",
-        "title": "Senior Frontend Engineer (React / Next.js)",
-        "company": "Vercel Partner Labs",
-        "location": "San Francisco, CA",
-        "location_type": "Remote",
-        "salary_range": "$140,000 - $175,000",
-        "experience_level": "Senior",
-        "category": "Frontend",
-        "required_skills": ["React", "TypeScript", "Next.js", "Tailwind CSS", "GraphQL", "Jest", "Web Performance"],
-        "description": "Architect high-speed, accessible user interfaces using React 19 and Next.js App Router. Optimize Core Web Vitals, SSR caching, and client state pipelines.",
-        "posted_date": "2 days ago",
-        "company_url": "https://vercel.com/careers",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Senior+Frontend+Engineer+React+Next.js+Vercel",
-    },
-    {
-        "id": "job_be_1",
-        "title": "Backend Systems Engineer (Python / FastAPI)",
-        "company": "ScaleAI Infrastructure",
-        "location": "New York, NY",
-        "location_type": "Hybrid",
-        "salary_range": "$135,000 - $165,000",
-        "experience_level": "Mid-Level",
-        "category": "Backend",
-        "required_skills": ["Python", "FastAPI", "PostgreSQL", "Docker", "Redis", "Asyncio", "SQLAlchemy"],
-        "description": "Build high-throughput asynchronous REST APIs and microservices. Handle database connection pools, indexing, caching layers, and CI/CD pipelines.",
-        "posted_date": "1 day ago",
-        "company_url": "https://scale.com/careers",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Backend+Systems+Engineer+Python+FastAPI+Scale+AI",
-    },
-    {
-        "id": "job_ai_1",
-        "title": "AI / RAG Solutions Engineer",
-        "company": "Anthropic Partner Network",
-        "location": "Austin, TX",
-        "location_type": "Remote",
-        "salary_range": "$160,000 - $195,000",
-        "experience_level": "Senior",
-        "category": "AI/ML",
-        "required_skills": ["Python", "LangChain", "Vector Databases", "Embeddings", "PyTorch", "FastAPI", "ChromaDB"],
-        "description": "Design enterprise Retrieval-Augmented Generation (RAG) agents, semantic chunking pipelines, and LLM evaluation benchmarks with LangGraph.",
-        "posted_date": "Just now",
-        "company_url": "https://www.anthropic.com/careers",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=AI+RAG+Solutions+Engineer+Anthropic",
-    },
-    {
-        "id": "job_fs_1",
-        "title": "Full Stack Software Developer",
-        "company": "Fintech Streamline",
-        "location": "Chicago, IL",
-        "location_type": "Remote",
-        "salary_range": "$125,000 - $155,000",
-        "experience_level": "Mid-Level",
-        "category": "Full Stack",
-        "required_skills": ["React", "Node.js", "Python", "TypeScript", "PostgreSQL", "Docker", "REST APIs"],
-        "description": "End-to-end feature ownership from reactive browser UI to database transactions. Implement authentication, Stripe payments, and automated test suites.",
-        "posted_date": "3 days ago",
-        "company_url": "https://stripe.com/jobs",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Full+Stack+Software+Developer+Stripe",
-    },
-    {
-        "id": "job_do_1",
-        "title": "Cloud DevOps & Platform Engineer",
-        "company": "CloudNative Solutions",
-        "location": "Seattle, WA",
-        "location_type": "Remote",
-        "salary_range": "$145,000 - $180,000",
-        "experience_level": "Senior",
-        "category": "DevOps",
-        "required_skills": ["Kubernetes", "Docker", "AWS", "Terraform", "GitHub Actions", "Linux", "CI/CD"],
-        "description": "Manage multi-cluster Kubernetes infrastructure, Terraform Infrastructure-as-Code (IaC), zero-trust security policies, and Prometheus monitoring.",
-        "posted_date": "4 days ago",
-        "company_url": "https://www.cncf.io/",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Cloud+DevOps+Platform+Engineer+Kubernetes",
-    },
-    {
-        "id": "job_da_1",
-        "title": "Data Analyst & Business Intelligence",
-        "company": "Metropolitan Analytics",
-        "location": "Boston, MA",
-        "location_type": "Hybrid",
-        "salary_range": "$95,000 - $125,000",
-        "experience_level": "Mid-Level",
-        "category": "Data",
-        "required_skills": ["SQL", "Python", "Pandas", "Tableau", "Power BI", "Data Modeling", "Excel"],
-        "description": "Deliver executive KPI dashboards, customer retention cohort analyses, and automated SQL ETL pipelines from data lakes.",
-        "posted_date": "2 days ago",
-        "company_url": "https://www.snowflake.com/en/company/careers/",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Data+Analyst+Business+Intelligence+Snowflake",
-    },
-    {
-        "id": "job_fe_2",
-        "title": "Frontend UI/UX Developer",
-        "company": "DesignCraft Studios",
-        "location": "Denver, CO",
-        "location_type": "Onsite",
-        "salary_range": "$105,000 - $130,000",
-        "experience_level": "Junior",
-        "category": "Frontend",
-        "required_skills": ["HTML5", "CSS3", "JavaScript", "React", "Figma", "Responsive Design", "Git"],
-        "description": "Transform high-fidelity Figma components into pixel-perfect, accessible React components with smooth CSS micro-animations.",
-        "posted_date": "5 days ago",
-        "company_url": "https://www.figma.com/careers/",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Frontend+UI+UX+Developer+React+Figma",
-    },
-    {
-        "id": "job_be_2",
-        "title": "Distributed Systems Architect",
-        "company": "HyperScale Cloud",
-        "location": "San Jose, CA",
-        "location_type": "Remote",
-        "salary_range": "$180,000 - $220,000",
-        "experience_level": "Lead",
-        "category": "Backend",
-        "required_skills": ["Go", "Python", "Kafka", "PostgreSQL", "Microservices", "Redis", "gRPC"],
-        "description": "Lead architectural strategy for event-driven distributed streaming pipelines handling millions of events per second with high availability.",
-        "posted_date": "1 day ago",
-        "company_url": "https://www.datadoghq.com/careers/",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Distributed+Systems+Architect+Datadog",
-    },
-    {
-        "id": "job_se_1",
-        "title": "Software Engineer (Backend / Systems)",
-        "company": "Google Engineering",
-        "location": "Mountain View, CA",
-        "location_type": "Hybrid",
-        "salary_range": "$150,000 - $200,000",
-        "experience_level": "Mid-Level",
-        "category": "Software Engineer",
-        "required_skills": ["Python", "Java", "Data Structures", "Algorithms", "System Design", "SQL", "Git", "Testing"],
-        "description": "Design and implement scalable backend services, optimize algorithms for large-scale data processing, and lead code quality initiatives.",
-        "posted_date": "1 day ago",
-        "company_url": "https://careers.google.com/",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Software+Engineer+Backend+Google",
-    },
-    {
-        "id": "job_se_2",
-        "title": "Senior Software Engineer (Platform)",
-        "company": "Stripe Engineering",
-        "location": "San Francisco, CA",
-        "location_type": "Remote",
-        "salary_range": "$175,000 - $220,000",
-        "experience_level": "Senior",
-        "category": "Software Engineer",
-        "required_skills": ["Python", "JavaScript", "REST API", "Docker", "CI/CD", "System Design", "PostgreSQL", "Testing"],
-        "description": "Build and scale mission-critical payment infrastructure serving millions of businesses. Focus on reliability, latency optimization, and API design.",
-        "posted_date": "2 days ago",
-        "company_url": "https://stripe.com/jobs",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Senior+Software+Engineer+Platform+Stripe",
-    },
-    {
-        "id": "job_ca_1",
-        "title": "Cloud Solutions Architect (AWS / GCP)",
-        "company": "Accenture Cloud First",
-        "location": "Dallas, TX",
-        "location_type": "Remote",
-        "salary_range": "$155,000 - $195,000",
-        "experience_level": "Senior",
-        "category": "Cloud",
-        "required_skills": ["AWS", "Terraform", "Kubernetes", "Docker", "Networking", "CI/CD", "Linux", "Serverless"],
-        "description": "Design multi-region cloud architectures, implement Infrastructure-as-Code automation, and lead enterprise cloud migration strategies.",
-        "posted_date": "3 days ago",
-        "company_url": "https://www.accenture.com/us-en/careers",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Cloud+Solutions+Architect+AWS+Accenture",
-    },
-    {
-        "id": "job_cs_1",
-        "title": "Cybersecurity Engineer (Offensive Security)",
-        "company": "CrowdStrike",
-        "location": "Austin, TX",
-        "location_type": "Remote",
-        "salary_range": "$135,000 - $175,000",
-        "experience_level": "Mid-Level",
-        "category": "Security",
-        "required_skills": ["Penetration Testing", "Python", "Linux", "Networking", "SIEM Tools", "Cloud Security", "Incident Response"],
-        "description": "Conduct penetration testing, develop threat detection rules, and build automated security monitoring pipelines for enterprise clients.",
-        "posted_date": "2 days ago",
-        "company_url": "https://www.crowdstrike.com/about/careers/",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Cybersecurity+Engineer+CrowdStrike",
-    },
-    {
-        "id": "job_qa_1",
-        "title": "Senior QA Automation Engineer",
-        "company": "Atlassian Quality",
-        "location": "Sydney, Australia",
-        "location_type": "Remote",
-        "salary_range": "$120,000 - $155,000",
-        "experience_level": "Senior",
-        "category": "QA",
-        "required_skills": ["Selenium/Cypress", "Python", "JavaScript", "API Testing", "CI/CD", "Git", "Performance Testing"],
-        "description": "Build and maintain comprehensive E2E test automation suites, integrate quality gates into CI/CD pipelines, and champion shift-left testing culture.",
-        "posted_date": "4 days ago",
-        "company_url": "https://www.atlassian.com/company/careers",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=QA+Automation+Engineer+Atlassian",
-    },
-    {
-        "id": "job_ios_1",
-        "title": "Senior iOS Developer (SwiftUI)",
-        "company": "Apple Services",
-        "location": "Cupertino, CA",
-        "location_type": "Hybrid",
-        "salary_range": "$165,000 - $210,000",
-        "experience_level": "Senior",
-        "category": "Mobile",
-        "required_skills": ["Swift", "SwiftUI", "UIKit", "Core Data", "REST API", "Xcode", "Testing", "MVVM Architecture"],
-        "description": "Build and ship consumer-facing iOS applications using SwiftUI with focus on performance, accessibility, and Apple Human Interface Guidelines.",
-        "posted_date": "1 day ago",
-        "company_url": "https://www.apple.com/careers/",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Senior+iOS+Developer+SwiftUI+Apple",
-    },
-    {
-        "id": "job_and_1",
-        "title": "Android Developer (Kotlin / Jetpack Compose)",
-        "company": "Spotify Mobile",
-        "location": "Stockholm, Sweden",
-        "location_type": "Remote",
-        "salary_range": "$130,000 - $170,000",
-        "experience_level": "Mid-Level",
-        "category": "Mobile",
-        "required_skills": ["Kotlin", "Jetpack Compose", "Android SDK", "REST API", "Room Database", "Firebase", "Testing", "MVVM Architecture"],
-        "description": "Develop and maintain the Spotify Android app using modern Jetpack Compose UI, Kotlin Coroutines, and clean architecture patterns.",
-        "posted_date": "3 days ago",
-        "company_url": "https://www.lifeatspotify.com/",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Android+Developer+Kotlin+Jetpack+Compose+Spotify",
-    },
-    {
-        "id": "job_bc_1",
-        "title": "Blockchain Smart Contract Developer",
-        "company": "ConsenSys",
-        "location": "New York, NY",
-        "location_type": "Remote",
-        "salary_range": "$145,000 - $190,000",
-        "experience_level": "Senior",
-        "category": "Blockchain",
-        "required_skills": ["Solidity", "JavaScript", "Web3.js/Ethers.js", "Smart Contracts", "Security Auditing", "Git", "Testing"],
-        "description": "Design, develop, and audit Solidity smart contracts for DeFi protocols. Implement security best practices and gas optimization techniques.",
-        "posted_date": "2 days ago",
-        "company_url": "https://consensys.io/careers",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Blockchain+Smart+Contract+Developer+ConsenSys",
-    },
-    {
-        "id": "job_sre_1",
-        "title": "Site Reliability Engineer (SRE)",
-        "company": "Netflix Reliability",
-        "location": "Los Gatos, CA",
-        "location_type": "Remote",
-        "salary_range": "$170,000 - $220,000",
-        "experience_level": "Senior",
-        "category": "SRE",
-        "required_skills": ["Linux", "Python", "Kubernetes", "Docker", "Monitoring", "Terraform", "CI/CD", "Incident Response"],
-        "description": "Ensure 99.99% availability for Netflix streaming infrastructure. Build chaos engineering tooling, SLO dashboards, and automated incident response.",
-        "posted_date": "Just now",
-        "company_url": "https://jobs.netflix.com/",
-        "job_url": "https://www.linkedin.com/jobs/search/?keywords=Site+Reliability+Engineer+SRE+Netflix",
-    },
-]
+TECH_JOBS_CATALOG = []
 
-# User saved / applied job tracking storage (in-memory per session)
 USER_JOB_STATES = {}  # { f"{user_id}:{job_id}": { "saved": bool, "applied": bool } }
 
 
@@ -519,8 +262,52 @@ def apply_to_job(
     current_state["applied"] = True
     USER_JOB_STATES[state_key] = current_state
 
+    # Automatically add to user's live Applications Pipeline
+    from app.api.applications import USER_APPLICATIONS
+    uid = str(current_user.id)
+    if uid not in USER_APPLICATIONS:
+        USER_APPLICATIONS[uid] = []
+
+    # Find job info from catalog or cache
+    job_info = None
+    for j in TECH_JOBS_CATALOG:
+        if j["id"] == payload.job_id:
+            job_info = j
+            break
+    if not job_info:
+        from app.services.job_search_service import _JOB_CACHE
+        for entry in _JOB_CACHE.values():
+            for cj in entry.get("jobs", []):
+                if cj["id"] == payload.job_id:
+                    job_info = cj
+                    break
+            if job_info:
+                break
+
+    title = job_info.get("title", "Software Position") if job_info else "Software Position"
+    company = job_info.get("company", "Tech Company") if job_info else "Tech Company"
+    location = job_info.get("location", "Remote") if job_info else "Remote"
+    salary = job_info.get("salary_range", "Market Competitive") if job_info else "Market Competitive"
+    job_url = job_info.get("job_url", "") if job_info else ""
+
+    if not any(a.get("job_id") == payload.job_id for a in USER_APPLICATIONS[uid]):
+        import uuid
+        USER_APPLICATIONS[uid].insert(0, {
+            "id": f"app_{uuid.uuid4().hex[:8]}",
+            "job_id": payload.job_id,
+            "job_title": title,
+            "company_name": company,
+            "location": location,
+            "salary_range": salary,
+            "status": "applied",
+            "applied_date": "Just now",
+            "notes": "Applied with candidate profile and verified skills.",
+            "job_url": job_url,
+            "cover_letter": None,
+        })
+
     return {
         "job_id": payload.job_id,
         "status": "applied",
-        "message": "Application logged successfully! Check Mock Interview to prepare for candidate screening.",
+        "message": f"Successfully applied to {title} at {company}! Added to your Application Pipeline.",
     }

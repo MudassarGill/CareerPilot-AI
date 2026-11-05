@@ -14,6 +14,7 @@ import time
 from typing import List, Dict, Any, Optional
 from urllib.parse import quote_plus
 import httpx
+from app.config import settings
 
 # In-memory cache: { cache_key: { "timestamp": float, "jobs": List[Dict] } }
 _JOB_CACHE: Dict[str, Dict[str, Any]] = {}
@@ -180,6 +181,77 @@ def fetch_live_jobs_from_arbeitnow() -> List[Dict[str, Any]]:
     return []
 
 
+def fetch_live_jobs_from_jsearch(query: str, rapidapi_key: str) -> List[Dict[str, Any]]:
+    """Fetch live real-world jobs from JSearch RapidAPI (LinkedIn, Indeed, Glassdoor)."""
+    if not rapidapi_key or not rapidapi_key.strip():
+        return []
+    
+    url = "https://jsearch.p.rapidapi.com/search"
+    headers = {
+        "X-RapidAPI-Key": rapidapi_key.strip(),
+        "X-RapidAPI-Host": "jsearch.p.rapidapi.com",
+    }
+    params = {
+        "query": query or "software developer",
+        "page": "1",
+        "num_pages": "1",
+    }
+    try:
+        with httpx.Client(timeout=8.0) as client:
+            resp = client.get(url, headers=headers, params=params)
+            if resp.status_code == 200:
+                data = resp.json()
+                results = []
+                for item in data.get("data", []):
+                    title = item.get("job_title", "Software Engineer")
+                    company = item.get("employer_name", "Technology Employer")
+                    city = item.get("job_city") or ""
+                    country = item.get("job_country") or ""
+                    location = f"{city}, {country}".strip(", ") or "Remote"
+                    is_remote = item.get("job_is_remote", False)
+                    location_type = "Remote" if is_remote else "Hybrid"
+                    
+                    min_sal = item.get("job_min_salary")
+                    max_sal = item.get("job_max_salary")
+                    currency = item.get("job_salary_currency") or "$"
+                    if min_sal and max_sal:
+                        salary = f"{currency}{int(min_sal):,} - {currency}{int(max_sal):,}"
+                    elif min_sal:
+                        salary = f"{currency}{int(min_sal):,}+"
+                    else:
+                        salary = format_live_salary(None, infer_experience_level(title))
+                        
+                    desc = clean_html(item.get("job_description"))
+                    skills = []
+                    reqs = item.get("job_required_skills") or []
+                    if isinstance(reqs, list):
+                        skills.extend(reqs)
+                    if not skills:
+                        skills = [infer_category(title, []), "Git", "REST APIs", "Problem Solving"]
+                        
+                    results.append({
+                        "id": f"jsearch_{item.get('job_id', int(time.time()))}",
+                        "title": title,
+                        "company": company,
+                        "location": location,
+                        "location_type": location_type,
+                        "salary_range": salary,
+                        "experience_level": infer_experience_level(title),
+                        "category": infer_category(title, skills),
+                        "required_skills": skills[:8],
+                        "description": desc,
+                        "posted_date": "Live Today",
+                        "company_url": item.get("employer_website") or f"https://www.google.com/search?q={quote_plus(company + ' careers')}",
+                        "job_url": item.get("job_apply_link") or item.get("job_google_link") or f"https://www.google.com/search?q={quote_plus(title + ' ' + company + ' jobs')}",
+                        "google_jobs_url": item.get("job_google_link") or f"https://www.google.com/search?q={quote_plus(title + ' ' + company + ' jobs')}&ibp=htl;jobs",
+                        "linkedin_jobs_url": f"https://www.linkedin.com/jobs/search/?keywords={quote_plus(title + ' ' + company)}",
+                    })
+                return results
+    except Exception as exc:
+        print(f"[WARN] JSearch API fetch warning: {exc}")
+    return []
+
+
 def get_realtime_jobs(
     search_query: Optional[str] = None,
     user_skills: Optional[List[str]] = None,
@@ -192,32 +264,40 @@ def get_realtime_jobs(
     """
     clean_search = (search_query or "").strip().lower()
     clean_cat = (category or "").strip().lower()
-    cache_key = f"{clean_search}:{clean_cat}"
+    skills_seed = ",".join(sorted(user_skills[:4])) if user_skills else "none"
+    cache_key = f"{clean_search}:{clean_cat}:{skills_seed}"
 
     now = time.time()
     cached = _JOB_CACHE.get(cache_key)
     if cached and (now - cached["timestamp"] < CACHE_TTL_SECONDS):
         return cached["jobs"]
 
-    # 1. Determine keyword to search
+    # 1. Determine keyword from user resume skills or search query
     query_keyword = clean_search
     if not query_keyword and clean_cat and clean_cat != "all":
         query_keyword = clean_cat
     elif not query_keyword and user_skills:
-        # Use top user skills as search seed
-        top_skills = [s for s in user_skills if len(s) > 2]
-        if top_skills:
-            query_keyword = top_skills[0]
+        query_keyword = user_skills[0] if user_skills else "software engineer"
+    elif not query_keyword:
+        query_keyword = "software engineer"
 
-    # 2. Fetch live jobs
-    live_jobs = fetch_live_jobs_from_remotive(query_keyword)
+    live_jobs = []
+
+    # Priority 1: If RAPIDAPI_KEY is configured, fetch live jobs from JSearch
+    if getattr(settings, "RAPIDAPI_KEY", None):
+        live_jobs.extend(fetch_live_jobs_from_jsearch(query_keyword, settings.RAPIDAPI_KEY))
+
+    # Priority 2: Fetch live jobs from Remotive public API
+    if len(live_jobs) < 15:
+        remotive_jobs = fetch_live_jobs_from_remotive(query_keyword)
+        live_jobs.extend(remotive_jobs)
     
-    # If fewer than 10 results, supplement with Arbeitnow feed
+    # Priority 3: Supplement with Arbeitnow live feed
     if len(live_jobs) < 15:
         arbeit_jobs = fetch_live_jobs_from_arbeitnow()
         live_jobs.extend(arbeit_jobs)
 
-    # 3. If live feeds failed (e.g. offline/isolated machine), fallback to baseline
+    # 4. If live feeds failed (e.g. offline machine), fallback to baseline
     if not live_jobs:
         live_jobs = _get_resilient_baseline_jobs(user_skills or [])
 

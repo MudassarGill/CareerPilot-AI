@@ -46,6 +46,11 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     # OPENAI_API_KEY: str = ""  # Optional fallback
 
+    # ---- Real-time Job Search API Keys ----
+    RAPIDAPI_KEY: str = ""
+    ADZUNA_APP_ID: str = ""
+    ADZUNA_APP_KEY: str = ""
+
     # ---- JWT Authentication ----
     SECRET_KEY: str = "change-me-in-production"
     ALGORITHM: str = "HS256"
@@ -65,6 +70,7 @@ class Settings(BaseSettings):
         "http://127.0.0.1:5173",
         "http://localhost:5174",
         "http://127.0.0.1:5174",
+        "https://career-pilot-ai-delta-seven.vercel.app",
     ]
 
     # ---- Redis ----

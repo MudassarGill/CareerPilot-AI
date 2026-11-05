@@ -114,7 +114,21 @@ export default function JobsView({ onNavigate }) {
 
       {/* Notifications */}
       {error && <div className="feedback-banner feedback-banner--error">{error}</div>}
-      {success && <div className="feedback-banner feedback-banner--success">{success}</div>}
+      {success && (
+        <div className="feedback-banner feedback-banner--success" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span>{success}</span>
+          {onNavigate && (
+            <button
+              type="button"
+              className="btn-secondary btn-sm"
+              style={{ marginLeft: "1rem", whiteSpace: "nowrap" }}
+              onClick={() => onNavigate("applications")}
+            >
+              Open Applications Pipeline →
+            </button>
+          )}
+        </div>
+      )}
 
       {/* ── Market Readiness Summary Cards (Phase 5+) ── */}
       {summary && (
@@ -373,10 +387,9 @@ export default function JobsView({ onNavigate }) {
                     <button
                       type="button"
                       className="btn-primary btn-sm"
-                      onClick={() => handleApply(job.id)}
-                      disabled={job.status === "applied"}
+                      onClick={() => job.status === "applied" && onNavigate ? onNavigate("applications") : handleApply(job.id)}
                     >
-                      {job.status === "applied" ? "Application Logged" : "Quick Apply"}
+                      {job.status === "applied" ? "✓ Applied • View in Pipeline →" : "Quick Apply"}
                     </button>
                   </div>
                 </div>

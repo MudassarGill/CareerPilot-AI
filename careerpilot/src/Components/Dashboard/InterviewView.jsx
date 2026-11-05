@@ -313,10 +313,17 @@ export default function InterviewView({ onNavigate }) {
       return;
     }
 
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.resume();
+    } catch {
+      // ignore
+    }
+
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.95;
+    utterance.rate = 1.0;
     utterance.pitch = 1.0;
+    utterance.volume = 1.0;
 
     // Pick appropriate browser voice
     const voices = window.speechSynthesis.getVoices();
@@ -328,7 +335,7 @@ export default function InterviewView({ onNavigate }) {
         if (maleVoice) utterance.voice = maleVoice;
       } else {
         const femaleVoice = voices.find(
-          (v) => v.lang.startsWith("en") && (v.name.includes("Female") || v.name.includes("Samantha") || v.name.includes("Zira") || v.name.includes("Google US English"))
+          (v) => v.lang.startsWith("en") && (v.name.includes("Female") || v.name.includes("Samantha") || v.name.includes("Zira") || v.name.includes("Google US English") || v.name.includes("Natural"))
         );
         if (femaleVoice) utterance.voice = femaleVoice;
       }
@@ -354,6 +361,12 @@ export default function InterviewView({ onNavigate }) {
     };
 
     window.speechSynthesis.speak(utterance);
+    // Extra safety for Chrome autoplay resume
+    setTimeout(() => {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }, 100);
   }
 
   // Speech-To-Text for Candidate Answer
@@ -1344,7 +1357,7 @@ export default function InterviewView({ onNavigate }) {
                   <span className="statusbar-role">{session.role}</span>
                   <span className="statusbar-format-pill">{session.interview_type}</span>
                   {interviewPhase === "warmup" ? (
-                    <span className="statusbar-progress">Interactive Warm-Up Phase</span>
+                    <span className="statusbar-progress">Live Session Active</span>
                   ) : (
                     <span className="statusbar-progress">
                       Question {currentIndex + 1} of {session.questions.length}
@@ -1482,7 +1495,7 @@ export default function InterviewView({ onNavigate }) {
                 <div className="interview-warmup-card">
                   <div className="warmup-card-header">
                     <div className="warmup-header-title-row">
-                      <span className="section-pill">Interactive Warm-Up Phase</span>
+                      <span className="section-pill">Live Candidate Introduction</span>
                       <span className="warmup-live-indicator">Voice Call Active (English & Urdu)</span>
                     </div>
                     <h3 className="warmup-title">Meet Your AI Interviewer & Self Introduction</h3>

@@ -107,8 +107,7 @@ def list_applications(current_user: User = Depends(get_current_user)):
     """Retrieve all tracked job applications for current user."""
     uid = str(current_user.id)
     if uid not in USER_APPLICATIONS:
-        # Initialize with structured starter items
-        USER_APPLICATIONS[uid] = [dict(item) for item in DEFAULT_APPLICATIONS]
+        USER_APPLICATIONS[uid] = []
     return [ApplicationItem(**item) for item in USER_APPLICATIONS[uid]]
 
 

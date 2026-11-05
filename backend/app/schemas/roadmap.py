@@ -8,7 +8,7 @@ and weekly milestone completion system.
 """
 
 from pydantic import BaseModel, ConfigDict
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from uuid import UUID
 
@@ -23,8 +23,8 @@ class LearningStepResource(BaseModel):
 
 class LearningStepSchema(BaseModel):
     """Schema for individual learning roadmap steps."""
-    id: UUID
-    roadmap_id: UUID
+    id: Union[UUID, str]
+    roadmap_id: Union[UUID, str]
     title: str
     position: int
     status: str  # "pending" | "in_progress" | "done"
@@ -40,8 +40,8 @@ class LearningStepSchema(BaseModel):
 
 class LearningRoadmapSchema(BaseModel):
     """Schema for a complete personalized learning roadmap."""
-    id: UUID
-    user_id: UUID
+    id: Union[UUID, str]
+    user_id: Union[UUID, str]
     title: str
     target_role: Optional[str] = None
     progress_pct: float = 0.0

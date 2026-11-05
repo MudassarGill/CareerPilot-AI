@@ -32,7 +32,7 @@ export default function AIAvatarInterviewer({
   const breathPhaseRef = useRef(0);
 
   const personas = {
-    sarah: {
+    Mudassar : {
       name: "Mudassar Hussain",
       role: "Lead Technical Recruiter & Talent Partner",
       badge: "AI HR INTERVIEWER",
@@ -41,7 +41,7 @@ export default function AIAvatarInterviewer({
       accentColor: "#f97316",
       suitColor: "#1e293b",
     },
-    marcus: {
+    Hussnina: {
       name: "Hussnina Khan",
       role: "VP of Engineering & Systems Architect",
       badge: "AI HR INTERVIEWER",

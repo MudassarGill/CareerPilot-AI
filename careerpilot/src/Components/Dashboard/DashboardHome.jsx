@@ -115,11 +115,11 @@ const galleryBoxes = [
 function DashboardHome({ user, onNavigate }) {
   const [greeting, setGreeting] = useState("Good day");
   const [crs, setCrs] = useState({
-    score: 87,
-    resume_part: 92,
-    skills_part: 84,
-    interview_part: 85,
-    percentile_label: "Top 10%",
+    score: 0,
+    resume_part: 0,
+    skills_part: 0,
+    interview_part: 0,
+    percentile_label: "New Profile",
   });
 
   useEffect(() => {
@@ -172,6 +172,33 @@ function DashboardHome({ user, onNavigate }) {
   const circumference = 276.46;
   const scoreVal = Math.round(crs.score || 0);
   const strokeOffset = circumference * (1 - Math.min(Math.max(scoreVal, 0), 100) / 100);
+
+  const dynamicHighlightBoxes = [
+    {
+      id: 1,
+      number: scoreVal > 0 ? `${scoreVal}%` : "0%",
+      label: "ATS & Career Readiness",
+      desc: "Evaluated across resume parsing, keyword density, and mock interview performance.",
+      badge: scoreVal >= 70 ? "Strong Candidate" : "Getting Started",
+      trend: scoreVal > 0 ? "Real-time Score" : "Awaiting Actions",
+    },
+    {
+      id: 2,
+      number: "0",
+      label: "Active Job Applications",
+      desc: "Tracked across top tech roles with real-time recruiter response analytics.",
+      badge: "Pipeline Ready",
+      trend: "Ready to Apply",
+    },
+    {
+      id: 3,
+      number: crs.skills_part > 0 ? `${Math.round(crs.skills_part)}%` : "0%",
+      label: "Verified Industry Skills",
+      desc: "Validated competencies across target roadmaps with upcoming milestones.",
+      badge: "Skill Matching",
+      trend: "Explore Roadmap",
+    },
+  ];
 
   return (
     <div className="dashboard-content">
@@ -260,7 +287,9 @@ function DashboardHome({ user, onNavigate }) {
                 <p className="score-card__desc">Calculated across Resume, ATS, Skills & Mock Interviews</p>
                 <div className="score-status-indicator">
                   <span className="status-dot-pulse" />
-                  <span className="status-text">Strong Candidate Profile</span>
+                  <span className="status-text">
+                    {scoreVal > 0 ? (scoreVal >= 75 ? "Strong Candidate Profile" : "Developing Candidate Profile") : "New Candidate Profile (Upload resume to begin)"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -291,7 +320,7 @@ function DashboardHome({ user, onNavigate }) {
       {/* ── 3 Highlight Boxes (Styled Numbers + Deep Glowing Hover Shadow) ── */}
       <section className="three-boxes-section">
         <div className="three-boxes-grid">
-          {highlightBoxes.map((box) => (
+          {dynamicHighlightBoxes.map((box) => (
             <div key={box.id} className="highlight-box-card">
               <div className="highlight-box__top">
                 <span className="highlight-box__badge">{box.badge}</span>
