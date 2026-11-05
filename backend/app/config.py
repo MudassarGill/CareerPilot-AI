@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
 
     # ---- Database ----
-    DATABASE_URL: str = "postgresql://career_ai_user:Mudassar1565%40@localhost:5432/career_ai_authication"
+    DATABASE_URL: str = "postgresql://neondb_owner:npg_if3vz4XPUOFV@ep-billowing-poetry-be91r04d-pooler.c-9.us-east-2.aws.neon.tech/neondb?sslmode=require"
 
     # ---- ChromaDB Vector Store ----
     CHROMA_PERSIST_DIR: str = "./data/chroma_db"
