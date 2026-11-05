@@ -85,6 +85,13 @@ async def upload_resume(
     db.commit()
     db.refresh(resume_record)
 
+    # Recalculate candidate CRS immediately with new resume ATS score
+    try:
+        from app.services.readiness_service import calculate_readiness_score
+        calculate_readiness_score(db, current_user.id)
+    except Exception as crs_err:
+        print(f"[WARN] Error updating CRS on resume upload: {crs_err}")
+
     return ResumeUploadResponse(
         id=resume_record.id,
         original_name=resume_record.original_name,
@@ -260,6 +267,13 @@ async def score_resume_ats(
     }
     resume.status = "optimized"
     db.commit()
+
+    # Recalculate candidate CRS with new ATS compatibility match
+    try:
+        from app.services.readiness_service import calculate_readiness_score
+        calculate_readiness_score(db, current_user.id)
+    except Exception as crs_err:
+        print(f"[WARN] Error updating CRS on resume scan: {crs_err}")
 
     return ATSScoreResponse(
         resume_id=resume.id,

@@ -5,7 +5,9 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || "";
 
 function getAuthHeaders() {
-  const token = sessionStorage.getItem("careerpilot_access_token");
+  const token =
+    sessionStorage.getItem("careerpilot_access_token") ||
+    localStorage.getItem("careerpilot_access_token");
   const headers = {
     "Content-Type": "application/json",
     Accept: "application/json",

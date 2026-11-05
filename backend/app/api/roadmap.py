@@ -251,7 +251,10 @@ async def generate_roadmap(
         db.commit()
 
     # 7. Recalculate CRS
-    calculate_readiness_score(db, str(current_user.id))
+    try:
+        calculate_readiness_score(db, current_user.id)
+    except Exception as crs_err:
+        print(f"[WARN] CRS calculation notice: {crs_err}")
 
     return _format_roadmap_response(new_roadmap, created_steps)
 

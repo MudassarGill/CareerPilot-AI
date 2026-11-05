@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import FAQSection from "./FAQSection";
 import { getCRSScore } from "../../services/crs";
+import { getApplications } from "../../services/applications";
 
 /* ── Asset box & hero images ── */
 import box01 from "../../assets/box-01.jpg";
@@ -114,6 +115,7 @@ const galleryBoxes = [
 
 function DashboardHome({ user, onNavigate }) {
   const [greeting, setGreeting] = useState("Good day");
+  const [appsCount, setAppsCount] = useState(0);
   const [crs, setCrs] = useState({
     score: 0,
     resume_part: 0,
@@ -160,6 +162,14 @@ function DashboardHome({ user, onNavigate }) {
       .catch(() => {
         // keep fallback default
       });
+
+    getApplications()
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setAppsCount(data.length);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   function handleCardClick(id) {
@@ -176,6 +186,7 @@ function DashboardHome({ user, onNavigate }) {
   const dynamicHighlightBoxes = [
     {
       id: 1,
+      target: "resume",
       number: scoreVal > 0 ? `${scoreVal}%` : "0%",
       label: "ATS & Career Readiness",
       desc: "Evaluated across resume parsing, keyword density, and mock interview performance.",
@@ -184,14 +195,16 @@ function DashboardHome({ user, onNavigate }) {
     },
     {
       id: 2,
-      number: "0",
+      target: "applications",
+      number: String(appsCount),
       label: "Active Job Applications",
       desc: "Tracked across top tech roles with real-time recruiter response analytics.",
-      badge: "Pipeline Ready",
-      trend: "Ready to Apply",
+      badge: appsCount > 0 ? `${appsCount} In Pipeline` : "Pipeline Ready",
+      trend: appsCount > 0 ? "Track Applications" : "Ready to Apply",
     },
     {
       id: 3,
+      target: "roadmap",
       number: crs.skills_part > 0 ? `${Math.round(crs.skills_part)}%` : "0%",
       label: "Verified Industry Skills",
       desc: "Validated competencies across target roadmaps with upcoming milestones.",
@@ -321,7 +334,13 @@ function DashboardHome({ user, onNavigate }) {
       <section className="three-boxes-section">
         <div className="three-boxes-grid">
           {dynamicHighlightBoxes.map((box) => (
-            <div key={box.id} className="highlight-box-card">
+            <div
+              key={box.id}
+              className="highlight-box-card"
+              onClick={() => handleCardClick(box.target || "resume")}
+              style={{ cursor: "pointer" }}
+              title={`Open ${box.label}`}
+            >
               <div className="highlight-box__top">
                 <span className="highlight-box__badge">{box.badge}</span>
                 <span className="highlight-box__trend">{box.trend}</span>

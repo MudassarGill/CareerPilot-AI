@@ -59,7 +59,16 @@ def get_crs_score(
     )
 
     # Calculate latest score
-    latest_score = calculate_readiness_score(db, str(current_user.id))
+    latest_score = calculate_readiness_score(db, current_user.id)
+    if not latest_score:
+        latest_score = CareerReadinessScore(
+            user_id=current_user.id,
+            score=0.0,
+            skills_part=0.0,
+            resume_part=0.0,
+            interview_part=0.0,
+            learning_part=0.0,
+        )
 
     trend = 0
     if scores:

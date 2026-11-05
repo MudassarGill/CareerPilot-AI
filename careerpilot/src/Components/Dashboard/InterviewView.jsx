@@ -147,10 +147,19 @@ export default function InterviewView({ onNavigate }) {
   async function startCamera() {
     try {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 640 }, height: { ideal: 480 } },
-          audio: true,
-        });
+        let stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 640 }, height: { ideal: 480 } },
+            audio: true,
+          });
+        } catch (mediaErr) {
+          // If mic failed or blocked, connect video stream directly
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: { ideal: 640 }, height: { ideal: 480 } },
+          });
+        }
+
         mediaStreamRef.current = stream;
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
@@ -160,7 +169,7 @@ export default function InterviewView({ onNavigate }) {
     } catch (err) {
       console.warn("Could not access camera/mic:", err);
       setCameraActive(false);
-      setError("Webcam access denied or unavailable. You can still continue using voice dictation or text.");
+      setError("Webcam access denied or unavailable. Please click 'Connect Camera' or check browser permissions.");
     }
   }
 
@@ -328,16 +337,16 @@ export default function InterviewView({ onNavigate }) {
     // Pick appropriate browser voice
     const voices = window.speechSynthesis.getVoices();
     if (voices && voices.length > 0) {
-      if (interviewerPersona === "marcus") {
-        const maleVoice = voices.find(
-          (v) => v.lang.startsWith("en") && (v.name.includes("Male") || v.name.includes("David") || v.name.includes("George"))
-        );
-        if (maleVoice) utterance.voice = maleVoice;
+      if (interviewerPersona === "marcus" || interviewerPersona === "hussnain") {
+        const voice = voices.find(
+          (v) => v.lang.startsWith("en") && (v.name.includes("David") || v.name.includes("Male") || v.name.includes("George"))
+        ) || voices.find((v) => v.lang.startsWith("en"));
+        if (voice) utterance.voice = voice;
       } else {
-        const femaleVoice = voices.find(
-          (v) => v.lang.startsWith("en") && (v.name.includes("Female") || v.name.includes("Samantha") || v.name.includes("Zira") || v.name.includes("Google US English") || v.name.includes("Natural"))
-        );
-        if (femaleVoice) utterance.voice = femaleVoice;
+        const voice = voices.find(
+          (v) => v.lang.startsWith("en") && (v.name.includes("Google US English") || v.name.includes("Guy") || v.name.includes("Natural") || v.name.includes("Male"))
+        ) || voices.find((v) => v.lang.startsWith("en"));
+        if (voice) utterance.voice = voice;
       }
     }
 
