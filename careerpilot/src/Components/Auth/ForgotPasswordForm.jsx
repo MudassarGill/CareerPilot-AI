@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+import { API_BASE_URL } from "../../services/apiConfig";
 
 function ForgotPasswordForm({ onBackToLogin }) {
   const [email, setEmail] = useState("");

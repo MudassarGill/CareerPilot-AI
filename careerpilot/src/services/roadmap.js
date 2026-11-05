@@ -2,7 +2,7 @@
 // CareerPilot AI — Learning Roadmap & Milestones API Service (Phase 5)
 // ============================================================
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "";
+import { API_BASE_URL } from "./apiConfig";
 
 function getAuthHeaders() {
   const token =
