@@ -528,13 +528,26 @@ class InterviewAgent:
                 "observable_feedback": " ".join(notes),
             }
 
+        if not clean_text or word_count == 0:
+            return {
+                "score": 0.0,
+                "feedback": "No answer was provided. Please speak or write a response to this question to receive evaluation and feedback.",
+                "matched_keywords": [],
+                "missing_keywords": question_dict.get("expected_keywords", [])[:5],
+                "clarity_score": 0.0,
+                "pacing_feedback": "No response recorded.",
+                "behavioral_insights": behavioral_insights,
+                "speech_analysis": speech_analysis,
+                "avatar_latency_ms": avatar_latency_ms,
+            }
+
         if word_count < 5:
             return {
-                "score": 15.0,
+                "score": 10.0,
                 "feedback": "Answer was too brief. Elaborate with specific technical principles, concrete examples, and trade-offs.",
                 "matched_keywords": [],
                 "missing_keywords": question_dict.get("expected_keywords", [])[:5],
-                "clarity_score": 20.0,
+                "clarity_score": 15.0,
                 "pacing_feedback": "Rushed response. Take time to structure your thoughts using the STAR or Problem-Solution pattern.",
                 "behavioral_insights": behavioral_insights,
                 "speech_analysis": speech_analysis,
@@ -552,11 +565,13 @@ class InterviewAgent:
             else:
                 missing.append(kw)
 
-        keyword_ratio = len(matched) / len(expected_kws) if expected_kws else 0.7
-        keyword_score = min(keyword_ratio * 40.0, 40.0)
+        keyword_ratio = len(matched) / len(expected_kws) if expected_kws else 0.0
+        keyword_score = round(keyword_ratio * 40.0, 1)
 
-        # 2. Depth & Detail (0 - 30 points)
-        if word_count < 20:
+        # 2. Depth & Detail (0 - 30 points) - only awarded if candidate touches on topic
+        if len(matched) == 0:
+            depth_score = min(8.0, float(word_count) * 0.2)
+        elif word_count < 20:
             depth_score = 12.0
         elif word_count < 40:
             depth_score = 22.0
@@ -566,10 +581,15 @@ class InterviewAgent:
             depth_score = 25.0  # slightly long-winded
 
         # 3. Clarity & Structure (0 - 30 points)
-        clarity_score = min(18.0 + (structure_count * 3.0), 30.0)
+        if len(matched) == 0 and word_count < 15:
+            clarity_score = 5.0
+        else:
+            clarity_score = min(15.0 + (structure_count * 3.0), 30.0)
 
         total_score = round(keyword_score + depth_score + clarity_score, 1)
-        total_score = max(min(total_score, 100.0), 10.0)
+        if len(matched) == 0 and word_count < 25:
+            total_score = min(total_score, 15.0)
+        total_score = max(min(total_score, 100.0), 0.0)
 
         # Pacing feedback
         if duration_sec > 0:

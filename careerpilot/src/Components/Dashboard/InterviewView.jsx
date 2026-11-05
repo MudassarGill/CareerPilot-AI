@@ -21,6 +21,7 @@ export default function InterviewView({ onNavigate }) {
   const [questionCount, setQuestionCount] = useState(5);
   const [difficulty, setDifficulty] = useState("mid");
   const [interviewerPersona, setInterviewerPersona] = useState("sarah"); // "sarah" | "marcus"
+  const [interviewLanguage, setInterviewLanguage] = useState("en"); // "en" | "ur"
 
   // Consent & Permission Modal
   const [isConsentModalOpen, setIsConsentModalOpen] = useState(false);
@@ -232,9 +233,16 @@ export default function InterviewView({ onNavigate }) {
       resetAggregator();
       setAvatarState("idle");
 
-      const initialGreeting = interviewerPersona === "marcus"
-        ? `Hello! I am Hussnain Khan, VP of Engineering. Welcome to your interview session for the ${newSession.role} position. Before we dive into technical architecture, could you please introduce yourself and tell me a bit about your background?`
-        : `Hello! I am Mudassar Hussain, your lead interviewer for today's session. It's wonderful to meet you! Before we start our technical questions for ${newSession.role}, could you please introduce yourself and tell me a bit about your background?`;
+      let initialGreeting = "";
+      if (interviewLanguage === "ur") {
+        initialGreeting = interviewerPersona === "marcus"
+          ? `Assalam-o-Alaikum! Main Hussnain Khan hoon, VP of Engineering. ${newSession.role} position ke interview session me khush-amdeed! Sawalat shuru karne se pehle, kya aap apna mukhtasar ta'aruf karwa saktay hain?`
+          : `Assalam-o-Alaikum! Main Mudassar Hussain hoon, aapka lead interviewer. Aapse mil kar bohot khushi hui! ${newSession.role} ke sawalat shuru karne se pehle, kya aap apna thora ta'aruf karwayen ge?`;
+      } else {
+        initialGreeting = interviewerPersona === "marcus"
+          ? `Hello! I am Hussnain Khan, VP of Engineering. Welcome to your interview session for the ${newSession.role} position. Before we dive into technical architecture, could you please introduce yourself and tell me a bit about your background?`
+          : `Hello! I am Mudassar Hussain, your lead interviewer for today's session. It's wonderful to meet you! Before we start our technical questions for ${newSession.role}, could you please introduce yourself and tell me a bit about your background?`;
+      }
 
       setWarmupMessages([
         { sender: "avatar", text: initialGreeting, time: "Just now" }
@@ -378,7 +386,7 @@ export default function InterviewView({ onNavigate }) {
     }, 100);
   }
 
-  // Speech-To-Text for Candidate Answer
+  // Speech-To-Text for Candidate Answer (Bilingual & Non-duplicating)
   function handleToggleVoiceDictation() {
     const SpeechRecognition =
       window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -400,7 +408,12 @@ export default function InterviewView({ onNavigate }) {
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = "en-US";
+      // Bilingual dictation support: Urdu Pakistan vs English US
+      recognition.lang = interviewLanguage === "ur" ? "ur-PK" : "en-US";
+
+      // Snapshot the pre-existing text before dictation starts
+      const initialSeedText = (interviewPhase === "warmup" ? warmupInput : answerText).trim();
+      let finalizedSessionText = "";
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -408,20 +421,25 @@ export default function InterviewView({ onNavigate }) {
       };
 
       recognition.onresult = (event) => {
-        let transcript = "";
+        let interimText = "";
         for (let i = event.resultIndex; i < event.results.length; ++i) {
-          transcript += event.results[i][0].transcript;
+          const res = event.results[i];
+          if (res.isFinal) {
+            finalizedSessionText += res[0].transcript + " ";
+          } else {
+            interimText += res[0].transcript;
+          }
         }
+
+        // Build clean combined sentence without duplicates or repetition
+        const combined = [initialSeedText, finalizedSessionText.trim(), interimText.trim()]
+          .filter(Boolean)
+          .join(" ");
+
         if (interviewPhase === "warmup") {
-          setWarmupInput((prev) => {
-            const separator = prev.length && !prev.endsWith(" ") ? " " : "";
-            return prev + separator + transcript;
-          });
+          setWarmupInput(combined);
         } else {
-          setAnswerText((prev) => {
-            const separator = prev.length && !prev.endsWith(" ") ? " " : "";
-            return prev + separator + transcript;
-          });
+          setAnswerText(combined);
         }
       };
 
@@ -1275,6 +1293,43 @@ export default function InterviewView({ onNavigate }) {
                       <div>
                         <strong>Text & Speech Studio</strong>
                         <span>Type or dictate answers with browser text-to-speech</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="setup-form-group">
+                  <label className="setup-label">Interview Language / بات چیت کی زبان:</label>
+                  <div className="format-options-row">
+                    <label
+                      className={`format-option ${interviewLanguage === "en" ? "format-option--selected" : ""}`}
+                    >
+                      <input
+                        type="radio"
+                        name="interviewLanguage"
+                        value="en"
+                        checked={interviewLanguage === "en"}
+                        onChange={() => setInterviewLanguage("en")}
+                      />
+                      <div>
+                        <strong>English (US / UK)</strong>
+                        <span>Spoken English interviewer questions, dictation, and technical feedback</span>
+                      </div>
+                    </label>
+
+                    <label
+                      className={`format-option ${interviewLanguage === "ur" ? "format-option--selected" : ""}`}
+                    >
+                      <input
+                        type="radio"
+                        name="interviewLanguage"
+                        value="ur"
+                        checked={interviewLanguage === "ur"}
+                        onChange={() => setInterviewLanguage("ur")}
+                      />
+                      <div>
+                        <strong>Urdu & Roman Urdu (اردو / رومن اردو)</strong>
+                        <span>اردو اور رومن اردو میں لائیو گفتگو، آواز کی شناخت اور فیڈ بیک</span>
                       </div>
                     </label>
                   </div>
