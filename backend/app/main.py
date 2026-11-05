@@ -44,6 +44,7 @@ app.add_middleware(
         if isinstance(settings.ALLOWED_ORIGINS, list)
         else [str(settings.ALLOWED_ORIGINS)]
     ),
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -92,14 +93,15 @@ async def startup_event():
         
         # Verify / add additive columns for Mock Interview upgrades (backward-compatible)
         try:
-            with engine.connect() as conn:
-                conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_token VARCHAR(255);"))
-                conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS behavioral_metrics JSON;"))
-                conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS confidence_score FLOAT;"))
-                conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS avatar_latency_ms FLOAT;"))
-                conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS consent_granted BOOLEAN DEFAULT TRUE;"))
-                conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;"))
-                conn.commit()
+            if engine.dialect.name == "postgresql":
+                with engine.connect() as conn:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_token VARCHAR(255);"))
+                    conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS behavioral_metrics JSON;"))
+                    conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS confidence_score FLOAT;"))
+                    conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS avatar_latency_ms FLOAT;"))
+                    conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS consent_granted BOOLEAN DEFAULT TRUE;"))
+                    conn.execute(text("ALTER TABLE interviews ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;"))
+                    conn.commit()
         except Exception as mig_err:
             print(f"[INFO] Table alteration notice (e.g. SQLite or already present): {mig_err}")
 
