@@ -14,9 +14,18 @@ import {
   updateStepStatus,
 } from "../../services/roadmap";
 
+const DEFAULT_ROLES = [
+  "Frontend Developer",
+  "Backend Developer",
+  "Full Stack Developer",
+  "AI/ML Engineer",
+  "DevOps Engineer",
+  "Data Analyst",
+];
+
 export default function SkillsView({ onNavigate, defaultTab = "roadmap" }) {
   const [activeTab, setActiveTab] = useState(defaultTab); // "roadmap" | "gaps" | "mine" | "catalog"
-  const [roles, setRoles] = useState([]);
+  const [roles, setRoles] = useState(DEFAULT_ROLES);
   const [selectedRole, setSelectedRole] = useState("Frontend Developer");
   const [gapData, setGapData] = useState(null);
   const [mySkills, setMySkills] = useState([]);
@@ -60,14 +69,10 @@ export default function SkillsView({ onNavigate, defaultTab = "roadmap" }) {
         getCurrentRoadmap().catch(() => null),
       ]);
 
-      const availableRoles = rolesRes.roles || [
-        "Frontend Developer",
-        "Backend Developer",
-        "Full Stack Developer",
-        "AI/ML Engineer",
-        "DevOps Engineer",
-        "Data Analyst",
-      ];
+      const availableRoles =
+        (rolesRes && Array.isArray(rolesRes.roles) && rolesRes.roles.length > 0)
+          ? rolesRes.roles
+          : (Array.isArray(rolesRes) && rolesRes.length > 0 ? rolesRes : DEFAULT_ROLES);
       setRoles(availableRoles);
       setMySkills(myRes || []);
       setRoadmap(roadmapRes);
@@ -348,7 +353,9 @@ export default function SkillsView({ onNavigate, defaultTab = "roadmap" }) {
                 </div>
                 <div className="roadmap-stat-item">
                   <div className="roadmap-stat-num">
-                    {roadmap?.steps?.reduce((acc, s) => acc + (s.estimated_hours || 12), 0) || 75} hrs
+                    {roadmap?.steps && roadmap.steps.length > 0
+                      ? `${roadmap.steps.reduce((acc, s) => acc + (s.estimated_hours || 12), 0)} hrs`
+                      : "0 hrs"}
                   </div>
                   <div className="roadmap-stat-lbl">Est. Completion</div>
                 </div>

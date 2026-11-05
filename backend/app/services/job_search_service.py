@@ -135,6 +135,12 @@ def fetch_live_jobs_from_remotive(search_term: str = "") -> List[Dict[str, Any]]
 def fetch_live_jobs_from_arbeitnow() -> List[Dict[str, Any]]:
     """Fetch live tech jobs from Arbeitnow public API."""
     url = "https://www.arbeitnow.com/api/job-board-api"
+    tech_keywords = [
+        "developer", "engineer", "software", "frontend", "front-end", "backend", "back-end",
+        "full stack", "fullstack", "full-stack", "web", "python", "javascript", "react", "node",
+        "ai", "machine learning", "ml", "data", "devops", "cloud", "aws", "mobile", "ios",
+        "android", "architect", "programmer", "tech lead", "systems", "cyber"
+    ]
     try:
         with httpx.Client(timeout=4.0) as client:
             resp = client.get(url)
@@ -142,10 +148,16 @@ def fetch_live_jobs_from_arbeitnow() -> List[Dict[str, Any]]:
                 data = resp.json()
                 raw_jobs = data.get("data", [])
                 parsed = []
-                for j in raw_jobs[:20]:
+                for j in raw_jobs:
                     title = j.get("title", "Software Developer")
-                    company = j.get("company_name", "Global Firm")
                     tags = j.get("tags") or []
+                    
+                    # Strictly filter for tech and engineering roles
+                    haystack = (title + " " + " ".join(tags)).lower()
+                    if not any(k in haystack for k in tech_keywords):
+                        continue
+
+                    company = j.get("company_name", "Global Firm")
                     level = infer_experience_level(title)
                     category = infer_category(title, tags)
                     salary = format_live_salary("", level)
@@ -175,6 +187,8 @@ def fetch_live_jobs_from_arbeitnow() -> List[Dict[str, Any]]:
                         "google_jobs_url": f"https://www.google.com/search?q={google_query}&ibp=htl;jobs",
                         "linkedin_jobs_url": f"https://www.linkedin.com/jobs/search/?keywords={linkedin_query}",
                     })
+                    if len(parsed) >= 20:
+                        break
                 return parsed
     except Exception as exc:
         print(f"[WARN] Arbeitnow live job fetch warning: {exc}")

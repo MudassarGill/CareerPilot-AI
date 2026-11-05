@@ -32,19 +32,37 @@ export default function AIAvatarInterviewer({
   const breathPhaseRef = useRef(0);
 
   const personas = {
-    Mudassar : {
+    sarah: {
       name: "Mudassar Hussain",
       role: "Lead Technical Recruiter & Talent Partner",
-      badge: "AI HR INTERVIEWER",
+      badge: "AI TALENT PARTNER",
       skinTone: "#f5c6a5",
       hairColor: "#1e1e24",
       accentColor: "#f97316",
       suitColor: "#1e293b",
     },
-    Hussnina: {
-      name: "Hussnina Khan",
+    mudassar: {
+      name: "Mudassar Hussain",
+      role: "Lead Technical Recruiter & Talent Partner",
+      badge: "AI TALENT PARTNER",
+      skinTone: "#f5c6a5",
+      hairColor: "#1e1e24",
+      accentColor: "#f97316",
+      suitColor: "#1e293b",
+    },
+    marcus: {
+      name: "Hussnain Khan",
       role: "VP of Engineering & Systems Architect",
-      badge: "AI HR INTERVIEWER",
+      badge: "AI TECHNICAL ARCHITECT",
+      skinTone: "#d49b74",
+      hairColor: "#334155",
+      accentColor: "#38bdf8",
+      suitColor: "#0f172a",
+    },
+    hussnain: {
+      name: "Hussnain Khan",
+      role: "VP of Engineering & Systems Architect",
+      badge: "AI TECHNICAL ARCHITECT",
       skinTone: "#d49b74",
       hairColor: "#334155",
       accentColor: "#38bdf8",

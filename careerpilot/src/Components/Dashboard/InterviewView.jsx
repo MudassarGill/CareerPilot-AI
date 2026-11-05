@@ -224,8 +224,8 @@ export default function InterviewView({ onNavigate }) {
       setAvatarState("idle");
 
       const initialGreeting = interviewerPersona === "marcus"
-        ? `Hello! I am Marcus Vance, VP of Engineering. Welcome to your interview session for the ${newSession.role} position. Before we dive into technical architecture, could you please introduce yourself and tell me a bit about your background?`
-        : `Hello! I am Sarah Chen, your lead interviewer for today's session. It's wonderful to meet you! Before we start our technical questions for ${newSession.role}, could you please introduce yourself and tell me a bit about your background?`;
+        ? `Hello! I am Hussnain Khan, VP of Engineering. Welcome to your interview session for the ${newSession.role} position. Before we dive into technical architecture, could you please introduce yourself and tell me a bit about your background?`
+        : `Hello! I am Mudassar Hussain, your lead interviewer for today's session. It's wonderful to meet you! Before we start our technical questions for ${newSession.role}, could you please introduce yourself and tell me a bit about your background?`;
 
       setWarmupMessages([
         { sender: "avatar", text: initialGreeting, time: "Just now" }
@@ -1141,12 +1141,12 @@ export default function InterviewView({ onNavigate }) {
                     >
                       <div className="persona-card-top">
                         <div className="persona-avatar-wrap persona-avatar-wrap--sarah">
-                          <span className="persona-avatar-initials">SC</span>
+                          <span className="persona-avatar-initials">MH</span>
                           <span className="persona-online-dot" title="Active AI Persona" />
                         </div>
                         <div className="persona-header-text">
                           <div className="persona-name-row">
-                            <span className="persona-name">Sarah Chen</span>
+                            <span className="persona-name">Mudassar Hussain</span>
                             {interviewerPersona === "sarah" ? (
                               <span className="persona-selected-badge persona-badge--sarah">Active ✓</span>
                             ) : (
@@ -1182,12 +1182,12 @@ export default function InterviewView({ onNavigate }) {
                     >
                       <div className="persona-card-top">
                         <div className="persona-avatar-wrap persona-avatar-wrap--marcus">
-                          <span className="persona-avatar-initials">MV</span>
+                          <span className="persona-avatar-initials">HK</span>
                           <span className="persona-online-dot" title="Active AI Persona" />
                         </div>
                         <div className="persona-header-text">
                           <div className="persona-name-row">
-                            <span className="persona-name">Marcus Vance</span>
+                            <span className="persona-name">Hussnain Khan</span>
                             {interviewerPersona === "marcus" ? (
                               <span className="persona-selected-badge persona-badge--marcus">Active ✓</span>
                             ) : (
@@ -1517,7 +1517,7 @@ export default function InterviewView({ onNavigate }) {
                       >
                         <div className="warmup-bubble-sender">
                           {msg.sender === "avatar"
-                            ? (session.interviewer_persona === "marcus" ? "Marcus Vance (AI Interviewer)" : "Sarah Chen (AI Interviewer)")
+                            ? (session.interviewer_persona === "marcus" ? "Hussnain Khan (AI Interviewer)" : "Mudassar Hussain (AI Interviewer)")
                             : (candidateName ? `${candidateName} (You)` : "You (Candidate)")}
                         </div>
                         <div className="warmup-bubble-text">{msg.text}</div>

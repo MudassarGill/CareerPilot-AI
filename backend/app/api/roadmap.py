@@ -209,6 +209,7 @@ async def generate_roadmap(
         .all()
     )
     for r in existing:
+        db.query(LearningStep).filter(LearningStep.roadmap_id == r.id).delete()
         db.delete(r)
     db.commit()
 

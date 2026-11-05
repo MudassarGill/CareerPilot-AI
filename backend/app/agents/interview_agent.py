@@ -799,11 +799,11 @@ class InterviewAgent:
         is_ready = bool(re.search(ready_pattern, msg_clean, re.IGNORECASE))
 
         # Persona title & tone
-        if persona == "marcus":
-            interviewer_name = "Marcus Vance"
+        if persona in ("marcus", "hussnain"):
+            interviewer_name = "Hussnain Khan"
             interviewer_role = "VP of Engineering & Systems Architect"
         else:
-            interviewer_name = "Sarah Chen"
+            interviewer_name = "Mudassar Hussain"
             interviewer_role = "Lead Technical Recruiter & Talent Partner"
 
         # 4. Optional Gemini 1.5 Flash LLM call if API key configured
