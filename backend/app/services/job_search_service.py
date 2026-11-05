@@ -239,14 +239,18 @@ def fetch_live_jobs_from_jsearch(query: str, rapidapi_key: str) -> List[Dict[str
                     min_sal = item.get("job_min_salary")
                     max_sal = item.get("job_max_salary")
                     currency = item.get("job_salary_currency") or "$"
-                    if min_sal and max_sal:
+                    salary_str = item.get("job_salary_string")
+                    if salary_str and salary_str.strip():
+                        salary = salary_str.strip()
+                    elif min_sal and max_sal:
                         salary = f"{currency}{int(min_sal):,} - {currency}{int(max_sal):,}"
                     elif min_sal:
                         salary = f"{currency}{int(min_sal):,}+"
                     else:
                         salary = format_live_salary(None, infer_experience_level(title))
                         
-                    desc = clean_html(item.get("job_description"))
+                    raw_desc = item.get("job_description") or ""
+                    desc = clean_html(raw_desc)
                     skills = []
                     reqs = item.get("job_required_skills") or []
                     if isinstance(reqs, list):
@@ -262,6 +266,20 @@ def fetch_live_jobs_from_jsearch(query: str, rapidapi_key: str) -> List[Dict[str
                                     if len(w) > 2 and w.lower() in ["react", "node", "python", "javascript", "typescript", "aws", "docker", "kubernetes", "sql", "git", "api", "rest", "vue", "angular", "java", "c#", "go", "ci/cd", "graphql", "tailwind"]:
                                         if w not in skills:
                                             skills.append(w)
+
+                    # Extract tech keywords from description if skills still empty
+                    if not skills and raw_desc:
+                        common_tech = [
+                            "Python", "JavaScript", "TypeScript", "React", "Node.js", "Java", "C#",
+                            "AWS", "Azure", "GCP", "Docker", "Kubernetes", "SQL", "PostgreSQL",
+                            "MongoDB", "REST APIs", "Git", "CI/CD", "Angular", "Vue", "Spark", "Agile"
+                        ]
+                        desc_lower = raw_desc.lower()
+                        for tech in common_tech:
+                            if tech.lower() in desc_lower and tech not in skills:
+                                skills.append(tech)
+                            if len(skills) >= 6:
+                                break
 
                     if not skills:
                         skills = [infer_category(title, []), "Git", "REST APIs", "Problem Solving"]
