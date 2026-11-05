@@ -30,6 +30,7 @@ from app.schemas.jobs import (
     JobMarketSummary,
 )
 from app.services.job_search_service import get_realtime_jobs
+from app.services.skill_extractor import extract_skills_from_text
 
 router = APIRouter()
 
@@ -40,7 +41,7 @@ USER_JOB_STATES = {}  # { f"{user_id}:{job_id}": { "saved": bool, "applied": boo
 
 
 def _get_user_skill_names(db: Session, user_id) -> List[str]:
-    """Retrieve all skills associated with current user."""
+    """Retrieve all skills associated with current user from DB and resume text."""
     names = []
     try:
         skills = (
@@ -51,7 +52,7 @@ def _get_user_skill_names(db: Session, user_id) -> List[str]:
         )
         names = [s[0].lower() for s in skills]
 
-        # Also check latest parsed resume for extracted technical skills
+        # Also extract skills from latest resume raw text and sections
         latest_resume = (
             db.query(Resume)
             .filter(Resume.user_id == user_id)
@@ -59,11 +60,20 @@ def _get_user_skill_names(db: Session, user_id) -> List[str]:
             .first()
         )
         if latest_resume and latest_resume.parsed_data:
+            # First check if skills list was already populated on upload
             res_skills = latest_resume.parsed_data.get("skills", [])
-            if isinstance(res_skills, list):
+            if isinstance(res_skills, list) and res_skills:
                 for item in res_skills:
                     if isinstance(item, str) and item.lower() not in names:
                         names.append(item.lower())
+            else:
+                # Extract from raw_text and sections using skill extractor
+                raw_text = latest_resume.parsed_data.get("raw_text", "")
+                sections = latest_resume.parsed_data.get("sections", {})
+                extracted = extract_skills_from_text(raw_text, sections)
+                for sk in extracted:
+                    if sk.lower() not in names:
+                        names.append(sk.lower())
     except Exception as exc:
         print(f"[WARN] Error fetching user skills for jobs: {exc}")
 

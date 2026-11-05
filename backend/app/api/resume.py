@@ -16,13 +16,16 @@ Endpoints:
 from typing import List
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.services.auth import get_current_user
 from app.models.user import User
 from app.models.resume import Resume
+from app.models.skill import Skill, UserSkill
 from app.services.storage_service import StorageService
+from app.services.skill_extractor import extract_skills_from_text
 from app.agents.resume_agent import ResumeAnalyzerAgent
 from app.agents.ats_agent import ATSAgent
 from app.schemas.resume import (
@@ -64,11 +67,17 @@ async def upload_resume(
             detail=parsed_data["error"],
         )
 
-    # 3. Evaluate initial quality score
+    # 3. Extract technical skills and populate parsed_data
+    raw_text = parsed_data.get("raw_text", "")
+    sections = parsed_data.get("sections", {})
+    extracted_skills = extract_skills_from_text(raw_text, sections)
+    parsed_data["skills"] = extracted_skills
+
+    # 4. Evaluate initial quality score
     quality_result = await resume_agent.evaluate_quality(parsed_data)
     initial_score = float(quality_result.get("overall_score", 65.0))
 
-    # 4. Store in database
+    # 5. Store in database
     resume_record = Resume(
         user_id=current_user.id,
         file_url=file_url,
@@ -84,6 +93,39 @@ async def upload_resume(
     db.add(resume_record)
     db.commit()
     db.refresh(resume_record)
+
+    # 6. Synchronize extracted skills into UserSkill for CRS and Job Matching
+    if extracted_skills:
+        for sk_name in extracted_skills:
+            try:
+                sk_rec = db.query(Skill).filter(func.lower(Skill.name) == sk_name.lower()).first()
+                if not sk_rec:
+                    sk_rec = Skill(name=sk_name, category="Technical")
+                    db.add(sk_rec)
+                    db.commit()
+                    db.refresh(sk_rec)
+
+                existing = (
+                    db.query(UserSkill)
+                    .filter(UserSkill.user_id == current_user.id, UserSkill.skill_id == sk_rec.id)
+                    .first()
+                )
+                if not existing:
+                    new_usk = UserSkill(
+                        user_id=current_user.id,
+                        skill_id=sk_rec.id,
+                        level=80,
+                        target_level=100,
+                    )
+                    db.add(new_usk)
+            except Exception as sk_err:
+                db.rollback()
+                print(f"[WARN] Error syncing skill {sk_name}: {sk_err}")
+
+        try:
+            db.commit()
+        except Exception:
+            db.rollback()
 
     # Recalculate candidate CRS immediately with new resume ATS score
     try:
