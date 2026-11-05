@@ -79,7 +79,12 @@ async def health_check():
     Health check endpoint for monitoring and Docker health probes.
     Returns the current status of the application.
     """
-    return {"status": "healthy", "service": "CareerPilot AI Backend"}
+    from app.db.database import engine
+    return {
+        "status": "healthy",
+        "service": "CareerPilot AI Backend",
+        "db_dialect": engine.dialect.name,
+    }
 
 
 @app.on_event("startup")
