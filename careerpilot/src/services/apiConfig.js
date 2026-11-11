@@ -15,3 +15,4 @@ export const API_BASE_URL =
     : isLocal
     ? ""
     : "https://careerpilot-ai-3xth.onrender.com";
+
